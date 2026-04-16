@@ -3,6 +3,8 @@ import {
   getFirestore,
   collection,
   addDoc,
+  deleteDoc,
+  doc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.18.5/package/xlsx.mjs";
@@ -179,6 +181,12 @@ function openStudentPopup(s) {
           <img src="${s.profileImageUrl}" alt="Profile" class="popup-profile-img" onerror="this.style.display='none'">
         </div>` : ""}
       </div>
+
+      ${getCurrentUser()?.ADM_role === "admin" ? `
+      <div class="popup-actions">
+        <button class="delete-confirm-btn" type="button" onclick="confirmDeleteStudent('${s._docId}', '${(s.fullname || "this student").replace(/'/g, "\\'")}')">Delete Student</button>
+      </div>
+      ` : ""}
 
       <button class="popup-close-bottom" id="popupCloseBtnBottom">Close</button>
     </div>
@@ -406,6 +414,35 @@ function showToast(message, type = "success") {
     setTimeout(() => toast.remove(), 400);
   }, 3200);
 }
+
+window.confirmDeleteStudent = function (docId, studentName = "this student") {
+  if (!docId) return;
+  const confirmed = window.confirm(`Are you sure you want to permanently delete ${studentName}?`);
+  if (!confirmed) return;
+  window.deleteStudent(docId);
+};
+
+window.deleteStudent = async function (docId) {
+  const user = getCurrentUser();
+  if (!user || user.ADM_role !== "admin") {
+    showToast("⛔ Only admins can delete students.", "error");
+    return;
+  }
+
+  try {
+    await deleteDoc(doc(db, "RCMU_DB", docId));
+    const overlay = document.getElementById("studentPopup");
+    if (overlay) {
+      overlay.classList.remove("popup-visible");
+      overlay.classList.add("popup-hiding");
+      setTimeout(() => { overlay.remove(); document.body.style.overflow = ""; }, 320);
+    }
+    showToast("✅ Student removed from the database.", "success");
+  } catch (error) {
+    console.error(error);
+    showToast("❌ Could not delete student. Try again.", "error");
+  }
+};
 
 // ── ADMIN PAGE ────────────────────────────────────────────────────────────────
 
@@ -778,7 +815,7 @@ async function initStudentListPage() {
 
   onSnapshot(collection(db, "RCMU_DB"), snap => {
     students = [];
-    snap.forEach(d => students.push(d.data()));
+    snap.forEach(d => students.push({ _docId: d.id, ...d.data() }));
     renderStudents();
   });
 }

@@ -734,6 +734,12 @@ body {
   margin-bottom: 22px;
 }
 
+.popup-actions {
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .popup-field {
   display: flex;
   flex-direction: column;
