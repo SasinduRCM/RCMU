@@ -583,6 +583,10 @@ function getFilteredSortedStudents() {
   });
 }
 
+function getExportStudents() {
+  return getFilteredSortedStudents();
+}
+
 function renderStudents() {
   const list = document.getElementById("list");
   if (!list) return;
@@ -807,7 +811,7 @@ async function initStudentListPage() {
   });
 
   if (downloadBtn) downloadBtn.addEventListener("click", () => {
-    const vis = getFilteredSortedStudents();
+    const vis = getExportStudents();
     if (!vis.length) { alert("No student data to download."); return; }
     downloadStudentSheet(vis);
   });
