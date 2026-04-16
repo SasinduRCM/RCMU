@@ -675,7 +675,7 @@ window.saveStudent = async function () {
   try {
     await addDoc(collection(db, "RCMU_DB"), { ...data, createdAt: new Date().toISOString() });
     showMessage("msg", "✅ Student saved successfully.", "#86efac");
-    document.querySelectorAll(".form input").forEach(i => i.value = "");
+    document.querySelectorAll(".form input, .form select").forEach(i => i.value = "");
   } catch (error) {
     showMessage("msg", "❌ Error saving student.", "#fb7185");
     console.error(error);
