@@ -604,6 +604,7 @@ function renderStudents() {
         <div class="table-row header">
           <div>Name</div><div>ID</div><div>Grade</div>
           <div>Role</div><div>Status</div><div>Email</div>
+          <div>Address</div><div>Birthday</div>
         </div>
     `;
     sorted.forEach((s, i) => {
@@ -678,6 +679,25 @@ function downloadStudentSheet(studentsToExport) {
     s.profileImageUrl || ""
   ]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+  // Set column widths for better table appearance
+  ws['!cols'] = [
+    { wch: 20 }, // Name
+    { wch: 15 }, // Nickname
+    { wch: 10 }, // ID
+    { wch: 8 },  // Grade
+    { wch: 18 }, // Role
+    { wch: 12 }, // Department
+    { wch: 8 },  // Status
+    { wch: 12 }, // Experience
+    { wch: 25 }, // Email
+    { wch: 15 }, // Phone
+    { wch: 20 }, // Address
+    { wch: 12 }, // Birthday
+    { wch: 12 }, // Joined Year
+    { wch: 25 }  // Profile Image URL
+  ];
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "RCMU Students");
   const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
