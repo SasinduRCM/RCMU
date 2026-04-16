@@ -668,10 +668,14 @@ function renderStudents() {
 }
 
 function downloadStudentSheet(studentsToExport) {
-  const headers = ["Name","ID","Grade","Role","Department","Status","Experience","Email","Phone","Address","Birthday","Joined Year","Profile URL"];
+  const headers = [
+    "Name", "Nickname", "ID", "Grade", "Role", "Department", "Status",
+    "Experience", "Email", "Phone", "Address", "Birthday", "Joined Year", "Profile Image URL"
+  ];
   const rows = studentsToExport.map(s => [
-    s.fullname, s.studentId, s.grade, s.role, s.department,
-    s.status, s.experienceLevel, s.email, s.phone, s.address, s.birthday, s.joinedYear, s.profileImageUrl || ""
+    s.fullname, s.nickname || "", s.studentId, s.grade, s.role, s.department,
+    s.status, s.experienceLevel, s.email, s.phone, s.address, s.birthday, s.joinedYear,
+    s.profileImageUrl || ""
   ]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
   const wb = XLSX.utils.book_new();
