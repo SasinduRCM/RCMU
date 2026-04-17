@@ -112,6 +112,7 @@ function openStudentPopup(s) {
   const canEditDuty = ["admin", "editor"].includes(getCurrentUser()?.ADM_role);
   const canEditAchievements = canEditDuty;
   const canEditDetails = getCurrentUser()?.ADM_role === "admin";
+  const isAdmin = canEditDetails;
 
   const overlay = document.createElement("div");
   overlay.id = "studentPopup";
@@ -187,8 +188,8 @@ function openStudentPopup(s) {
           <span class="popup-label">Address</span>
           <span class="popup-value">${s.address || "—"}</span>
         </div>
-        ${getDutyActivitiesHtml(s)}
-        ${getAchievementsHtml(s)}
+        ${getDutyActivitiesHtml(s, isAdmin)}
+        ${getAchievementsHtml(s, isAdmin)}
         ${s.profileImageUrl ? `
         <div class="popup-field popup-field-full">
           <span class="popup-label">Profile Image</span>
@@ -201,8 +202,9 @@ function openStudentPopup(s) {
         ${canEditDetails ? `<button class="popup-action-btn" type="button" onclick="openStudentEditor()">Edit Details</button>` : ""}
         ${canEditDuty ? `<button class="popup-action-btn" type="button" onclick="openDutyEditor()">Update Duty</button>` : ""}
         ${canEditAchievements ? `<button class="popup-action-btn" type="button" onclick="openAchievementEditor()">Update Achievements</button>` : ""}
+        ${canEditDetails ? `<button class="popup-action-btn" type="button" onclick="deleteSelectedHistory()">Delete Selected History</button>` : ""}
+        ${canEditDetails ? `<button class="delete-confirm-btn" type="button" onclick="clearStudentHistory('${s._docId}')">Clear All History</button>` : ""}
         ${canEditDetails ? `<button class="delete-confirm-btn" type="button" onclick="confirmDeleteStudent('${s._docId}', '${(s.fullname || "this student").replace(/'/g, "\\'")}')">Delete Student</button>` : ""}
-        ${canEditDetails ? `<button class="delete-confirm-btn" type="button" onclick="clearStudentHistory('${s._docId}')">Clear Duty & Achievements</button>` : ""}
       </div>
       ` : ""}
 
@@ -613,6 +615,54 @@ window.saveAchievementDetails = async function (docId, achievement) {
   }
 };
 
+window.deleteSelectedHistory = async function () {
+  const student = window.currentStudentDoc;
+  if (!student || !student._docId) return;
+
+  const selected = Array.from(document.querySelectorAll("#studentPopup .history-checkbox:checked"));
+  if (!selected.length) {
+    showToast("⚠️ Select at least one duty activity or achievement to delete.", "error");
+    return;
+  }
+
+  const selectedByType = { duty: [], achievement: [] };
+  selected.forEach(el => {
+    const type = el.dataset.entryType;
+    const index = Number(el.dataset.entryIndex);
+    if (!Number.isNaN(index) && selectedByType[type]) selectedByType[type].push(index);
+  });
+
+  const existingActivities = getDutyActivitiesList(student);
+  const existingAchievements = getAchievementsList(student);
+  const removeSorted = indices => [...new Set(indices)].sort((a, b) => b - a);
+  const updatedActivities = removeSorted(selectedByType.duty).reduce((arr, idx) => {
+    if (idx >= 0 && idx < arr.length) arr.splice(idx, 1);
+    return arr;
+  }, [...existingActivities]);
+  const updatedAchievements = removeSorted(selectedByType.achievement).reduce((arr, idx) => {
+    if (idx >= 0 && idx < arr.length) arr.splice(idx, 1);
+    return arr;
+  }, [...existingAchievements]);
+
+  try {
+    await updateDoc(doc(db, "RCMU_DB", student._docId), {
+      dutyActivities: updatedActivities,
+      achievements: updatedAchievements
+    });
+
+    if (window.currentStudentDoc) {
+      window.currentStudentDoc.dutyActivities = updatedActivities;
+      window.currentStudentDoc.achievements = updatedAchievements;
+    }
+    renderStudents();
+    openStudentPopup(window.currentStudentDoc);
+    showToast("✅ Selected history items deleted.", "success");
+  } catch (error) {
+    console.error(error);
+    showToast("❌ Could not delete selected items.", "error");
+  }
+};
+
 window.clearStudentHistory = async function (docId) {
   const confirmed = window.confirm("Clear all duty activities and achievements for this student? This cannot be undone.");
   if (!confirmed) return;
@@ -806,7 +856,7 @@ function getDutyPercentageGraph(value, inline = false) {
   `;
 }
 
-function getDutyActivitiesHtml(student) {
+function getDutyActivitiesHtml(student, isAdmin = false) {
   const list = getDutyActivitiesList(student);
   if (!list.length) {
     return `<div class="popup-field popup-field-full"><span class="popup-label">Duty Activities</span><span class="popup-value">—</span></div>`;
@@ -815,7 +865,12 @@ function getDutyActivitiesHtml(student) {
     <div class="popup-field popup-field-full">
       <span class="popup-label">Duty Activities</span>
       <div class="popup-value popup-value-list">
-        ${list.map((entry, index) => `<div class="duty-entry"><strong>${index + 1}.</strong> ${entry.text}</div>`).join("")}
+        ${list.map((entry, index) => `
+          <label class="history-item">
+            ${isAdmin ? `<input type="checkbox" class="history-checkbox" data-entry-type="duty" data-entry-index="${index}">` : ""}
+            <span class="history-text"><strong>${index + 1}.</strong> ${entry.text}</span>
+          </label>
+        `).join("")}
       </div>
     </div>
   `;
@@ -835,7 +890,7 @@ function getLatestAchievementText(student) {
   return list.length ? list[list.length - 1].text : "";
 }
 
-function getAchievementsHtml(student) {
+function getAchievementsHtml(student, isAdmin = false) {
   const list = getAchievementsList(student);
   if (!list.length) {
     return `<div class="popup-field popup-field-full"><span class="popup-label">Achievements</span><span class="popup-value">—</span></div>`;
@@ -844,7 +899,12 @@ function getAchievementsHtml(student) {
     <div class="popup-field popup-field-full">
       <span class="popup-label">Achievements</span>
       <div class="popup-value popup-value-list">
-        ${list.map((entry, index) => `<div class="achievement-entry"><strong>${index + 1}.</strong> ${entry.text}</div>`).join("")}
+        ${list.map((entry, index) => `
+          <label class="history-item">
+            ${isAdmin ? `<input type="checkbox" class="history-checkbox" data-entry-type="achievement" data-entry-index="${index}">` : ""}
+            <span class="history-text"><strong>${index + 1}.</strong> ${entry.text}</span>
+          </label>
+        `).join("")}
       </div>
     </div>
   `;

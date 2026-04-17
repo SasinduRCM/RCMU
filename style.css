@@ -769,9 +769,32 @@ body {
 }
 
 .duty-entry,
-.achievement-entry {
+.achievement-entry,
+.history-item {
   display: block;
   margin-bottom: 8px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(148,163,184,0.08);
+  border: 1px solid rgba(148,163,184,0.12);
+}
+
+.history-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.history-item .history-text {
+  flex: 1;
+  line-height: 1.4;
+  color: var(--text);
 }
 
 .popup-field-full {
