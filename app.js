@@ -5,6 +5,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  updateDoc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.18.5/package/xlsx.mjs";
@@ -104,9 +105,13 @@ function saveAdminUsers() {
 function openStudentPopup(s) {
   const existing = document.getElementById("studentPopup");
   if (existing) existing.remove();
+  window.currentStudentDoc = s;
 
   const initials = (s.fullname || "?").split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
   const statusClass = s.status?.toLowerCase() === "active" ? "status-active" : "status-inactive";
+  const canEditDuty = ["admin", "editor"].includes(getCurrentUser()?.ADM_role);
+  const canEditAchievements = canEditDuty;
+  const canEditDetails = getCurrentUser()?.ADM_role === "admin";
 
   const overlay = document.createElement("div");
   overlay.id = "studentPopup";
@@ -128,7 +133,10 @@ function openStudentPopup(s) {
         <div class="popup-header-info">
           <h2 class="popup-name">${s.fullname}</h2>
           ${s.nickname ? `<p class="popup-nickname">"${s.nickname}"</p>` : ""}
-          <span class="status-badge ${statusClass}">${s.status || "—"}</span>
+          <div class="popup-status-row">
+            <span class="status-badge ${statusClass}">${s.status || "—"}</span>
+            ${getDutyPercentageGraph(s.dutyPercentage, true)}
+          </div>
         </div>
       </div>
 
@@ -156,6 +164,10 @@ function openStudentPopup(s) {
           <span class="popup-value">${s.experienceLevel || "—"}</span>
         </div>
         <div class="popup-field">
+          <span class="popup-label">Duty %</span>
+          <span class="popup-value">${s.dutyPercentage != null ? s.dutyPercentage + '%' : "—"}</span>
+        </div>
+        <div class="popup-field">
           <span class="popup-label">Birthday</span>
           <span class="popup-value">${s.birthday || "—"}</span>
         </div>
@@ -175,6 +187,8 @@ function openStudentPopup(s) {
           <span class="popup-label">Address</span>
           <span class="popup-value">${s.address || "—"}</span>
         </div>
+        ${getDutyActivitiesHtml(s)}
+        ${getAchievementsHtml(s)}
         ${s.profileImageUrl ? `
         <div class="popup-field popup-field-full">
           <span class="popup-label">Profile Image</span>
@@ -182,9 +196,13 @@ function openStudentPopup(s) {
         </div>` : ""}
       </div>
 
-      ${getCurrentUser()?.ADM_role === "admin" ? `
+      ${(canEditDetails || canEditDuty || canEditAchievements) ? `
       <div class="popup-actions">
-        <button class="delete-confirm-btn" type="button" onclick="confirmDeleteStudent('${s._docId}', '${(s.fullname || "this student").replace(/'/g, "\\'")}')">Delete Student</button>
+        ${canEditDetails ? `<button class="popup-action-btn" type="button" onclick="openStudentEditor()">Edit Details</button>` : ""}
+        ${canEditDuty ? `<button class="popup-action-btn" type="button" onclick="openDutyEditor()">Update Duty</button>` : ""}
+        ${canEditAchievements ? `<button class="popup-action-btn" type="button" onclick="openAchievementEditor()">Update Achievements</button>` : ""}
+        ${canEditDetails ? `<button class="delete-confirm-btn" type="button" onclick="confirmDeleteStudent('${s._docId}', '${(s.fullname || "this student").replace(/'/g, "\\'")}')">Delete Student</button>` : ""}
+        ${canEditDetails ? `<button class="delete-confirm-btn" type="button" onclick="clearStudentHistory('${s._docId}')">Clear Duty & Achievements</button>` : ""}
       </div>
       ` : ""}
 
@@ -444,6 +462,178 @@ window.deleteStudent = async function (docId) {
   }
 };
 
+window.openDutyEditor = function () {
+  const student = window.currentStudentDoc;
+  if (!student || !student._docId) return;
+
+  const currentActivities = getDutyActivitiesList(student).map(entry => entry.text).join("\n");
+  const activitiesText = window.prompt("Edit weekly duty activities (one activity per line):", currentActivities);
+  if (activitiesText === null) return;
+
+  const activityLines = activitiesText
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(text => ({ text, createdAt: new Date().toISOString() }));
+
+  const percentageRaw = window.prompt("Enter duty completion percentage (0-100):", student.dutyPercentage != null ? student.dutyPercentage : "");
+  if (percentageRaw === null) return;
+
+  const percentage = Number(percentageRaw);
+  if (Number.isNaN(percentage) || percentage < 0 || percentage > 100) {
+    showToast("⚠️ Duty % must be a number between 0 and 100.", "error");
+    return;
+  }
+
+  window.saveDutyDetails(student._docId, activityLines, percentage, true);
+};
+
+window.openStudentEditor = async function () {
+  const student = window.currentStudentDoc;
+  if (!student || !student._docId) return;
+
+  const user = getCurrentUser();
+  if (!user || user.ADM_role !== "admin") {
+    showToast("⛔ Only admins can edit student details.", "error");
+    return;
+  }
+
+  const fields = [
+    { key: "fullname", label: "Full Name" },
+    { key: "nickname", label: "Nickname" },
+    { key: "studentId", label: "Student ID" },
+    { key: "grade", label: "Grade" },
+    { key: "role", label: "Role" },
+    { key: "department", label: "Department" },
+    { key: "experienceLevel", label: "Experience Level" },
+    { key: "status", label: "Status" },
+    { key: "dutyPercentage", label: "Duty Percentage" },
+    { key: "birthday", label: "Birthday" },
+    { key: "joinedYear", label: "Joined Year" },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone" },
+    { key: "address", label: "Address" }
+  ];
+
+  const updated = {};
+  for (const field of fields) {
+    const currentValue = student[field.key] != null ? student[field.key] : "";
+    const value = window.prompt(`Edit ${field.label}:`, currentValue);
+    if (value === null) return;
+    if (field.key === "dutyPercentage") {
+      const trimmed = value.trim();
+      updated.dutyPercentage = trimmed === "" ? null : Number(trimmed);
+      if (trimmed !== "" && (Number.isNaN(updated.dutyPercentage) || updated.dutyPercentage < 0 || updated.dutyPercentage > 100)) {
+        showToast("⚠️ Duty % must be a number between 0 and 100.", "error");
+        return;
+      }
+    } else {
+      updated[field.key] = value.trim();
+    }
+  }
+
+  try {
+    await updateDoc(doc(db, "RCMU_DB", student._docId), updated);
+    Object.assign(student, updated);
+    window.currentStudentDoc = student;
+    renderStudents();
+    showToast("✅ Student details updated.", "success");
+    openStudentPopup(student);
+  } catch (error) {
+    console.error(error);
+    showToast("❌ Could not update student details.", "error");
+  }
+};
+
+window.saveDutyDetails = async function (docId, activities, percentage, overwrite = false) {
+  try {
+    const current = window.currentStudentDoc;
+    const existingActivities = getDutyActivitiesList(current);
+    let updatedActivities;
+
+    if (Array.isArray(activities)) {
+      updatedActivities = overwrite ? activities : [...existingActivities, ...activities];
+    } else {
+      const newEntry = { text: activities, createdAt: new Date().toISOString() };
+      updatedActivities = overwrite ? [newEntry] : [...existingActivities, newEntry];
+    }
+
+    await updateDoc(doc(db, "RCMU_DB", docId), {
+      dutyActivities: updatedActivities,
+      dutyPercentage: percentage,
+      dutyUpdatedAt: new Date().toISOString()
+    });
+
+    if (window.currentStudentDoc) {
+      window.currentStudentDoc.dutyActivities = updatedActivities;
+      window.currentStudentDoc.dutyPercentage = percentage;
+    }
+    renderStudents();
+    showToast("✅ Duty details updated.", "success");
+  } catch (error) {
+    console.error(error);
+    showToast("❌ Could not update duty details.", "error");
+  }
+};
+
+window.openAchievementEditor = function () {
+  const student = window.currentStudentDoc;
+  if (!student || !student._docId) return;
+
+  const achievementText = window.prompt("Enter new achievement:", "");
+  if (achievementText === null) return;
+  const trimmed = achievementText.trim();
+  if (!trimmed) {
+    showToast("⚠️ Achievement cannot be empty.", "error");
+    return;
+  }
+
+  window.saveAchievementDetails(student._docId, trimmed);
+};
+
+window.saveAchievementDetails = async function (docId, achievement) {
+  try {
+    const current = window.currentStudentDoc;
+    const existingAchievements = getAchievementsList(current);
+    const entry = { text: achievement, createdAt: new Date().toISOString() };
+    const updatedAchievements = [...existingAchievements, entry];
+
+    await updateDoc(doc(db, "RCMU_DB", docId), {
+      achievements: updatedAchievements
+    });
+
+    if (window.currentStudentDoc) {
+      window.currentStudentDoc.achievements = updatedAchievements;
+    }
+    renderStudents();
+    showToast("✅ Achievement added.", "success");
+  } catch (error) {
+    console.error(error);
+    showToast("❌ Could not add achievement.", "error");
+  }
+};
+
+window.clearStudentHistory = async function (docId) {
+  const confirmed = window.confirm("Clear all duty activities and achievements for this student? This cannot be undone.");
+  if (!confirmed) return;
+
+  try {
+    await updateDoc(doc(db, "RCMU_DB", docId), {
+      dutyActivities: [],
+      achievements: []
+    });
+    if (window.currentStudentDoc) {
+      window.currentStudentDoc.dutyActivities = [];
+      window.currentStudentDoc.achievements = [];
+    }
+    renderStudents();
+    showToast("✅ Duty activities and achievements cleared.", "success");
+  } catch (error) {
+    console.error(error);
+    showToast("❌ Could not clear history.", "error");
+  }
+};
+
 // ── ADMIN PAGE ────────────────────────────────────────────────────────────────
 
 window.createUser = function () {
@@ -587,6 +777,79 @@ function getExportStudents() {
   return getFilteredSortedStudents();
 }
 
+function getDutyActivitiesList(student) {
+  if (!student) return [];
+  if (Array.isArray(student.dutyActivities)) return student.dutyActivities;
+  if (typeof student.dutyActivities === "string" && student.dutyActivities.trim()) {
+    return [{ text: student.dutyActivities, createdAt: student.dutyUpdatedAt || "" }];
+  }
+  return [];
+}
+
+function getLatestDutyActivityText(student) {
+  const list = getDutyActivitiesList(student);
+  return list.length ? list[list.length - 1].text : "";
+}
+
+function getDutyPercentageGraph(value, inline = false) {
+  if (value == null || Number.isNaN(Number(value))) {
+    return `<span class="duty-graph-empty">—</span>`;
+  }
+  const percent = Math.max(0, Math.min(100, Number(value)));
+  return `
+    <div class="duty-graph${inline ? ' duty-graph-inline' : ''}" title="${percent}% duty completion">
+      <div class="duty-graph-track">
+        <div class="duty-graph-fill" style="width:${percent}%"></div>
+      </div>
+      <span class="duty-graph-label">${percent}%</span>
+    </div>
+  `;
+}
+
+function getDutyActivitiesHtml(student) {
+  const list = getDutyActivitiesList(student);
+  if (!list.length) {
+    return `<div class="popup-field popup-field-full"><span class="popup-label">Duty Activities</span><span class="popup-value">—</span></div>`;
+  }
+  return `
+    <div class="popup-field popup-field-full">
+      <span class="popup-label">Duty Activities</span>
+      <div class="popup-value popup-value-list">
+        ${list.map((entry, index) => `<div class="duty-entry"><strong>${index + 1}.</strong> ${entry.text}</div>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function getAchievementsList(student) {
+  if (!student) return [];
+  if (Array.isArray(student.achievements)) return student.achievements;
+  if (typeof student.achievements === "string" && student.achievements.trim()) {
+    return [{ text: student.achievements, createdAt: student.achievementUpdatedAt || "" }];
+  }
+  return [];
+}
+
+function getLatestAchievementText(student) {
+  const list = getAchievementsList(student);
+  return list.length ? list[list.length - 1].text : "";
+}
+
+function getAchievementsHtml(student) {
+  const list = getAchievementsList(student);
+  if (!list.length) {
+    return `<div class="popup-field popup-field-full"><span class="popup-label">Achievements</span><span class="popup-value">—</span></div>`;
+  }
+  return `
+    <div class="popup-field popup-field-full">
+      <span class="popup-label">Achievements</span>
+      <div class="popup-value popup-value-list">
+        ${list.map((entry, index) => `<div class="achievement-entry"><strong>${index + 1}.</strong> ${entry.text}</div>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderStudents() {
   const list = document.getElementById("list");
   if (!list) return;
@@ -607,16 +870,17 @@ function renderStudents() {
       <div class="student-table">
         <div class="table-row header">
           <div>Name</div><div>ID</div><div>Grade</div>
-          <div>Role</div><div>Status</div><div>Email</div>
-          <div>Address</div><div>Birthday</div>
+          <div>Role</div><div>Status</div><div>Duty %</div><div>Activity</div><div>Achievement</div>
+          <div>Email</div><div>Address</div><div>Birthday</div>
         </div>
     `;
     sorted.forEach((s, i) => {
       html += `
         <div class="table-row clickable-row" data-idx="${i}" style="animation-delay:${i * 0.04}s">
           <div>${s.fullname}</div><div>${s.studentId}</div><div>${s.grade}</div>
-          <div>${s.role}</div><div>${s.status}</div><div>${s.email}</div>
-          <div>${s.address || "—"}</div><div>${s.birthday || "—"}</div>
+          <div>${s.role}</div><div>${s.status} ${getDutyPercentageGraph(s.dutyPercentage, true)}</div><div>${s.dutyPercentage != null ? s.dutyPercentage + '%' : "—"}</div>
+          <div>${getLatestDutyActivityText(s) || "—"}</div><div>${getLatestAchievementText(s) || "—"}</div>
+          <div>${s.email}</div><div>${s.address || "—"}</div><div>${s.birthday || "—"}</div>
         </div>
       `;
     });
@@ -643,7 +907,10 @@ function renderStudents() {
           <div class="card-avatar">${initials}</div>
           <div class="card-header-info">
             <h2>${s.fullname}</h2>
-            <span class="status-badge ${statusClass}">${s.status || "—"}</span>
+            <div class="card-status-row">
+              <span class="status-badge ${statusClass}">${s.status || "—"}</span>
+              ${getDutyPercentageGraph(s.dutyPercentage, true)}
+            </div>
           </div>
         </div>
         <div class="card-body">
@@ -652,6 +919,9 @@ function renderStudents() {
           <p><strong>Role</strong>  <span>${s.role}</span></p>
           <p><strong>Dept</strong>  <span>${s.department}</span></p>
           <p><strong>Exp</strong>   <span>${s.experienceLevel}</span></p>
+          <p><strong>Duty %</strong> <span>${s.dutyPercentage != null ? s.dutyPercentage + '%' : "—"}</span></p>
+          <p><strong>Activity</strong> <span>${getLatestDutyActivityText(s) ? (getLatestDutyActivityText(s).length > 40 ? getLatestDutyActivityText(s).slice(0, 40) + '…' : getLatestDutyActivityText(s)) : "—"}</span></p>
+          <p><strong>Achievement</strong> <span>${getLatestAchievementText(s) ? (getLatestAchievementText(s).length > 40 ? getLatestAchievementText(s).slice(0, 40) + '…' : getLatestAchievementText(s)) : "—"}</span></p>
           <p><strong>Email</strong> <span>${s.email}</span></p>
           <p><strong>Address</strong> <span>${s.address || "—"}</span></p>
           <p><strong>Birthday</strong> <span>${s.birthday || "—"}</span></p>
@@ -675,12 +945,14 @@ function renderStudents() {
 function downloadStudentSheet(studentsToExport) {
   const headers = [
     "Name", "Nickname", "ID", "Grade", "Role", "Department", "Status",
-    "Experience", "Email", "Phone", "Address", "Birthday", "Joined Year", "Profile Image URL"
+    "Experience", "Duty %", "Duty Activities", "Achievements", "Email", "Phone", "Address", "Birthday", "Joined Year", "Profile Image URL"
   ];
   const rows = studentsToExport.map(s => [
     s.fullname, s.nickname || "", s.studentId, s.grade, s.role, s.department,
-    s.status, s.experienceLevel, s.email, s.phone, s.address, s.birthday, s.joinedYear,
-    s.profileImageUrl || ""
+    s.status, s.experienceLevel, s.dutyPercentage != null ? `${s.dutyPercentage}%` : "",
+    getDutyActivitiesList(s).map((entry, index) => `${index + 1}. ${entry.text}`).join(" \n"),
+    getAchievementsList(s).map((entry, index) => `${index + 1}. ${entry.text}`).join(" \n"),
+    s.email, s.phone, s.address, s.birthday, s.joinedYear, s.profileImageUrl || ""
   ]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 
@@ -694,6 +966,9 @@ function downloadStudentSheet(studentsToExport) {
     { wch: 12 }, // Department
     { wch: 8 },  // Status
     { wch: 12 }, // Experience
+    { wch: 8 },  // Duty %
+    { wch: 30 }, // Duty Activities
+    { wch: 30 }, // Achievements
     { wch: 25 }, // Email
     { wch: 15 }, // Phone
     { wch: 20 }, // Address
@@ -721,11 +996,19 @@ window.saveStudent = async function () {
   if (!user) return;
 
   const fields = ["fullname","nickname","studentId","grade","role","department","status",
-                  "experienceLevel","profileImageUrl","email","phone","address","birthday","joinedYear"];
+                  "experienceLevel","dutyPercentage","dutyActivities","achievements","profileImageUrl","email","phone","address","birthday","joinedYear"];
   const required = ["fullname","studentId","grade","role","department","status","experienceLevel","email","phone","address","birthday","joinedYear"];
 
   const data = {};
-  for (const f of fields) data[f] = document.getElementById(f)?.value.trim() || "";
+  for (const f of fields) {
+    const raw = document.getElementById(f)?.value.trim() || "";
+    if (f === "dutyActivities" || f === "achievements") {
+      data[f] = raw ? [{ text: raw, createdAt: new Date().toISOString() }] : [];
+    } else {
+      data[f] = raw;
+    }
+  }
+  if (data.dutyPercentage) data.dutyPercentage = Number(data.dutyPercentage);
 
   for (const f of required) {
     if (!data[f]) {
@@ -740,7 +1023,7 @@ window.saveStudent = async function () {
   try {
     await addDoc(collection(db, "RCMU_DB"), { ...data, createdAt: new Date().toISOString() });
     showMessage("msg", "✅ Student saved successfully.", "#86efac");
-    document.querySelectorAll(".form input, .form select").forEach(i => i.value = "");
+    document.querySelectorAll(".form input, .form select, .form textarea").forEach(i => i.value = "");
   } catch (error) {
     showMessage("msg", "❌ Error saving student.", "#fb7185");
     console.error(error);

@@ -477,6 +477,13 @@ body {
   margin-bottom: 5px;
 }
 
+.card-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .status-badge {
   display: inline-block;
   padding: 2px 10px;
@@ -548,18 +555,23 @@ body {
 
 /* ── TABLE VIEW ───────────────────────────────────────────── */
 .student-table {
+  width: 100%;
+  display: block;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   overflow: hidden;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   animation: fadeSlideUp 0.4s cubic-bezier(.22,1,.36,1) both;
 }
 
 .table-row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 0.7fr 1.1fr 0.9fr 1.3fr 1.5fr 1.1fr;
+  min-width: 1280px;
+  grid-template-columns: 1.4fr 1fr 0.7fr 1.1fr 0.9fr 0.8fr 1.3fr 1.5fr 1.1fr 1fr 1fr;
   border-bottom: 1px solid var(--border);
   transition: background var(--transition);
+  white-space: nowrap;
 }
 
 .table-row:last-child { border-bottom: none; }
@@ -578,6 +590,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .table-row.header > div {
@@ -705,6 +718,13 @@ body {
   margin-bottom: 4px;
 }
 
+.popup-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .popup-nickname {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -737,6 +757,8 @@ body {
 .popup-actions {
   margin-bottom: 18px;
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: flex-end;
 }
 
@@ -744,6 +766,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.duty-entry,
+.achievement-entry {
+  display: block;
+  margin-bottom: 8px;
 }
 
 .popup-field-full {
@@ -767,6 +795,61 @@ body {
   border-radius: var(--radius-sm);
   padding: 8px 12px;
   word-break: break-word;
+}
+
+.popup-duty-graph {
+  padding: 10px 0 8px;
+}
+
+.duty-graph,
+.duty-card-graph {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 180px;
+}
+
+.duty-graph-inline {
+  max-width: 100px;
+  min-width: 100px;
+  align-items: center;
+}
+
+.duty-graph-inline .duty-graph-label {
+  display: none;
+}
+
+.duty-graph-track {
+  width: 100%;
+  height: 10px;
+  background: var(--border-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.duty-graph-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #0ea5e9);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.duty-graph-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.duty-graph-empty {
+  color: var(--text-muted);
+}
+
+.card-body .duty-card-graph {
+  max-width: 100%;
+}
+
+.table-row .duty-graph {
+  margin-top: 4px;
 }
 
 .popup-profile-img {
@@ -797,6 +880,26 @@ body {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-glow);
+}
+
+.popup-action-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-bottom: 14px;
+}
+
+.popup-action-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
 }
 
 /* ── EDIT ADMIN MODAL ─────────────────────────────────────── */
@@ -1090,8 +1193,13 @@ body {
   margin-bottom: 20px;
 }
 
+.form-grid .full-row {
+  grid-column: 1 / -1;
+}
+
 .form input,
-.form select {
+.form select,
+.form textarea {
   width: 100%;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
@@ -1102,6 +1210,11 @@ body {
   font-size: 0.88rem;
   outline: none;
   transition: border-color var(--transition), box-shadow var(--transition), transform 0.15s;
+}
+
+.form textarea {
+  min-height: 96px;
+  resize: vertical;
 }
 
 .form input::placeholder { color: var(--text-muted); }
@@ -1396,10 +1509,6 @@ button[onclick="saveStudent()"]:active { transform: translateY(0); }
 }
 
 /* Brand column */
-.footer-brand {
-
-}
-
 .footer-logos {
   display: flex;
   align-items: center;
@@ -1658,8 +1767,8 @@ button[onclick="saveStudent()"]:active { transform: translateY(0); }
   .student-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
 
   .table-row {
-    grid-template-columns: 150px 85px 65px 100px 75px 170px 120px 100px;
-    min-width: 880px;
+    grid-template-columns: 150px 85px 65px 100px 75px 60px 110px 140px 170px 100px 100px;
+    min-width: 1280px;
   }
 
   .table-row > div { padding: 11px 12px; font-size: 0.78rem; }
@@ -1667,7 +1776,9 @@ button[onclick="saveStudent()"]:active { transform: translateY(0); }
   .form { padding: 20px 14px 18px; }
   .form-grid { grid-template-columns: 1fr; gap: 11px; }
   .form input,
-  .form select { padding: 12px 13px; font-size: 0.88rem; }
+  .form select,
+  .form textarea { padding: 12px 13px; font-size: 0.88rem; }
+  .form textarea { min-height: 96px; resize: vertical; }
 
   .panel-card { padding: 20px 16px; }
 
