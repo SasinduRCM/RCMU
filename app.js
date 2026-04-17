@@ -1061,7 +1061,19 @@ window.saveStudent = async function () {
 
   const data = {};
   for (const f of fields) {
-    const raw = document.getElementById(f)?.value.trim() || "";
+    let raw = "";
+    if (f === "role") {
+      const roleCount = Number(document.getElementById("roleCount")?.value || 0);
+      const values = [];
+      for (let i = 1; i <= roleCount; i += 1) {
+        const field = document.getElementById(`roleField${i}`);
+        if (field?.value.trim()) values.push(field.value.trim());
+      }
+      raw = values.join(" / ");
+    } else {
+      const el = document.getElementById(f);
+      raw = el?.value.trim() || "";
+    }
     if (f === "dutyActivities" || f === "achievements") {
       data[f] = raw ? [{ text: raw, createdAt: new Date().toISOString() }] : [];
     } else {
@@ -1084,6 +1096,15 @@ window.saveStudent = async function () {
     await addDoc(collection(db, "RCMU_DB"), { ...data, createdAt: new Date().toISOString() });
     showMessage("msg", "✅ Student saved successfully.", "#86efac");
     document.querySelectorAll(".form input, .form select, .form textarea").forEach(i => i.value = "");
+    const roleCount = document.getElementById("roleCount");
+    if (roleCount) roleCount.value = "";
+    for (let i = 1; i <= 3; i += 1) {
+      const field = document.getElementById(`roleField${i}`);
+      if (field) {
+        field.value = "";
+        field.style.display = "none";
+      }
+    }
   } catch (error) {
     showMessage("msg", "❌ Error saving student.", "#fb7185");
     console.error(error);
