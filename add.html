@@ -65,8 +65,7 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub1" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select announcer subcategory</option>
+            <select id="roleSub1" class="role-subfield" multiple size="4" style="display:none">
               <option value="Program presenting">Program presenting</option>
               <option value="News presenting">News presenting</option>
               <option value="Dubbing">Dubbing</option>
@@ -90,8 +89,7 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub2" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select announcer subcategory</option>
+            <select id="roleSub2" class="role-subfield" multiple size="4" style="display:none">
               <option value="Program presenting">Program presenting</option>
               <option value="News presenting">News presenting</option>
               <option value="Dubbing">Dubbing</option>
@@ -115,8 +113,7 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub3" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select announcer subcategory</option>
+            <select id="roleSub3" class="role-subfield" multiple size="4" style="display:none">
               <option value="Program presenting">Program presenting</option>
               <option value="News presenting">News presenting</option>
               <option value="Dubbing">Dubbing</option>
@@ -124,7 +121,7 @@
             </select>
           </div>
         </div>
-        <small class="form-note">Select up to 3 roles; values are saved together separated by <code>/</code>.</small>
+        <small class="form-note">Select up to 3 roles; announcer subcategories can be one or more selections and are saved appended with <code>-</code>.</small>
       </div>
       <div class="triple-row full-row">
         <select id="department">
@@ -256,7 +253,28 @@
       fields.forEach(field => {
         Array.from(field.options).forEach(option => {
           if (!option.value) return;
-          option.disabled = selected.has(option.value) && field.value !== option.value;
+          const alreadySelected = selected.has(option.value);
+          option.disabled = alreadySelected && field.value !== option.value && !isAnnouncerRole(option.value);
+        });
+      });
+    };
+
+    const getRoleSubFields = () => {
+      return [1, 2, 3].map(i => roleSubField(i)).filter(Boolean);
+    };
+
+    const getSelectedSubValues = (subField) => {
+      return Array.from(subField.selectedOptions).map(opt => opt.value.trim()).filter(Boolean);
+    };
+
+    const updateSubcategoryOptions = () => {
+      const subs = getRoleSubFields();
+      const selectedSubs = new Set(subs.flatMap(sub => getSelectedSubValues(sub)));
+      subs.forEach(sub => {
+        Array.from(sub.options).forEach(option => {
+          if (!option.value) return;
+          const isSelectedHere = option.selected;
+          option.disabled = selectedSubs.has(option.value) && !isSelectedHere;
         });
       });
     };
@@ -273,6 +291,7 @@
           subField.value = '';
         }
       }
+      updateSubcategoryOptions();
     };
 
     const updateRoleFields = () => {
@@ -295,12 +314,16 @@
     };
 
     const roleFields = getRoleFields();
-    roleFields.forEach((field, index) => {
+    roleFields.forEach((field) => {
       field.addEventListener('change', () => {
         updateRoleOptions();
         updateRoleSubFields();
       });
     });
+
+    const roleSubFields = getRoleSubFields();
+    roleSubFields.forEach((sub) => sub.addEventListener('change', updateSubcategoryOptions));
+
     if (roleCount) {
       roleCount.addEventListener('change', updateRoleFields);
       updateRoleFields();

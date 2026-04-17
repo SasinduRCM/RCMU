@@ -1075,9 +1075,16 @@ window.saveStudent = async function () {
         const field = document.getElementById(`roleField${i}`);
         if (!field?.value.trim()) continue;
         let roleValue = field.value.trim();
-        if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann") {
-          const sub = document.getElementById(`roleSub${i}`)?.value.trim();
-          if (sub) roleValue = `${roleValue} - ${sub}`;
+        if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann" || roleValue === "English Announce" || roleValue === "English Announcer") {
+          const subContainer = document.getElementById(`roleSub${i}`);
+          if (subContainer) {
+            const selectedSubs = Array.from(subContainer.querySelectorAll('input[type="checkbox"]:checked'))
+              .map(opt => opt.value.trim())
+              .filter(Boolean);
+            if (selectedSubs.length) {
+              roleValue = `${roleValue} - ${selectedSubs.join(" - ")}`;
+            }
+          }
         }
         values.push(roleValue);
       }

@@ -1250,9 +1250,7 @@ body {
   gap: 8px;
 }
 
-.role-subfield {
-  width: 100%;
-}
+
 
 .triple-row {
   display: grid;

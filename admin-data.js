@@ -23,7 +23,16 @@ const defaultManualAdmins = [
     ADM_Uname: "Chithum",
     ADM_name: "   Chithum Kithmaka",
     ADM_Email: "chithumlk2009@gmail.com",
-    ADM_password: "rcm@dchithum",
+    ADM_password: "rcm@chithum",
+    ADM_role: "editor"
+  },
+  {
+    id: "EDT-003",
+    ADM_ID: "EDT003",
+    ADM_Uname: "Tharuja",
+    ADM_name: "Tharuja Wehan",
+    ADM_Email: "tharujawehan@gmail.com",
+    ADM_password: "rcm@tharuja",
     ADM_role: "editor"
   },
   {
