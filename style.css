@@ -1239,6 +1239,21 @@ body {
   gap: 10px;
 }
 
+.role-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.role-block {
+  display: grid;
+  gap: 8px;
+}
+
+.role-subfield {
+  width: 100%;
+}
+
 .triple-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

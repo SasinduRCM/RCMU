@@ -161,7 +161,7 @@ function openStudentPopup(s) {
           <span class="popup-value">${s.department || "—"}</span>
         </div>
         <div class="popup-field">
-          <span class="popup-label">Experience</span>
+          <span class="popup-label">Age Category</span>
           <span class="popup-value">${s.experienceLevel || "—"}</span>
         </div>
         <div class="popup-field">
@@ -183,6 +183,10 @@ function openStudentPopup(s) {
         <div class="popup-field popup-field-full">
           <span class="popup-label">Phone</span>
           <span class="popup-value">${s.phone || "—"}</span>
+        </div>
+        <div class="popup-field popup-field-full">
+          <span class="popup-label">WhatsApp</span>
+          <span class="popup-value">${s.whatsapp || "—"}</span>
         </div>
         <div class="popup-field popup-field-full">
           <span class="popup-label">Address</span>
@@ -507,13 +511,14 @@ window.openStudentEditor = async function () {
     { key: "grade", label: "Grade" },
     { key: "role", label: "Role" },
     { key: "department", label: "Department" },
-    { key: "experienceLevel", label: "Experience Level" },
+    { key: "experienceLevel", label: "Age Category" },
     { key: "status", label: "Status" },
     { key: "dutyPercentage", label: "Duty Percentage" },
     { key: "birthday", label: "Birthday" },
     { key: "joinedYear", label: "Joined Year" },
     { key: "email", label: "Email" },
     { key: "phone", label: "Phone" },
+    { key: "whatsapp", label: "WhatsApp Number" },
     { key: "address", label: "Address" }
   ];
 
@@ -978,11 +983,13 @@ function renderStudents() {
           <p><strong>Grade</strong> <span>${s.grade}</span></p>
           <p><strong>Role</strong>  <span>${s.role}</span></p>
           <p><strong>Dept</strong>  <span>${s.department}</span></p>
-          <p><strong>Exp</strong>   <span>${s.experienceLevel}</span></p>
+          <p><strong>Age</strong>   <span>${s.experienceLevel}</span></p>
           <p><strong>Duty %</strong> <span>${s.dutyPercentage != null ? s.dutyPercentage + '%' : "—"}</span></p>
           <p><strong>Activity</strong> <span>${getLatestDutyActivityText(s) ? (getLatestDutyActivityText(s).length > 40 ? getLatestDutyActivityText(s).slice(0, 40) + '…' : getLatestDutyActivityText(s)) : "—"}</span></p>
           <p><strong>Achievement</strong> <span>${getLatestAchievementText(s) ? (getLatestAchievementText(s).length > 40 ? getLatestAchievementText(s).slice(0, 40) + '…' : getLatestAchievementText(s)) : "—"}</span></p>
           <p><strong>Email</strong> <span>${s.email}</span></p>
+          <p><strong>Phone</strong> <span>${s.phone || "—"}</span></p>
+          <p><strong>WhatsApp</strong> <span>${s.whatsapp || "—"}</span></p>
           <p><strong>Address</strong> <span>${s.address || "—"}</span></p>
           <p><strong>Birthday</strong> <span>${s.birthday || "—"}</span></p>
         </div>
@@ -1005,14 +1012,14 @@ function renderStudents() {
 function downloadStudentSheet(studentsToExport) {
   const headers = [
     "Name", "Nickname", "ID", "Grade", "Role", "Department", "Status",
-    "Experience", "Duty %", "Duty Activities", "Achievements", "Email", "Phone", "Address", "Birthday", "Joined Year", "Profile Image URL"
+    "Age Category", "Duty %", "Duty Activities", "Achievements", "Email", "Phone", "WhatsApp", "Address", "Birthday", "Joined Year", "Profile Image URL"
   ];
   const rows = studentsToExport.map(s => [
     s.fullname, s.nickname || "", s.studentId, s.grade, s.role, s.department,
     s.status, s.experienceLevel, s.dutyPercentage != null ? `${s.dutyPercentage}%` : "",
     getDutyActivitiesList(s).map((entry, index) => `${index + 1}. ${entry.text}`).join(" \n"),
     getAchievementsList(s).map((entry, index) => `${index + 1}. ${entry.text}`).join(" \n"),
-    s.email, s.phone, s.address, s.birthday, s.joinedYear, s.profileImageUrl || ""
+    s.email, s.phone, s.whatsapp || "", s.address, s.birthday, s.joinedYear, s.profileImageUrl || ""
   ]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 
@@ -1025,7 +1032,7 @@ function downloadStudentSheet(studentsToExport) {
     { wch: 18 }, // Role
     { wch: 12 }, // Department
     { wch: 8 },  // Status
-    { wch: 12 }, // Experience
+    { wch: 12 }, // Age Category
     { wch: 8 },  // Duty %
     { wch: 30 }, // Duty Activities
     { wch: 30 }, // Achievements
@@ -1056,8 +1063,7 @@ window.saveStudent = async function () {
   if (!user) return;
 
   const fields = ["fullname","nickname","studentId","grade","role","department","status",
-                  "experienceLevel","dutyPercentage","dutyActivities","achievements","profileImageUrl","email","phone","address","birthday","joinedYear"];
-  const required = ["fullname","studentId","grade","role","department","status","experienceLevel","email","phone","address","birthday","joinedYear"];
+                  "experienceLevel","dutyPercentage","dutyActivities","achievements","profileImageUrl","email","phone","whatsapp","address","birthday","joinedYear"];
 
   const data = {};
   for (const f of fields) {
@@ -1067,7 +1073,13 @@ window.saveStudent = async function () {
       const values = [];
       for (let i = 1; i <= roleCount; i += 1) {
         const field = document.getElementById(`roleField${i}`);
-        if (field?.value.trim()) values.push(field.value.trim());
+        if (!field?.value.trim()) continue;
+        let roleValue = field.value.trim();
+        if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann") {
+          const sub = document.getElementById(`roleSub${i}`)?.value.trim();
+          if (sub) roleValue = `${roleValue} - ${sub}`;
+        }
+        values.push(roleValue);
       }
       raw = values.join(" / ");
     } else {
