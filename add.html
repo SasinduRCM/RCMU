@@ -39,6 +39,8 @@
       <input id="nickname"        placeholder="Nickname">
       <input id="studentId"       placeholder="Student ID">
       <input id="grade"           placeholder="Grade">
+      <input id="studentClass"    placeholder="Class">
+      <input id="email"           placeholder="Email">
       <div class="role-options full-row">
         <span class="role-options-label" for="roleCount">Number of Roles</span>
         <select id="roleCount">
@@ -51,6 +53,7 @@
           <div class="role-block">
             <select id="roleField1" class="role-input" style="display:none">
               <option value="" disabled selected>Role 1</option>
+              <option value="Executive">Executive </option>
               <option value="Sinhala Announcer">Sinhala Announcer</option>
               <option value="English Announce">English Announcer</option>
               <option value="Technician">Technician</option>
@@ -65,7 +68,8 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub1" class="role-subfield" multiple size="4" style="display:none">
+            <select id="roleSub1" class="role-subfield" style="display:none">
+              <option value="" disabled selected>Select Subcategory</option>
               <option value="Program presenting">Program presenting</option>
               <option value="News presenting">News presenting</option>
               <option value="Dubbing">Dubbing</option>
@@ -75,6 +79,7 @@
           <div class="role-block">
             <select id="roleField2" class="role-input" style="display:none">
               <option value="" disabled selected>Role 2</option>
+              <option value="Executive">Executive </option>
               <option value="Sinhala Announcer">Sinhala Announcer</option>
               <option value="English Announce">English Announcer</option>
               <option value="Technician">Technician</option>
@@ -89,7 +94,8 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub2" class="role-subfield" multiple size="4" style="display:none">
+            <select id="roleSub2" class="role-subfield" style="display:none">
+              <option value="" disabled selected>Select Subcategory</option>
               <option value="Program presenting">Program presenting</option>
               <option value="News presenting">News presenting</option>
               <option value="Dubbing">Dubbing</option>
@@ -97,8 +103,9 @@
             </select>
           </div>
           <div class="role-block">
-            <select id="roleField3" class="role-input" style="display:none">
+            <select id="roleField3" class="role-input" style="display:none">     
               <option value="" disabled selected>Role 3</option>
+              <option value="Executive">Executive </option>
               <option value="Sinhala Announcer">Sinhala Announcer</option>
               <option value="English Announce">English Announcer</option>
               <option value="Technician">Technician</option>
@@ -113,7 +120,8 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub3" class="role-subfield" multiple size="4" style="display:none">
+            <select id="roleSub3" class="role-subfield" style="display:none">
+              <option value="" disabled selected>Select Subcategory</option>
               <option value="Program presenting">Program presenting</option>
               <option value="News presenting">News presenting</option>
               <option value="Dubbing">Dubbing</option>
@@ -121,7 +129,7 @@
             </select>
           </div>
         </div>
-        <small class="form-note">Select up to 3 roles; announcer subcategories can be one or more selections and are saved appended with <code>-</code>.</small>
+        <small class="form-note">Select up to 3 roles; announcer subcategories are single selections and are saved appended with <code>-</code>.</small>
       </div>
       <div class="triple-row full-row">
         <select id="department">
@@ -146,7 +154,6 @@
         <option value="Senior">Senior</option>
       </select>
       <input id="profileImageUrl" placeholder="Profile Image URL">
-      <input id="email"           placeholder="Email">
       <input id="phone"           placeholder="Phone">
       <input id="whatsapp"       placeholder="WhatsApp Number">
       <input id="address"         placeholder="Address">

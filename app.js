@@ -1062,7 +1062,7 @@ window.saveStudent = async function () {
   const user = requireAuth(["admin", "editor"]);
   if (!user) return;
 
-  const fields = ["fullname","nickname","studentId","grade","role","department","status",
+  const fields = ["fullname","nickname","studentId","grade","studentClass","role","department","status",
                   "experienceLevel","dutyPercentage","dutyActivities","achievements","profileImageUrl","email","phone","whatsapp","address","birthday","joinedYear"];
 
   const required = ["fullname", "studentId", "grade"];
