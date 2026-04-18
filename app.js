@@ -1065,6 +1065,8 @@ window.saveStudent = async function () {
   const fields = ["fullname","nickname","studentId","grade","role","department","status",
                   "experienceLevel","dutyPercentage","dutyActivities","achievements","profileImageUrl","email","phone","whatsapp","address","birthday","joinedYear"];
 
+  const required = ["fullname", "studentId", "grade"];
+
   const data = {};
   for (const f of fields) {
     let raw = "";
@@ -1078,7 +1080,7 @@ window.saveStudent = async function () {
         if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann" || roleValue === "English Announce" || roleValue === "English Announcer") {
           const subContainer = document.getElementById(`roleSub${i}`);
           if (subContainer) {
-            const selectedSubs = Array.from(subContainer.querySelectorAll('input[type="checkbox"]:checked'))
+            const selectedSubs = Array.from(subContainer.selectedOptions)
               .map(opt => opt.value.trim())
               .filter(Boolean);
             if (selectedSubs.length) {
