@@ -86,6 +86,22 @@ function updateHeaderUser() {
   `;
 }
 
+function getRoleSubcategories(index) {
+  const subContainer = document.getElementById(`roleSub${index}`);
+  if (!subContainer) return [];
+  return Array.from(subContainer.querySelectorAll('input[type="checkbox"]:checked'))
+    .map(input => input.value.trim())
+    .filter(Boolean);
+}
+
+function buildRoleText(index) {
+  const field = document.getElementById(`roleField${index}`);
+  if (!field?.value.trim()) return "";
+  const roleValue = field.value.trim();
+  const selectedSubs = getRoleSubcategories(index);
+  return selectedSubs.length ? `${roleValue} - ${selectedSubs.join(", ")}` : roleValue;
+}
+
 function parseSearchFilter(value) {
   const n = value.toString().trim().toLowerCase();
   if (n.startsWith("grade "))      return { type: "grade",      value: n.slice(6).trim() };
@@ -1038,21 +1054,8 @@ window.saveStudent = async function () {
       const roleCount = Number(document.getElementById("roleCount")?.value || 0);
       const values = [];
       for (let i = 1; i <= roleCount; i += 1) {
-        const field = document.getElementById(`roleField${i}`);
-        if (!field?.value.trim()) continue;
-        let roleValue = field.value.trim();
-        if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann" || roleValue === "English Announce" || roleValue === "English Announcer") {
-          const subContainer = document.getElementById(`roleSub${i}`);
-          if (subContainer) {
-            const selectedSubs = Array.from(subContainer.querySelectorAll('input[type="checkbox"]:checked'))
-              .map(input => input.value.trim())
-              .filter(Boolean);
-            if (selectedSubs.length) {
-              roleValue = `${roleValue} - ${selectedSubs.join(", ")}`;
-            }
-          }
-        }
-        values.push(roleValue);
+        const roleText = buildRoleText(i);
+        if (roleText) values.push(roleText);
       }
       raw = values.join(" / ");
     } else {
@@ -1074,20 +1077,26 @@ window.saveStudent = async function () {
     }
   }
 
-  const btn = document.querySelector(".form button");
+  const btn = document.querySelector(".form button[type=button]");
   if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
 
   try {
     await addDoc(collection(db, "RCMU_DB"), { ...data, createdAt: new Date().toISOString() });
     showMessage("msg", "✅ Student saved successfully.", "#86efac");
-    document.querySelectorAll(".form input, .form select, .form textarea").forEach(i => i.value = "");
+    document.querySelectorAll(".form input:not([type=checkbox]), .form select, .form textarea").forEach(i => i.value = "");
+    document.querySelectorAll(".form input[type=checkbox]").forEach(i => i.checked = false);
     const roleCount = document.getElementById("roleCount");
-    if (roleCount) roleCount.value = "";
+    if (roleCount) { roleCount.value = ""; roleCount.dispatchEvent(new Event('change')); }
     for (let i = 1; i <= 3; i += 1) {
       const field = document.getElementById(`roleField${i}`);
+      const subField = document.getElementById(`roleSub${i}`);
       if (field) {
         field.value = "";
         field.style.display = "none";
+      }
+      if (subField) {
+        subField.style.display = "none";
+        subField.querySelectorAll('input[type="checkbox"]').forEach(input => input.checked = false);
       }
     }
   } catch (error) {
@@ -1242,21 +1251,8 @@ window.updateStudent = async function () {
       const roleCount = Number(document.getElementById("roleCount")?.value || 0);
       const values = [];
       for (let i = 1; i <= roleCount; i += 1) {
-        const field = document.getElementById(`roleField${i}`);
-        if (!field?.value.trim()) continue;
-        let roleValue = field.value.trim();
-        if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann" || roleValue === "English Announce" || roleValue === "English Announcer") {
-          const subContainer = document.getElementById(`roleSub${i}`);
-          if (subContainer) {
-            const selectedSubs = Array.from(subContainer.querySelectorAll('input[type="checkbox"]:checked'))
-              .map(input => input.value.trim())
-              .filter(Boolean);
-            if (selectedSubs.length) {
-              roleValue = `${roleValue} - ${selectedSubs.join(", ")}`;
-            }
-          }
-        }
-        values.push(roleValue);
+        const roleText = buildRoleText(i);
+        if (roleText) values.push(roleText);
       }
       raw = values.join(" / ");
     } else {
@@ -1279,7 +1275,7 @@ window.updateStudent = async function () {
     }
   }
 
-  const btn = document.querySelector(".form button");
+  const btn = document.querySelector(".form button[type=button]");
   if (btn) { btn.disabled = true; btn.textContent = "Updating…"; }
 
   try {
