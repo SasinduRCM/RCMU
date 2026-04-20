@@ -68,13 +68,12 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub1" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select Subcategory</option>
-              <option value="Program presenting">Program presenting</option>
-              <option value="News presenting">News presenting</option>
-              <option value="Dubbing">Dubbing</option>
-              <option value="Sport commentary">Sport commentary</option>
-            </select>
+            <div id="roleSub1" class="role-subfield" style="display:none">
+              <label><input type="checkbox" value="Program presenting"> Program presenting</label>
+              <label><input type="checkbox" value="News presenting"> News presenting</label>
+              <label><input type="checkbox" value="Dubbing"> Dubbing</label>
+              <label><input type="checkbox" value="Sport commentary"> Sport commentary</label>
+            </div>
           </div>
           <div class="role-block">
             <select id="roleField2" class="role-input" style="display:none">
@@ -94,13 +93,12 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub2" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select Subcategory</option>
-              <option value="Program presenting">Program presenting</option>
-              <option value="News presenting">News presenting</option>
-              <option value="Dubbing">Dubbing</option>
-              <option value="Sport commentary">Sport commentary</option>
-            </select>
+            <div id="roleSub2" class="role-subfield" style="display:none">
+              <label><input type="checkbox" value="Program presenting"> Program presenting</label>
+              <label><input type="checkbox" value="News presenting"> News presenting</label>
+              <label><input type="checkbox" value="Dubbing"> Dubbing</label>
+              <label><input type="checkbox" value="Sport commentary"> Sport commentary</label>
+            </div>
           </div>
           <div class="role-block">
             <select id="roleField3" class="role-input" style="display:none">     
@@ -120,16 +118,15 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub3" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select Subcategory</option>
-              <option value="Program presenting">Program presenting</option>
-              <option value="News presenting">News presenting</option>
-              <option value="Dubbing">Dubbing</option>
-              <option value="Sport commentary">Sport commentary</option>
-            </select>
+            <div id="roleSub3" class="role-subfield" style="display:none">
+              <label><input type="checkbox" value="Program presenting"> Program presenting</label>
+              <label><input type="checkbox" value="News presenting"> News presenting</label>
+              <label><input type="checkbox" value="Dubbing"> Dubbing</label>
+              <label><input type="checkbox" value="Sport commentary"> Sport commentary</label>
+            </div>
           </div>
         </div>
-        <small class="form-note">Select up to 3 roles; announcer subcategories are single selections and are saved appended with <code>-</code>.</small>
+        <small class="form-note">Select up to 3 roles; announcer subcategories may be selected together. Saved as <code>Role - sub1, sub2</code>.</small>
       </div>
       <div class="triple-row full-row">
         <select id="department">
@@ -260,7 +257,7 @@
         Array.from(field.options).forEach(option => {
           if (!option.value) return;
           const alreadySelected = selected.has(option.value);
-          option.disabled = alreadySelected && field.value !== option.value && !isAnnouncerRole(option.value);
+          option.disabled = alreadySelected && field.value !== option.value;
         });
       });
     };
@@ -270,19 +267,14 @@
     };
 
     const getSelectedSubValues = (subField) => {
-      return Array.from(subField.selectedOptions).map(opt => opt.value.trim()).filter(Boolean);
+      return Array.from(subField.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(input => input.value.trim())
+        .filter(Boolean);
     };
 
     const updateSubcategoryOptions = () => {
-      const subs = getRoleSubFields();
-      const selectedSubs = new Set(subs.flatMap(sub => getSelectedSubValues(sub)));
-      subs.forEach(sub => {
-        Array.from(sub.options).forEach(option => {
-          if (!option.value) return;
-          const isSelectedHere = option.selected;
-          option.disabled = selectedSubs.has(option.value) && !isSelectedHere;
-        });
-      });
+      // Allow the same subcategory to be selected independently for each announcer role.
+      return;
     };
 
     const updateRoleSubFields = () => {
@@ -294,7 +286,10 @@
           subField.style.display = 'block';
         } else {
           subField.style.display = 'none';
-          subField.value = '';
+          subField.querySelectorAll('input[type="checkbox"]').forEach(input => {
+            input.checked = false;
+            input.disabled = false;
+          });
         }
       }
       updateSubcategoryOptions();
@@ -312,7 +307,10 @@
           field.style.display = 'none';
           field.value = '';
           subField.style.display = 'none';
-          subField.value = '';
+          subField.querySelectorAll('input[type="checkbox"]').forEach(input => {
+            input.checked = false;
+            input.disabled = false;
+          });
         }
       }
       updateRoleOptions();
@@ -328,7 +326,11 @@
     });
 
     const roleSubFields = getRoleSubFields();
-    roleSubFields.forEach((sub) => sub.addEventListener('change', updateSubcategoryOptions));
+    roleSubFields.forEach((sub) => {
+      sub.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', updateSubcategoryOptions);
+      });
+    });
 
     if (roleCount) {
       roleCount.addEventListener('change', updateRoleFields);

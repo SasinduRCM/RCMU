@@ -5,15 +5,15 @@ const defaultManualAdmins = [
     ADM_Uname: "Sasindu",
     ADM_name: "Sasindu Ruwaneka",
     ADM_Email: "sasindu.rcm@gmail.com",
-    ADM_password: "rcm@123@sasi",
+    ADM_password: "rcm@123@sasi@new",
     ADM_role: "admin"
   },
   {
     id: "ADM-002",
-    ADM_ID: "ADM001",
+    ADM_ID: "ADM002",
     ADM_Uname: "ss",
     ADM_name: "Sasindu Ruwaneka",
-    ADM_Email: "sasindu.rcm@gmail.com",
+    ADM_Email: "sasindu.rm@gmail.com",
     ADM_password: "ss",
     ADM_role: "admin"
   },

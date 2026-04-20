@@ -1044,11 +1044,11 @@ window.saveStudent = async function () {
         if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann" || roleValue === "English Announce" || roleValue === "English Announcer") {
           const subContainer = document.getElementById(`roleSub${i}`);
           if (subContainer) {
-            const selectedSubs = Array.from(subContainer.selectedOptions)
-              .map(opt => opt.value.trim())
+            const selectedSubs = Array.from(subContainer.querySelectorAll('input[type="checkbox"]:checked'))
+              .map(input => input.value.trim())
               .filter(Boolean);
             if (selectedSubs.length) {
-              roleValue = `${roleValue} - ${selectedSubs.join(" - ")}`;
+              roleValue = `${roleValue} - ${selectedSubs.join(", ")}`;
             }
           }
         }
@@ -1190,7 +1190,10 @@ function populateEditForm(student) {
       if (subPart && (role === "Sinhala Announcer" || role === "English Announcer" || role === "English Announce")) {
         const subField = document.getElementById(`roleSub${i + 1}`);
         if (subField) {
-          subField.value = subPart;
+          const subValues = subPart.split(",").map(text => text.trim()).filter(Boolean);
+          subField.querySelectorAll('input[type="checkbox"]').forEach(input => {
+            input.checked = subValues.includes(input.value);
+          });
           subField.style.display = "block";
         }
       }
@@ -1245,11 +1248,11 @@ window.updateStudent = async function () {
         if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann" || roleValue === "English Announce" || roleValue === "English Announcer") {
           const subContainer = document.getElementById(`roleSub${i}`);
           if (subContainer) {
-            const selectedSubs = Array.from(subContainer.selectedOptions)
-              .map(opt => opt.value.trim())
+            const selectedSubs = Array.from(subContainer.querySelectorAll('input[type="checkbox"]:checked'))
+              .map(input => input.value.trim())
               .filter(Boolean);
             if (selectedSubs.length) {
-              roleValue = `${roleValue} - ${selectedSubs.join(" - ")}`;
+              roleValue = `${roleValue} - ${selectedSubs.join(", ")}`;
             }
           }
         }

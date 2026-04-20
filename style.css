@@ -1246,7 +1246,7 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px 24px 24px;
+  padding: 20px 18px 18px;
   box-shadow: var(--shadow);
   animation: fadeSlideUp 0.5s 0.15s cubic-bezier(.22,1,.36,1) both;
 }
@@ -1254,8 +1254,8 @@ body {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .form-grid .full-row {
@@ -1268,28 +1268,52 @@ body {
 
 .role-options-label {
   display: block;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .role-options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
 }
 
 .role-fields {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .role-block {
   display: grid;
+  gap: 6px;
+}
+
+.role-subfield {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+}
+
+.role-subfield label {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.role-subfield input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
 }
 
 
@@ -1321,17 +1345,36 @@ body {
 }
 
 .role-options-grid input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   accent-color: var(--accent);
 }
 
 .role-fields {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
+
+.role-subfield {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+}
+
+.role-subfield label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text);
+  margin: 0;
+}
+
 
 .role-input {
   width: 100%;
@@ -1358,13 +1401,13 @@ body {
 .form select,
 .form textarea {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-soft);
   background: var(--bg-panel);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   outline: none;
   transition: border-color var(--transition), box-shadow var(--transition), transform 0.15s;
 }
