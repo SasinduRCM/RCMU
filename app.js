@@ -6,7 +6,8 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-  onSnapshot
+  onSnapshot,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.18.5/package/xlsx.mjs";
 
@@ -144,13 +145,19 @@ function openStudentPopup(s) {
       <div class="popup-divider"></div>
 
       <div class="popup-grid">
-        <div class="popup-field">
-          <span class="popup-label">Student ID</span>
-          <span class="popup-value">${s.studentId || "—"}</span>
-        </div>
-        <div class="popup-field">
-          <span class="popup-label">Grade</span>
-          <span class="popup-value">${s.grade || "—"}</span>
+        <div class="popup-field popup-field-full popup-field-row">
+          <div class="popup-mini-field">
+            <span class="popup-label">Student ID</span>
+            <span class="popup-value">${s.studentId || "—"}</span>
+          </div>
+          <div class="popup-mini-field">
+            <span class="popup-label">Grade</span>
+            <span class="popup-value">${s.grade || "—"}</span>
+          </div>
+          <div class="popup-mini-field">
+            <span class="popup-label">Class</span>
+            <span class="popup-value">${s.studentClass || "—"}</span>
+          </div>
         </div>
         <div class="popup-field">
           <span class="popup-label">Role</span>
@@ -180,11 +187,11 @@ function openStudentPopup(s) {
           <span class="popup-label">Email</span>
           <span class="popup-value">${s.email || "—"}</span>
         </div>
-        <div class="popup-field popup-field-full">
+        <div class="popup-field">
           <span class="popup-label">Phone</span>
           <span class="popup-value">${s.phone || "—"}</span>
         </div>
-        <div class="popup-field popup-field-full">
+        <div class="popup-field">
           <span class="popup-label">WhatsApp</span>
           <span class="popup-value">${s.whatsapp || "—"}</span>
         </div>
@@ -504,52 +511,8 @@ window.openStudentEditor = async function () {
     return;
   }
 
-  const fields = [
-    { key: "fullname", label: "Full Name" },
-    { key: "nickname", label: "Nickname" },
-    { key: "studentId", label: "Student ID" },
-    { key: "grade", label: "Grade" },
-    { key: "role", label: "Role" },
-    { key: "department", label: "Department" },
-    { key: "experienceLevel", label: "Age Category" },
-    { key: "status", label: "Status" },
-    { key: "dutyPercentage", label: "Duty Percentage" },
-    { key: "birthday", label: "Birthday" },
-    { key: "joinedYear", label: "Joined Year" },
-    { key: "email", label: "Email" },
-    { key: "phone", label: "Phone" },
-    { key: "whatsapp", label: "WhatsApp Number" },
-    { key: "address", label: "Address" }
-  ];
-
-  const updated = {};
-  for (const field of fields) {
-    const currentValue = student[field.key] != null ? student[field.key] : "";
-    const value = window.prompt(`Edit ${field.label}:`, currentValue);
-    if (value === null) return;
-    if (field.key === "dutyPercentage") {
-      const trimmed = value.trim();
-      updated.dutyPercentage = trimmed === "" ? null : Number(trimmed);
-      if (trimmed !== "" && (Number.isNaN(updated.dutyPercentage) || updated.dutyPercentage < 0 || updated.dutyPercentage > 100)) {
-        showToast("⚠️ Duty % must be a number between 0 and 100.", "error");
-        return;
-      }
-    } else {
-      updated[field.key] = value.trim();
-    }
-  }
-
-  try {
-    await updateDoc(doc(db, "RCMU_DB", student._docId), updated);
-    Object.assign(student, updated);
-    window.currentStudentDoc = student;
-    renderStudents();
-    showToast("✅ Student details updated.", "success");
-    openStudentPopup(student);
-  } catch (error) {
-    console.error(error);
-    showToast("❌ Could not update student details.", "error");
-  }
+  // Redirect to edit page
+  window.location.href = `edit.html?id=${student._docId}`;
 };
 
 window.saveDutyDetails = async function (docId, activities, percentage, overwrite = false) {
@@ -934,7 +897,7 @@ function renderStudents() {
     let html = `
       <div class="student-table">
         <div class="table-row header">
-          <div>Name</div><div>ID</div><div>Grade</div>
+          <div>Name</div><div>ID</div><div>Grade</div><div>Class</div>
           <div>Role</div><div>Status</div><div>Duty %</div><div>Activity</div><div>Achievement</div>
           <div>Email</div><div>Address</div><div>Birthday</div>
         </div>
@@ -942,7 +905,7 @@ function renderStudents() {
     sorted.forEach((s, i) => {
       html += `
         <div class="table-row clickable-row" data-idx="${i}" style="animation-delay:${i * 0.04}s">
-          <div>${s.fullname}</div><div>${s.studentId}</div><div>${s.grade}</div>
+          <div>${s.fullname}</div><div>${s.studentId}</div><div>${s.grade}</div><div>${s.studentClass || "—"}</div>
           <div>${s.role}</div><div>${s.status} ${getDutyPercentageGraph(s.dutyPercentage, true)}</div><div>${s.dutyPercentage != null ? s.dutyPercentage + '%' : "—"}</div>
           <div>${getLatestDutyActivityText(s) || "—"}</div><div>${getLatestAchievementText(s) || "—"}</div>
           <div>${s.email}</div><div>${s.address || "—"}</div><div>${s.birthday || "—"}</div>
@@ -981,6 +944,7 @@ function renderStudents() {
         <div class="card-body">
           <p><strong>ID</strong>    <span>${s.studentId}</span></p>
           <p><strong>Grade</strong> <span>${s.grade}</span></p>
+          <p><strong>Class</strong> <span>${s.studentClass || "—"}</span></p>
           <p><strong>Role</strong>  <span>${s.role}</span></p>
           <p><strong>Dept</strong>  <span>${s.department}</span></p>
           <p><strong>Age</strong>   <span>${s.experienceLevel}</span></p>
@@ -1159,6 +1123,175 @@ async function initStudentFormPage() {
   }
 }
 
+async function initStudentEditPage() {
+  const user = requireAuth(["admin"]);
+  if (!user) return;
+  updateHeaderUser();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const studentId = urlParams.get('id');
+  if (!studentId) {
+    showMessage("msg", "❌ No student ID provided.", "#fb7185");
+    return;
+  }
+
+  try {
+    const docRef = doc(db, "RCMU_DB", studentId);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      showMessage("msg", "❌ Student not found.", "#fb7185");
+      return;
+    }
+    const student = { _docId: docSnap.id, ...docSnap.data() };
+    populateEditForm(student);
+  } catch (error) {
+    console.error(error);
+    showMessage("msg", "❌ Error loading student data.", "#fb7185");
+  }
+}
+
+function populateEditForm(student) {
+  // Store student data for update
+  window.editingStudent = student;
+
+  // Populate basic fields
+  const fields = [
+    "fullname", "nickname", "studentId", "grade", "studentClass", "email",
+    "department", "status", "experienceLevel", "profileImageUrl", "phone",
+    "whatsapp", "address", "birthday", "joinedYear"
+  ];
+
+  fields.forEach(field => {
+    const el = document.getElementById(field);
+    if (el) el.value = student[field] || "";
+  });
+
+  // Handle duty percentage
+  const dutyEl = document.getElementById("dutyPercentage");
+  if (dutyEl) dutyEl.value = student.dutyPercentage != null ? student.dutyPercentage : "";
+
+  // Handle roles
+  const roleStr = student.role || "";
+  const roles = roleStr.split(" / ").filter(r => r.trim());
+  const roleCount = Math.min(roles.length, 3);
+  const roleCountEl = document.getElementById("roleCount");
+  if (roleCountEl) roleCountEl.value = roleCount > 0 ? roleCount : "";
+
+  // Populate role fields
+  for (let i = 0; i < roleCount; i++) {
+    const roleField = document.getElementById(`roleField${i + 1}`);
+    if (roleField) {
+      const role = roles[i].split(" - ")[0];
+      roleField.value = role;
+      roleField.style.display = "block";
+
+      // Handle subcategories for announcers
+      const subPart = roles[i].split(" - ")[1];
+      if (subPart && (role === "Sinhala Announcer" || role === "English Announcer" || role === "English Announce")) {
+        const subField = document.getElementById(`roleSub${i + 1}`);
+        if (subField) {
+          subField.value = subPart;
+          subField.style.display = "block";
+        }
+      }
+    }
+  }
+
+  // Handle textareas - leave empty for editing (history managed separately)
+  // const dutyActivitiesEl = document.getElementById("dutyActivities");
+  // if (dutyActivitiesEl) {
+  //   const latestDuty = getLatestDutyActivityText(student);
+  //   dutyActivitiesEl.value = latestDuty || "";
+  // }
+
+  // const achievementsEl = document.getElementById("achievements");
+  // if (achievementsEl) {
+  //   const latestAch = getLatestAchievementText(student);
+  //   achievementsEl.value = latestAch || "";
+  // }
+
+  // Trigger role field updates
+  const roleCountEl2 = document.getElementById("roleCount");
+  if (roleCountEl2) {
+    roleCountEl2.dispatchEvent(new Event('change'));
+  }
+}
+
+window.updateStudent = async function () {
+  const user = requireAuth(["admin"]);
+  if (!user) return;
+
+  const student = window.editingStudent;
+  if (!student || !student._docId) {
+    showMessage("msg", "❌ No student data to update.", "#fb7185");
+    return;
+  }
+
+  const fields = ["fullname","nickname","studentId","grade","studentClass","role","department","status",
+                  "experienceLevel","dutyPercentage","dutyActivities","achievements","profileImageUrl","email","phone","whatsapp","address","birthday","joinedYear"];
+
+  const required = ["fullname", "studentId", "grade"];
+
+  const data = {};
+  for (const f of fields) {
+    let raw = "";
+    if (f === "role") {
+      const roleCount = Number(document.getElementById("roleCount")?.value || 0);
+      const values = [];
+      for (let i = 1; i <= roleCount; i += 1) {
+        const field = document.getElementById(`roleField${i}`);
+        if (!field?.value.trim()) continue;
+        let roleValue = field.value.trim();
+        if (roleValue === "Sinhala Announcer" || roleValue === "Eng.Ann" || roleValue === "English Announce" || roleValue === "English Announcer") {
+          const subContainer = document.getElementById(`roleSub${i}`);
+          if (subContainer) {
+            const selectedSubs = Array.from(subContainer.selectedOptions)
+              .map(opt => opt.value.trim())
+              .filter(Boolean);
+            if (selectedSubs.length) {
+              roleValue = `${roleValue} - ${selectedSubs.join(" - ")}`;
+            }
+          }
+        }
+        values.push(roleValue);
+      }
+      raw = values.join(" / ");
+    } else {
+      const el = document.getElementById(f);
+      raw = el?.value.trim() || "";
+    }
+    if (f === "dutyActivities" || f === "achievements") {
+      // For editing, keep existing history, don't add new entries here
+      data[f] = student[f] || [];
+    } else {
+      data[f] = raw;
+    }
+  }
+  if (data.dutyPercentage) data.dutyPercentage = Number(data.dutyPercentage);
+
+  for (const f of required) {
+    if (!data[f]) {
+      showMessage("msg", `⚠️ ${f.replace(/([A-Z])/g, " $1")} is required.`, "#fb7185");
+      return;
+    }
+  }
+
+  const btn = document.querySelector(".form button");
+  if (btn) { btn.disabled = true; btn.textContent = "Updating…"; }
+
+  try {
+    await updateDoc(doc(db, "RCMU_DB", student._docId), data);
+    showMessage("msg", "✅ Student updated successfully.", "#86efac");
+    // Redirect back to index or stay
+    setTimeout(() => window.location.href = "index.html", 1500);
+  } catch (error) {
+    showMessage("msg", "❌ Error updating student.", "#fb7185");
+    console.error(error);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Update Student"; }
+  }
+};
+
 async function initStudentListPage() {
   const list = document.getElementById("list");
   if (!list) return;
@@ -1239,4 +1372,5 @@ let currentPage = window.location.pathname.split("/").pop().split("?")[0].split(
 
 if      (currentPage === "admin.html") initAdminPage();
 else if (currentPage === "add.html")   initStudentFormPage();
+else if (currentPage === "edit.html")  initStudentEditPage();
 else if (currentPage === "index.html") initStudentListPage();
