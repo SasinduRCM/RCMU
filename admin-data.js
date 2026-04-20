@@ -11,10 +11,10 @@ const defaultManualAdmins = [
   {
     id: "ADM-002",
     ADM_ID: "ADM001",
-    ADM_Uname: "sasindu",
+    ADM_Uname: "ss",
     ADM_name: "Sasindu Ruwaneka",
     ADM_Email: "sasindu.rcm@gmail.com",
-    ADM_password: "sasindu",
+    ADM_password: "ss",
     ADM_role: "admin"
   },
   {
