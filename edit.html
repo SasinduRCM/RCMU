@@ -3,75 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Student — Rahula College Media Unit</title>
-  <link rel="manifest" href="manifest.json">
-  <!-- Favicon all sizes -->
-  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
-  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
-  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
-  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-  <link rel="shortcut icon"         href="icon-32.png">
-  <!-- Apple / iOS icons -->
-  <link rel="apple-touch-icon"              href="icon-180.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
-  <!-- Windows / PWA tile -->
-  <meta name="msapplication-TileImage"   content="icon-144.png">
-  <meta name="msapplication-TileColor"   content="#0b0f1a">
-  <meta name="msapplication-config"      content="none">
-  <!-- Favicon -->
-  <!-- SEO Meta -->
-  <meta name="description" content="Edit student records in the Rahula College Media Unit database.">
-  <meta name="keywords" content="Rahula College, Media Unit, edit student, RCMU">
-  <meta name="author" content="Sasindu Ruwaneka">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#0b0f1a">
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Edit Student — Rahula College Media Unit">
-  <meta property="og:description" content="Edit student records in the Rahula College Media Unit database.">
-  <meta property="og:image" content="Icon.png">
-  <meta property="og:site_name" content="Rahula College Media Unit">
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Edit Student — Rahula College Media Unit">
-  <meta name="twitter:description" content="Edit student records in the Rahula College Media Unit database.">
-  <meta name="twitter:image" content="Icon.png">
-  <!-- PWA / Mobile -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="RCMU">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="RCMU">
+  <title>Edit Student — Rahula College Media Unit Database</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-
   <header class="page-header">
     <div class="header-logos-row">
-      <div class="header-logo logo-left"><img src="Rahula_College_Crest.png" alt="Rahula College"></div>
-      <div class="header-logo logo-right"><img src="Media Unit Original logo.png" alt="Media Unit"></div>
+      <div class="header-logo logo-left">
+        <img src="Rahula_College_Crest.png" alt="Rahula College logo">
+        <span class="logo-label"></span>
+      </div>
+      <div class="header-logo logo-right">
+        <img src="Media Unit Original logo.png" alt="Media Unit logo">
+        <span class="logo-label"></span>
+      </div>
     </div>
     <div class="header-title">
-      <h1>Rahula College Media Unit</h1>
-      <p class="subtitle">Student Database</p>
+      <h1>Rahula College Media Unit Database</h1>
+      <p class="subtitle">Edit student record details.</p>
     </div>
   </header>
+
   <div class="header-actions">
     <span id="currentUser" class="user-badge"></span>
-    <a class="secondary-link" href="index.html" id="rosterLink" style="display:none">📊 Roster</a>
-    <a class="secondary-link" href="duty-mark.html" id="dutyMarkLink" style="display:none">🗂 Mark Duty</a>
-    <a class="secondary-link" href="duty-schedule.html" id="dutySchedLink" style="display:none">📅 Schedule</a>
+    <a class="secondary-link" href="index.html">View Students</a>
     <a class="secondary-link" href="admin.html" id="adminLink" style="display:none">Admin Panel</a>
     <button class="logout-btn" onclick="doLogout()">Sign Out</button>
-  </div>
-
-  <div class="page-hero">
-    <div class="page-hero-title">✏️ Edit Student</div>
-    <div class="page-hero-sub">Update student record details.</div>
   </div>
 
   <div class="form">
@@ -109,13 +68,12 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub1" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select Subcategory</option>
-              <option value="Program presenting">Program presenting</option>
-              <option value="News presenting">News presenting</option>
-              <option value="Dubbing">Dubbing</option>
-              <option value="Sport commentary">Sport commentary</option>
-            </select>
+            <div id="roleSub1" class="role-subfield" style="display:none">
+              <label><input type="checkbox" value="Program presenting"> Program presenting</label>
+              <label><input type="checkbox" value="News presenting"> News presenting</label>
+              <label><input type="checkbox" value="Dubbing"> Dubbing</label>
+              <label><input type="checkbox" value="Sport commentary"> Sport commentary</label>
+            </div>
           </div>
           <div class="role-block">
             <select id="roleField2" class="role-input" style="display:none">
@@ -135,13 +93,12 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub2" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select Subcategory</option>
-              <option value="Program presenting">Program presenting</option>
-              <option value="News presenting">News presenting</option>
-              <option value="Dubbing">Dubbing</option>
-              <option value="Sport commentary">Sport commentary</option>
-            </select>
+            <div id="roleSub2" class="role-subfield" style="display:none">
+              <label><input type="checkbox" value="Program presenting"> Program presenting</label>
+              <label><input type="checkbox" value="News presenting"> News presenting</label>
+              <label><input type="checkbox" value="Dubbing"> Dubbing</label>
+              <label><input type="checkbox" value="Sport commentary"> Sport commentary</label>
+            </div>
           </div>
           <div class="role-block">
             <select id="roleField3" class="role-input" style="display:none">     
@@ -161,16 +118,15 @@
               <option value="Cartoon drawer">Cartoon drawer</option>
               <option value="Poster drawer">Poster drawer</option>
             </select>
-            <select id="roleSub3" class="role-subfield" style="display:none">
-              <option value="" disabled selected>Select Subcategory</option>
-              <option value="Program presenting">Program presenting</option>
-              <option value="News presenting">News presenting</option>
-              <option value="Dubbing">Dubbing</option>
-              <option value="Sport commentary">Sport commentary</option>
-            </select>
+            <div id="roleSub3" class="role-subfield" style="display:none">
+              <label><input type="checkbox" value="Program presenting"> Program presenting</label>
+              <label><input type="checkbox" value="News presenting"> News presenting</label>
+              <label><input type="checkbox" value="Dubbing"> Dubbing</label>
+              <label><input type="checkbox" value="Sport commentary"> Sport commentary</label>
+            </div>
           </div>
         </div>
-        <small class="form-note">Select up to 3 roles; announcer subcategories are single selections and are saved appended with <code>-</code>.</small>
+        <small class="form-note">Select up to 3 roles; announcer subcategories may be selected together. Saved as <code>Role - sub1, sub2</code>.</small>
       </div>
       <div class="triple-row full-row">
         <select id="department">
@@ -201,7 +157,7 @@
       <input id="birthday"        type="date" placeholder="Birthday">
       <input id="joinedYear"      placeholder="Joined Year">
     </div>
-    <button onclick="updateStudent()">Update Student</button>
+    <button type="button" onclick="updateStudent()">Update Student</button>
     <p id="msg"></p>
   </div>
 </div>
@@ -277,18 +233,9 @@
       const raw = sessionStorage.getItem('rcmu_admin');
       if (raw) {
         const u = JSON.parse(raw);
-        // Call updateHeaderUser from app.js to display user badge
-        if (window.updateHeaderUser) window.updateHeaderUser();
-        
         if (u.ADM_role === 'admin') {
-          document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
-          document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
-          document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
-          document.getElementById('adminLink')?.style && (document.getElementById('adminLink').style.display = 'inline-flex');
-        } else if (u.ADM_role === 'editor') {
-          document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
-          document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
-          document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
+          const link = document.getElementById('adminLink');
+          if (link) link.style.display = 'inline-flex';
         }
       }
     } catch(e) {}
@@ -310,7 +257,7 @@
         Array.from(field.options).forEach(option => {
           if (!option.value) return;
           const alreadySelected = selected.has(option.value);
-          option.disabled = alreadySelected && field.value !== option.value && !isAnnouncerRole(option.value);
+          option.disabled = alreadySelected && field.value !== option.value;
         });
       });
     };
@@ -320,19 +267,14 @@
     };
 
     const getSelectedSubValues = (subField) => {
-      return Array.from(subField.selectedOptions).map(opt => opt.value.trim()).filter(Boolean);
+      return Array.from(subField.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(input => input.value.trim())
+        .filter(Boolean);
     };
 
     const updateSubcategoryOptions = () => {
-      const subs = getRoleSubFields();
-      const selectedSubs = new Set(subs.flatMap(sub => getSelectedSubValues(sub)));
-      subs.forEach(sub => {
-        Array.from(sub.options).forEach(option => {
-          if (!option.value) return;
-          const isSelectedHere = option.selected;
-          option.disabled = selectedSubs.has(option.value) && !isSelectedHere;
-        });
-      });
+      // Allow the same subcategory to be selected independently for each announcer role.
+      return;
     };
 
     const updateRoleSubFields = () => {
@@ -344,7 +286,10 @@
           subField.style.display = 'block';
         } else {
           subField.style.display = 'none';
-          subField.value = '';
+          subField.querySelectorAll('input[type="checkbox"]').forEach(input => {
+            input.checked = false;
+            input.disabled = false;
+          });
         }
       }
       updateSubcategoryOptions();
@@ -362,7 +307,10 @@
           field.style.display = 'none';
           field.value = '';
           subField.style.display = 'none';
-          subField.value = '';
+          subField.querySelectorAll('input[type="checkbox"]').forEach(input => {
+            input.checked = false;
+            input.disabled = false;
+          });
         }
       }
       updateRoleOptions();
@@ -378,7 +326,11 @@
     });
 
     const roleSubFields = getRoleSubFields();
-    roleSubFields.forEach((sub) => sub.addEventListener('change', updateSubcategoryOptions));
+    roleSubFields.forEach((sub) => {
+      sub.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', updateSubcategoryOptions);
+      });
+    });
 
     if (roleCount) {
       roleCount.addEventListener('change', updateRoleFields);

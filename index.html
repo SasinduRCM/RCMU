@@ -1,55 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="manifest.json">
-  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rahula College Media Unit Database</title>
   <link rel="stylesheet" href="style.css">
-<script>
-// RCMU PWA — GitHub Pages: https://sasindurcm.github.io/RCMU.net/
-(function () {
-  var BASE_URL = 'https://sasindurcm.github.io/RCMU.net';
-
-  // Register Service Worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(BASE_URL + '/sw.js', {
-      scope: BASE_URL + '/'
-    }).then(function (reg) {
-      reg.update();
-    }).catch(function (e) {
-      console.warn('SW:', e);
-    });
-  }
-})();
-</script>
 </head>
 <body>
 
 <div class="container">
   <header class="page-header">
-    <div class="header-logos-row">
-      <div class="header-logo logo-left"><img src="Rahula_College_Crest.png" alt="Rahula College"></div>
-      <div class="header-logo logo-right"><img src="Media Unit Original logo.png" alt="Media Unit"></div>
+    <div class="header-logo logo-left">
+      <img src="Rahula_College_Crest.png" alt="Rahula College logo">
+      <span class="logo-label"></span>
     </div>
     <div class="header-title">
-      <h1>Rahula College Media Unit</h1>
-      <p class="subtitle">Student Database</p>
+      <h1>Rahula College Media Unit Database</h1>
+      <p class="subtitle">Browse the media unit student roster by grade or department.</p>
+    </div>
+    <div class="header-logo logo-right">
+      <img src="Media Unit Original logo.png" alt="Media Unit logo">
+      <span class="logo-label"></span>
     </div>
   </header>
+
   <div class="header-actions">
     <span id="currentUser" class="user-badge"></span>
-    <a class="secondary-link" href="duty-mark.html" id="dutyMarkLink" style="display:none">🗂 Mark Duty</a>
-    <a class="secondary-link" href="duty-schedule.html" id="dutySchedLink" style="display:none">📅 Schedule</a>
-    <a class="secondary-link" href="duty-appeals.html" id="appealsLink" style="display:none">📣 Appeals</a>
-    <a class="secondary-link" href="admin.html" id="adminLink" style="display:none">⚙️ Admin</a>
+    <a class="secondary-link" href="add.html" id="addStudentLink">Add Student</a>
+    <a class="secondary-link" href="admin.html" id="adminLink" style="display:none">Admin Panel</a>
     <button class="logout-btn" onclick="doLogout()">Sign Out</button>
-  </div>
-
-  <div class="page-hero">
-    <div class="page-hero-title">🗄️ DataBase</div>
-    <div class="page-hero-sub">Browse and manage the media unit student database.</div>
   </div>
 
   <div class="search-panel">
@@ -72,7 +51,6 @@
       <option value="department">Sort: Department</option>
       <option value="joinedYear">Sort: Joined Year</option>
     </select>
-    <button id="addStudentBtn" type="button">➕ Add Student</button>
     <button id="downloadSheetBtn" type="button">⬇ Download Sheet</button>
   </div>
 
@@ -80,33 +58,6 @@
 </div>
 
 <!-- ── FOOTER ──────────────────────────────────────────────── -->
-
-<script type="module" src="app.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    try {
-      const raw = sessionStorage.getItem('rcmu_admin');
-      if (raw) {
-        const u = JSON.parse(raw);
-        // Call updateHeaderUser from app.js to display user badge
-        if (window.updateHeaderUser) window.updateHeaderUser();
-        
-        if (u.ADM_role === 'admin') {
-          document.getElementById('adminLink')?.style && (document.getElementById('adminLink').style.display = 'inline-flex');
-          document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
-          document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
-          document.getElementById('appealsLink')?.style && (document.getElementById('appealsLink').style.display = 'inline-flex');
-        } else if (u.ADM_role === 'editor') {
-          document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
-          document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
-        } else if (u.ADM_role === 'viewer') {
-          document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
-        }
-      }
-    } catch(e) {}
-  });
-</script>
-
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-top">
@@ -137,12 +88,8 @@
         <div class="footer-links">
           <a href="index.html">Student Roster</a>
           <a href="add.html">Add Student</a>
-          <a href="duty-schedule.html">Duty Schedule</a>
-          <a href="duty-mark.html">Mark Duty</a>
-          <a href="duty-swap.html">Duty Swaps</a>
-          <a href="duty-appeals.html">Appeals</a>
-          <a href="attendance-report.html">Attendance Report</a>
           <a href="admin.html">Admin Panel</a>
+          <a href="login.html">Sign In</a>
         </div>
       </div>
 
@@ -150,13 +97,9 @@
       <div>
         <div class="footer-col-title">System</div>
         <div class="footer-links">
-          <a href="leaderboard.html">🏆 Leaderboard</a>
-          <a href="announcements.html">📢 Announcements</a>
-          <a href="dept-analytics.html">📊 Analytics</a>
-          <a href="report-card.html">📄 Report Cards</a>
-          <a href="monthly-summary.html">📅 Monthly Summary</a>
-          <a href="student-login.html">Student Portal</a>
-          <a href="login.html">Staff Sign In</a>
+          <a href="#" onclick="return false;">Card View</a>
+          <a href="#" onclick="return false;">Table View</a>
+          <a href="#" onclick="document.getElementById('downloadSheetBtn')?.click();return false;">Export Sheet</a>
           <a href="#" onclick="doLogout();return false;">Sign Out</a>
         </div>
       </div>
@@ -166,12 +109,13 @@
     <!-- Bottom bar -->
     <div class="footer-bottom">
       <div class="footer-copy">
-        &copy; <span class="footer-year"></span> Rahula College Media Unit.<br>
+        &copy; <span id="footerYear"></span> Rahula College Media Unit.<br>
         <span>All rights reserved. Unauthorised access is prohibited.</span>
       </div>
+
       <div class="footer-dev">
         <span class="footer-dev-label">Designed &amp; Developed by</span>
-        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link" title="Visit Sasindu Ruwaneka's portfolio">
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link" title="Visit Sasindu Ruwaneka's portfolio" id="devPortfolioLink">
           <div class="dev-avatar">SR</div>
           <span class="dev-name">Sasindu Ruwaneka</span>
           <span class="dev-badge">Dev</span>
@@ -180,101 +124,22 @@
     </div>
   </div>
 </footer>
+
+<script type="module" src="app.js"></script>
 <script>
-  document.querySelectorAll('.footer-year').forEach(el => el.textContent = new Date().getFullYear());
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const raw = sessionStorage.getItem('rcmu_admin');
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u.ADM_role === 'admin') {
+          const link = document.getElementById('adminLink');
+          if (link) link.style.display = 'inline-flex';
+        }
+      }
+    } catch(e) {}
+  });
 </script>
-<!-- PWA Install Banner v2 -->
-<div class="install-banner-v2" id="installBannerV2">
-  <div class="ib-icon">📱</div>
-  <div class="ib-text">
-    <div class="ib-title">Install RCMU App</div>
-    <div class="ib-sub">Add to home screen for the best experience</div>
-    <div class="ib-features">
-      <span class="ib-feature">🔔 Duty reminders</span>
-      <span class="ib-feature">⚡ Offline access</span>
-      <span class="ib-feature">🚀 Faster loading</span>
-    </div>
-  </div>
-  <div class="ib-actions">
-    <button class="ib-install" id="ibInstallBtn">Install Now</button>
-    <button class="ib-dismiss" id="ibDismissBtn">Not now</button>
-  </div>
-</div>
-<!-- iOS Safari install tip -->
-<div class="ios-install-tip" id="iosInstallTip">
-  <div class="ios-tip-icon">📲</div>
-  <div class="ios-tip-title">Add RCMU to Your Home Screen</div>
-  <div class="ios-tip-steps">
-    Tap the <span>Share button ⬆</span> in Safari<br>
-    then tap <span>"Add to Home Screen"</span>
-  </div>
-  <button class="ios-tip-close" id="iosTipClose">Got it</button>
-</div>
-
-<script>
-(function(){
-  const DISMISSED_KEY = 'rcmu_install_dismissed_v2';
-  const IOS_KEY       = 'rcmu_ios_tip_dismissed';
-  let deferredPromptV2 = null;
-
-  function isIOS(){
-    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-  }
-  function isInStandaloneMode(){
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  }
-  function show(id){ const el=document.getElementById(id); el&&el.classList.add('show'); }
-  function hide(id){ const el=document.getElementById(id); el&&el.classList.remove('show'); }
-
-  // Android / Chrome — beforeinstallprompt
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPromptV2 = e;
-    if(!localStorage.getItem(DISMISSED_KEY) && !isInStandaloneMode()){
-      setTimeout(()=>show('installBannerV2'), 3000);
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', ()=>{
-    // Install button
-    const installBtn = document.getElementById('ibInstallBtn');
-    installBtn&&installBtn.addEventListener('click', async()=>{
-      if(!deferredPromptV2) return;
-      hide('installBannerV2');
-      deferredPromptV2.prompt();
-      const r = await deferredPromptV2.userChoice;
-      if(r.outcome === 'accepted') localStorage.setItem(DISMISSED_KEY,'1');
-      deferredPromptV2 = null;
-    });
-
-    // Dismiss button
-    const dismissBtn = document.getElementById('ibDismissBtn');
-    dismissBtn&&dismissBtn.addEventListener('click',()=>{
-      hide('installBannerV2');
-      localStorage.setItem(DISMISSED_KEY,'1');
-    });
-
-    // iOS tip
-    const iosTipClose = document.getElementById('iosTipClose');
-    iosTipClose&&iosTipClose.addEventListener('click',()=>{
-      hide('iosInstallTip');
-      localStorage.setItem(IOS_KEY,'1');
-    });
-
-    // Show iOS tip on iOS Safari (not already installed)
-    if(isIOS() && !isInStandaloneMode() && !localStorage.getItem(IOS_KEY)){
-      setTimeout(()=>show('iosInstallTip'), 4500);
-    }
-  });
-
-  // Already installed
-  window.addEventListener('appinstalled', ()=>{
-    hide('installBannerV2');
-    localStorage.setItem(DISMISSED_KEY,'1');
-    if(typeof showToast === 'function') showToast('✅ App installed successfully!','success');
-  });
-})();
-</script>
-
 </body>
 </html>
