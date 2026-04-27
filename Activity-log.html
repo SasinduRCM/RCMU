@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Log — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Favicon all sizes -->
+  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon"                         href="icon-32.png">
+  <link rel="apple-touch-icon"                      href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152"      href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180"      href="icon-180.png">
+  <!-- SEO Meta -->
+  <meta name="description"   content="Audit log for the Rahula College Media Unit — track all admin actions, edits and duty marks.">
+  <meta name="author"        content="Sasindu Ruwaneka">
+  <meta name="robots"        content="noindex, nofollow">
+  <meta name="theme-color"   content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Audit Log — Rahula College Media Unit">
+  <meta property="og:description" content="Track all admin actions, edits and duty marks.">
+  <meta property="og:image"       content="Icon.png">
+  <meta property="og:site_name"   content="Rahula College Media Unit">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable"          content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title"            content="RCMU">
+  <meta name="msapplication-TileImage"               content="icon-144.png">
+  <meta name="msapplication-TileColor"               content="#0b0f1a">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+  <!-- Page hero -->
+  <div class="page-hero">
+    <div class="page-hero-title">🔍 Audit Log</div>
+    <div class="page-hero-sub">Full history of every admin action — additions, edits, deletions, points changes and duty marks.</div>
+  </div>
+
+  <!-- Admin-only notice -->
+  <div class="admin-only-banner">
+    <span style="font-size:1.1rem">🔐</span>
+    <div>
+      <strong style="color:#e9d5ff">Admin-only page.</strong>
+      All actions performed by any staff member are recorded here automatically.
+    </div>
+  </div>
+
+  <!-- Summary stat cards -->
+  <div class="admin-stats" id="logStats" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stat-card">
+      <div class="stat-value" id="statTotal"   style="color:var(--accent)">—</div>
+      <div class="stat-label">Total Actions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statAdds"    style="color:var(--green)">—</div>
+      <div class="stat-label">Added</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statEdits"   style="color:var(--accent2)">—</div>
+      <div class="stat-label">Edited</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statDeletes" style="color:var(--red)">—</div>
+      <div class="stat-label">Deleted</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statDuty"    style="color:var(--gold)">—</div>
+      <div class="stat-label">Duty Marks</div>
+    </div>
+  </div>
+
+  <!-- Filters row -->
+  <div class="log-filters">
+    <select id="logTypeFilter">
+      <option value="all">All Actions</option>
+      <option value="ADD_STUDENT">➕ Added Student</option>
+      <option value="EDIT_STUDENT">✏️ Edited Student</option>
+      <option value="DELETE_STUDENT">🗑 Deleted Student</option>
+      <option value="POINTS_ADD">⬆ Points Added</option>
+      <option value="POINTS_REMOVE">⬇ Points Removed</option>
+      <option value="DUTY_MARK">🗂 Marked Duty</option>
+    </select>
+
+    <select id="logRoleFilter">
+      <option value="all">All Roles</option>
+      <option value="admin">⚡ Admin</option>
+      <option value="editor">✏️ Editor</option>
+      <option value="viewer">👁 Viewer</option>
+    </select>
+
+    <select id="logDateFilter">
+      <option value="all">All Time</option>
+      <option value="today">Today</option>
+      <option value="week">Last 7 Days</option>
+      <option value="month">Last 30 Days</option>
+    </select>
+
+    <input type="search" id="logSearch" placeholder="🔎  Search by student, user or details…" autocomplete="off">
+
+    <span class="log-count" id="logCount">— entries</span>
+    <button class="log-refresh-btn" id="logRefresh">↻ Refresh</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" id="logLoading">
+    <div class="spinner-ring"></div>
+    Loading audit records…
+  </div>
+
+  <!-- Table -->
+  <div id="logTableWrap" style="display:none">
+    <div class="log-table-wrap">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th style="width:130px">Date &amp; Time</th>
+            <th style="width:160px">Action</th>
+            <th style="width:160px">Performed By</th>
+            <th>Target Student</th>
+            <th>Details</th>
+            <th style="width:90px;text-align:center">ID</th>
+          </tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+      </table>
+      <div class="empty-state" id="logEmpty" style="display:none;border:none;border-radius:0">
+        <div style="font-size:2rem;margin-bottom:10px">📭</div>
+        No log entries match the current filters.
+      </div>
+    </div>
+
+    <!-- Export row -->
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;gap:10px">
+      <button class="log-refresh-btn" id="exportCsvBtn" style="color:var(--green);border-color:rgba(16,185,129,.3)">⬇ Export CSV</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div>
+            <div class="footer-brand-name">Rahula College<br>Media Unit</div>
+          </div>
+        </div>
+        <p class="footer-brand-desc">
+          The official database system for the Rahula College Media Unit — managing student records, roles, and departments across all grades.
+        </p>
+        <div class="footer-tech-badges">
+          <span class="tech-badge">Firebase</span>
+          <span class="tech-badge">Firestore</span>
+          <span class="tech-badge">Vanilla JS</span>
+          <span class="tech-badge">SheetJS</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a>
+          <a href="add.html">Add Student</a>
+          <a href="duty-schedule.html">Duty Schedule</a>
+          <a href="duty-mark.html">Mark Duty</a>
+          <a href="duty-swap.html">Duty Swaps</a>
+          <a href="duty-appeals.html">Appeals</a>
+          <a href="attendance-report.html">Attendance Report</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="leaderboard.html">🏆 Leaderboard</a>
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="dept-analytics.html">📊 Analytics</a>
+          <a href="report-card.html">📄 Report Cards</a>
+          <a href="monthly-summary.html">📅 Monthly Summary</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="login.html">Staff Sign In</a>
+          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">
+        &copy; <span class="footer-year"></span> Rahula College Media Unit.<br>
+        <span>All rights reserved. Unauthorised access is prohibited.</span>
+      </div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link" title="Visit Sasindu Ruwaneka's portfolio">
+          <div class="dev-avatar">SR</div>
+          <span class="dev-name">Sasindu Ruwaneka</span>
+          <span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="admin-data.js"></script>
+<script type="module" src="app.js"></script>
+<script>
+  document.querySelectorAll('.footer-year').forEach(el => el.textContent = new Date().getFullYear());
+</script>
+</body>
+</html>

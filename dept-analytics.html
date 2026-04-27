@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Department Analytics — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="shortcut icon" href="icon-32.png">
+  <meta name="description" content="Department-level analytics dashboard for the Rahula College Media Unit.">
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .dash-hero{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:24px;margin-bottom:22px;position:relative;overflow:hidden;animation:fadeSlideUp .5s cubic-bezier(.22,1,.36,1) both}
+    .dash-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent2),var(--accent),var(--green))}
+
+    /* Overview stat grid */
+    .overview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    @media(max-width:700px){.overview-grid{grid-template-columns:repeat(2,1fr)}}
+    .ov-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;text-align:center;animation:fadeSlideUp .4s cubic-bezier(.22,1,.36,1) both;position:relative;overflow:hidden}
+    .ov-val{font-family:var(--font-display);font-size:2rem;font-weight:700;line-height:1}
+    .ov-lbl{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:5px}
+    .ov-trend{font-size:.68rem;margin-top:4px}
+
+    /* Department cards */
+    .dept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:26px}
+    .dept-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;animation:fadeSlideUp .4s cubic-bezier(.22,1,.36,1) both;position:relative;overflow:hidden}
+    .dept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .dept-card.photo::before{background:linear-gradient(90deg,#f59e0b,#f97316)}
+    .dept-card.web::before{background:linear-gradient(90deg,#3b82f6,#06b6d4)}
+    .dept-card.media::before{background:linear-gradient(90deg,#10b981,#6366f1)}
+    .dept-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .dept-name{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text)}
+    .dept-count-chip{padding:3px 11px;border-radius:12px;font-size:.7rem;font-weight:700;background:rgba(59,130,246,.1);color:var(--accent);border:1px solid rgba(59,130,246,.2)}
+    .dept-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .ds{background:var(--bg-panel);border-radius:var(--radius-sm);padding:10px;text-align:center;border:1px solid var(--border)}
+    .ds-val{font-family:var(--font-display);font-size:1.15rem;font-weight:700}
+    .ds-lbl{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+    /* Bar chart */
+    .bar-chart{margin-top:14px}
+    .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .bar-label{font-size:.72rem;color:var(--text-sub);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bar-track{flex:1;height:8px;background:var(--bg-panel);border-radius:4px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.22,1,.36,1)}
+    .bar-pct{font-size:.68rem;color:var(--text-muted);min-width:34px;text-align:right}
+
+    /* Grade breakdown table */
+    .grade-table-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px}
+    .grade-table{width:100%;border-collapse:collapse}
+    .grade-table th{padding:10px 16px;text-align:left;font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;background:var(--bg-panel);border-bottom:1px solid var(--border)}
+    .grade-table td{padding:10px 16px;border-bottom:1px solid rgba(30,41,59,.5);font-size:.82rem}
+    .grade-table tr:last-child td{border-bottom:none}
+    .grade-table tr:hover td{background:rgba(59,130,246,.04)}
+
+    /* Top performers */
+    .top-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .top-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;gap:12px;animation:fadeSlideUp .3s cubic-bezier(.22,1,.36,1) both}
+    .top-rank{font-family:var(--font-display);font-size:1.2rem;font-weight:700;min-width:28px;text-align:center}
+    .top-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg-panel);border:1.5px solid var(--border-soft);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.85rem;font-weight:700;color:var(--text-muted);flex-shrink:0}
+    .top-name{font-size:.82rem;font-weight:700;color:var(--text)}
+    .top-sub{font-size:.68rem;color:var(--text-muted);margin-top:2px}
+    .top-pts{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--gold);margin-left:auto}
+
+    .section-heading{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+    .section-heading::after{content:'';flex:1;height:1px;background:var(--border);display:block}
+
+    /* Attendance donut via pure CSS (simplified) */
+    .donut-wrap{display:flex;align-items:center;gap:16px;margin-top:10px}
+    .donut-legend{display:flex;flex-direction:column;gap:5px}
+    .donut-leg-item{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text-sub)}
+    .donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .donut-svg{flex-shrink:0}
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="dash-hero">
+    <div class="page-hero-title">📊 Department Analytics</div>
+    <div class="page-hero-sub">Compare attendance rates, duty performance and points across all departments and grades.</div>
+  </div>
+
+  <!-- Overview stats -->
+  <div class="overview-grid" id="overviewGrid">
+    <div class="ov-card" style="animation-delay:.0s"><div class="ov-val" id="ovTotal" style="color:var(--accent)">—</div><div class="ov-lbl">Total Students</div></div>
+    <div class="ov-card" style="animation-delay:.05s"><div class="ov-val" id="ovAvgAtt" style="color:var(--green)">—</div><div class="ov-lbl">Avg Attendance</div></div>
+    <div class="ov-card" style="animation-delay:.1s"><div class="ov-val" id="ovAvgPts" style="color:var(--gold)">—</div><div class="ov-lbl">Avg Points</div></div>
+    <div class="ov-card" style="animation-delay:.15s"><div class="ov-val" id="ovPerfect" style="color:var(--accent2)">—</div><div class="ov-lbl">100% Attendance</div></div>
+  </div>
+
+  <!-- Department breakdown -->
+  <div class="section-heading">Department Breakdown</div>
+  <div class="dept-grid" id="deptGrid">
+    <div style="color:var(--text-muted);font-size:.85rem;padding:20px;grid-column:1/-1;text-align:center">Loading…</div>
+  </div>
+
+  <!-- Grade breakdown table -->
+  <div class="section-heading">Grade Breakdown</div>
+  <div class="grade-table-wrap">
+    <table class="grade-table">
+      <thead>
+        <tr>
+          <th>Grade</th>
+          <th>Students</th>
+          <th style="color:var(--green)">Avg Attendance</th>
+          <th style="color:var(--gold)">Avg Points</th>
+          <th>Top Dept</th>
+          <th>Best Student</th>
+        </tr>
+      </thead>
+      <tbody id="gradeTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Top performers -->
+  <div class="section-heading">🏅 Top 10 Performers (Overall)</div>
+  <div class="top-list" id="topList">
+    <div style="color:var(--text-muted);font-size:.85rem;padding:20px">Loading…</div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit.</p>
+        <div class="footer-tech-badges"><span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">Vanilla JS</span></div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="attendance-report.html">Attendance Report</a>
+          <a href="Activity-log.html">Audit Log</a><a href="admin.html">Admin Panel</a>
+          <a href="leaderboard.html">Leaderboard</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="login.html">Staff Sign In</a>
+          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="admin-data.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",authDomain:"rcmu-db.firebaseapp.com",projectId:"rcmu-db",storageBucket:"rcmu-db.firebasestorage.app",messagingSenderId:"1043134894673",appId:"1:1043134894673:web:dbd89dd271749cea6fde70"};
+const app=initializeApp(cfg); const db=getFirestore(app);
+
+let cu=null;
+try{const r=sessionStorage.getItem('rcmu_admin');if(!r){window.location.href='login.html';}else{cu=JSON.parse(r);}}catch(e){window.location.href='login.html';}
+window.doLogout=()=>{sessionStorage.removeItem('rcmu_admin');window.location.href='login.html';};
+
+const DEPTS=['Photography','Web','Media'];
+const DEPT_CLASS={Photography:'photo',Web:'web',Media:'media'};
+const DEPT_COLORS={Photography:['#f59e0b','#f97316'],Web:['#3b82f6','#06b6d4'],Media:['#10b981','#6366f1']};
+
+let allStudents=[];
+
+onSnapshot(collection(db,'RCMU_DB'),snap=>{
+  allStudents=snap.docs.map(d=>({_docId:d.id,...d.data()})).filter(s=>s.status==='active');
+  renderAll();
+});
+
+function avg(arr){return arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):0;}
+
+function renderAll(){
+  const total=allStudents.length;
+  const avgAtt=avg(allStudents.map(s=>Number(s.dutyPercentage)||0));
+  const avgPts=avg(allStudents.map(s=>Number(s.dutyPoints)||0));
+  const perfect=allStudents.filter(s=>Number(s.dutyPercentage)>=100).length;
+
+  document.getElementById('ovTotal').textContent=total;
+  document.getElementById('ovAvgAtt').textContent=avgAtt+'%';
+  document.getElementById('ovAvgPts').textContent=avgPts;
+  document.getElementById('ovPerfect').textContent=perfect;
+
+  renderDeptGrid();
+  renderGradeTable();
+  renderTopList();
+}
+
+function renderDeptGrid(){
+  const el=document.getElementById('deptGrid');
+  const maxPts=Math.max(...allStudents.map(s=>Number(s.dutyPoints)||0),1);
+
+  el.innerHTML=DEPTS.map((dept,di)=>{
+    const students=allStudents.filter(s=>s.department===dept);
+    if(!students.length) return `<div class="dept-card ${DEPT_CLASS[dept]}"><div class="dept-header"><span class="dept-name">${dept}</span></div><div style="color:var(--text-muted);font-size:.82rem">No students</div></div>`;
+
+    const attAvg=avg(students.map(s=>Number(s.dutyPercentage)||0));
+    const ptsAvg=avg(students.map(s=>Number(s.dutyPoints)||0));
+    const perfect=students.filter(s=>Number(s.dutyPercentage)>=100).length;
+
+    // Grade breakdown bar chart
+    const grades=[...new Set(students.map(s=>(s.grade||'').toString()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+    const barRows=grades.map(g=>{
+      const gs=students.filter(s=>(s.grade||'').toString()===g);
+      const ga=avg(gs.map(s=>Number(s.dutyPercentage)||0));
+      return `<div class="bar-row">
+        <span class="bar-label">Grade ${g}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${ga}%;background:linear-gradient(90deg,${DEPT_COLORS[dept].join(',')})"></div></div>
+        <span class="bar-pct">${ga}%</span>
+      </div>`;
+    }).join('');
+
+    // Top student
+    const top=students.sort((a,b)=>(Number(b.dutyPoints)||0)-(Number(a.dutyPoints)||0))[0];
+    const topInit=(top?.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+    return `<div class="dept-card ${DEPT_CLASS[dept]}" style="animation-delay:${di*.07}s">
+      <div class="dept-header">
+        <span class="dept-name">${dept}</span>
+        <span class="dept-count-chip">${students.length} student${students.length!==1?'s':''}</span>
+      </div>
+      <div class="dept-stats-row">
+        <div class="ds"><div class="ds-val" style="color:var(--green)">${attAvg}%</div><div class="ds-lbl">Avg Att.</div></div>
+        <div class="ds"><div class="ds-val" style="color:var(--gold)">${ptsAvg}</div><div class="ds-lbl">Avg Pts</div></div>
+        <div class="ds"><div class="ds-val" style="color:var(--accent2)">${perfect}</div><div class="ds-lbl">100% Att.</div></div>
+      </div>
+      <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;font-weight:700">Attendance by Grade</div>
+      <div class="bar-chart">${barRows||'<div style="color:var(--text-muted);font-size:.75rem">No grade data</div>'}</div>
+      ${top?`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <div class="top-avatar">${topInit}</div>
+        <div><div style="font-size:.78rem;font-weight:700;color:var(--text)">${top.fullname}</div><div style="font-size:.65rem;color:var(--text-muted)">Top performer · ${top.dutyPoints||0} pts</div></div>
+        <span style="margin-left:auto;font-size:1.1rem">🥇</span>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderGradeTable(){
+  const grades=[...new Set(allStudents.map(s=>(s.grade||'').toString()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const tbody=document.getElementById('gradeTableBody');
+  tbody.innerHTML=grades.map((g,i)=>{
+    const gs=allStudents.filter(s=>(s.grade||'').toString()===g);
+    const attA=avg(gs.map(s=>Number(s.dutyPercentage)||0));
+    const ptsA=avg(gs.map(s=>Number(s.dutyPoints)||0));
+    // top dept
+    const deptCounts={};gs.forEach(s=>{deptCounts[s.department]=(deptCounts[s.department]||0)+1;});
+    const topDept=Object.entries(deptCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+    // best student
+    const best=gs.sort((a,b)=>(Number(b.dutyPoints)||0)-(Number(a.dutyPoints)||0))[0];
+    return `<tr style="animation:rowIn .2s ${i*.03}s both">
+      <td style="font-weight:700;color:var(--accent)">Grade ${g}</td>
+      <td style="color:var(--text-sub)">${gs.length}</td>
+      <td><span style="color:${attA>=80?'var(--green)':attA>=50?'var(--gold)':'var(--red)'};font-weight:700">${attA}%</span></td>
+      <td style="color:var(--gold);font-weight:700;font-family:var(--font-display)">${ptsA}</td>
+      <td><span style="background:rgba(6,182,212,.1);color:var(--accent2);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:2px 8px;font-size:.68rem;font-weight:600">${topDept}</span></td>
+      <td style="font-size:.78rem;font-weight:600;color:var(--text-sub)">${best?.fullname||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTopList(){
+  const top10=[...allStudents].sort((a,b)=>(Number(b.dutyPoints)||0)-(Number(a.dutyPoints)||0)).slice(0,10);
+  const el=document.getElementById('topList');
+  el.innerHTML=top10.map((s,i)=>{
+    const rank=i+1;
+    const initials=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    return `<div class="top-card" style="animation-delay:${i*.04}s">
+      <div class="top-rank" style="color:${rank<=3?'var(--gold)':rank<=10?'var(--accent2)':'var(--text-muted)'}">${medal||rank}</div>
+      <div class="top-avatar">${initials}</div>
+      <div>
+        <div class="top-name">${s.fullname||'—'}</div>
+        <div class="top-sub">${s.department||'—'} · Gr ${s.grade||'—'}</div>
+      </div>
+      <div class="top-pts">${s.dutyPoints||0}</div>
+    </div>`;
+  }).join('');
+}
+
+document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

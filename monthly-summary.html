@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Summary — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="shortcut icon" href="icon-32.png">
+  <meta name="description" content="Monthly admin summary and export for the Rahula College Media Unit.">
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="stylesheet" href="style.css">
+  <!-- SheetJS for Excel export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    .ms-hero{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:24px;margin-bottom:22px;position:relative;overflow:hidden;animation:fadeSlideUp .5s cubic-bezier(.22,1,.36,1) both}
+    .ms-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--accent),var(--gold))}
+
+    .month-selector{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+    .ms-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+    .ms-field label{font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em}
+    .ms-field select{background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.88rem;padding:10px 12px;outline:none;transition:border-color var(--transition)}
+    .ms-field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+    .load-btn{padding:11px 22px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:var(--font-body);font-size:.9rem;font-weight:700;cursor:pointer;transition:all var(--transition)}
+    .load-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,130,246,.4)}
+
+    /* Summary KPI cards */
+    .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+    @media(max-width:800px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:500px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kpi{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;animation:fadeSlideUp .4s cubic-bezier(.22,1,.36,1) both}
+    .kpi-val{font-family:var(--font-display);font-size:1.7rem;font-weight:700;line-height:1}
+    .kpi-lbl{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
+
+    /* Export row */
+    .export-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+    .ex-btn{padding:9px 18px;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.82rem;font-weight:700;cursor:pointer;transition:all var(--transition)}
+    .ex-btn-excel{border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.1);color:var(--green)}
+    .ex-btn-excel:hover{background:rgba(16,185,129,.2)}
+    .ex-btn-print{border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.1);color:var(--accent)}
+    .ex-btn-print:hover{background:rgba(59,130,246,.2)}
+
+    /* Section heading */
+    .ms-section{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;margin-top:24px;display:flex;align-items:center;gap:10px}
+    .ms-section::after{content:'';flex:1;height:1px;background:var(--border);display:block}
+
+    /* Summary table */
+    .ms-table-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+    .ms-table{width:100%;border-collapse:collapse}
+    .ms-table th{padding:10px 14px;text-align:left;font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;background:var(--bg-panel);border-bottom:1px solid var(--border)}
+    .ms-table td{padding:9px 14px;border-bottom:1px solid rgba(30,41,59,.5);font-size:.8rem}
+    .ms-table tr:last-child td{border-bottom:none}
+    .ms-table tr:hover td{background:rgba(59,130,246,.04)}
+
+    /* Duty events list */
+    .event-list{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+    .event-item{padding:12px 16px;border-bottom:1px solid rgba(30,41,59,.5);display:flex;align-items:center;gap:12px;font-size:.82rem}
+    .event-item:last-child{border-bottom:none}
+    .event-date-chip{padding:3px 10px;border-radius:8px;font-size:.68rem;font-weight:700;background:rgba(59,130,246,.1);color:var(--accent);border:1px solid rgba(59,130,246,.2);white-space:nowrap;flex-shrink:0}
+
+    #summaryContent{display:none}
+
+    @media print{
+      .ms-hero,.month-selector,.export-row{display:none!important}
+      #summaryContent{display:block!important}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="ms-hero">
+    <div class="page-hero-title">📅 Monthly Admin Summary</div>
+    <div class="page-hero-sub">Generate a full attendance and duty performance summary for any month. Export as Excel or print as PDF.</div>
+  </div>
+
+  <div class="month-selector">
+    <div class="ms-field">
+      <label>Select Month</label>
+      <select id="monthSelect">
+        <option value="2026-04">April 2026</option>
+        <option value="2026-03">March 2026</option>
+        <option value="2026-02">February 2026</option>
+        <option value="2026-01">January 2026</option>
+        <option value="2025-12">December 2025</option>
+        <option value="2025-11">November 2025</option>
+        <option value="2025-10">October 2025</option>
+        <option value="2025-09">September 2025</option>
+        <option value="2025-08">August 2025</option>
+        <option value="2025-07">July 2025</option>
+        <option value="2025-06">June 2025</option>
+        <option value="2025-05">May 2025</option>
+        <option value="2025-04">April 2025</option>
+        <option value="2025-03">March 2025</option>
+        <option value="2025-02">February 2025</option>
+        <option value="2025-01">January 2025</option>
+      </select>
+    </div>
+    <div class="ms-field">
+      <label>Department</label>
+      <select id="deptFilter">
+        <option value="all">All Departments</option>
+        <option value="Photography">Photography</option>
+        <option value="Web">Web</option>
+        <option value="Media">Media</option>
+      </select>
+    </div>
+    <button class="load-btn" onclick="loadSummary()">📊 Generate Summary</button>
+  </div>
+
+  <div id="summaryContent">
+    <div class="export-row">
+      <button class="ex-btn ex-btn-excel" onclick="exportExcel()">📥 Export Excel</button>
+      <button class="ex-btn ex-btn-print" onclick="window.print()">🖨️ Print / PDF</button>
+      <button class="ex-btn ex-btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </div>
+
+    <div id="kpiGrid" class="kpi-grid"></div>
+
+    <div class="ms-section">Student Attendance Summary</div>
+    <div class="ms-table-wrap">
+      <table class="ms-table">
+        <thead>
+          <tr>
+            <th>Student</th><th>Grade</th><th>Dept</th>
+            <th style="color:var(--green)">Present</th>
+            <th style="color:var(--gold)">Late</th>
+            <th style="color:var(--red)">Absent</th>
+            <th>Total</th>
+            <th>Att %</th>
+            <th style="color:var(--gold)">Points</th>
+          </tr>
+        </thead>
+        <tbody id="summaryTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="ms-section">Duty Events This Month</div>
+    <div class="event-list" id="eventList"></div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit.</p>
+        <div class="footer-tech-badges"><span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">SheetJS</span></div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="attendance-report.html">Attendance Report</a>
+          <a href="dept-analytics.html">Analytics</a><a href="report-card.html">Report Cards</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="leaderboard.html">🏆 Leaderboard</a>
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="login.html">Staff Sign In</a>
+          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="admin-data.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",authDomain:"rcmu-db.firebaseapp.com",projectId:"rcmu-db",storageBucket:"rcmu-db.firebasestorage.app",messagingSenderId:"1043134894673",appId:"1:1043134894673:web:dbd89dd271749cea6fde70"};
+const app=initializeApp(cfg); const db=getFirestore(app);
+
+let cu=null;
+try{const r=sessionStorage.getItem('rcmu_admin');if(!r){window.location.href='login.html';}else{cu=JSON.parse(r);}}catch(e){window.location.href='login.html';}
+window.doLogout=()=>{sessionStorage.removeItem('rcmu_admin');window.location.href='login.html';};
+
+let summaryData=[], schedEvents=[];
+
+window.loadSummary=async function(){
+  const month=document.getElementById('monthSelect').value;
+  const dept=document.getElementById('deptFilter').value;
+
+  // Load all students
+  const studSnap=await getDocs(collection(db,'RCMU_DB'));
+  let students=studSnap.docs.map(d=>({_docId:d.id,...d.data()})).filter(s=>s.status==='active');
+  if(dept!=='all') students=students.filter(s=>s.department===dept);
+
+  // Load duty logs for this month
+  const logSnap=await getDocs(collection(db,'RCMU_DutyLogs'));
+  const allLogs=logSnap.docs.map(d=>({_id:d.id,...d.data()})).filter(l=>(l.date||'').startsWith(month));
+
+  // Load schedules for this month
+  const schedSnap=await getDocs(collection(db,'RCMU_DutySchedules'));
+  schedEvents=schedSnap.docs.map(d=>({_schedId:d.id,...d.data()}))
+    .filter(s=>Array.isArray(s.dates)&&s.dates.some(d=>d.startsWith(month)));
+
+  summaryData=students.map(s=>{
+    const logs=allLogs.filter(l=>l.studentDocId===s._docId);
+    const present=logs.filter(l=>l.type==='present').length;
+    const late=logs.filter(l=>l.type==='late').length;
+    const absent=logs.filter(l=>l.type==='absent').length;
+    const total=present+late+absent;
+    const att=total>0?Math.round(((present+late)/total)*100):0;
+    return {...s,_present:present,_late:late,_absent:absent,_total:total,_att:att};
+  }).sort((a,b)=>b._att-a._att);
+
+  renderKPIs(month);
+  renderTable();
+  renderEvents();
+  document.getElementById('summaryContent').style.display='block';
+  document.getElementById('summaryContent').scrollIntoView({behavior:'smooth'});
+};
+
+function renderKPIs(month){
+  const total=summaryData.length;
+  const avgAtt=total?Math.round(summaryData.reduce((a,s)=>a+s._att,0)/total):0;
+  const totalDuties=summaryData.reduce((a,s)=>a+s._total,0);
+  const perfect=summaryData.filter(s=>s._att>=100).length;
+  const avgPts=total?Math.round(summaryData.reduce((a,s)=>a+(Number(s.dutyPoints)||0),0)/total):0;
+  const label=new Date(month+'-01').toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi" style="animation-delay:0s"><div class="kpi-val" style="color:var(--accent)">${total}</div><div class="kpi-lbl">Students</div></div>
+    <div class="kpi" style="animation-delay:.05s"><div class="kpi-val" style="color:var(--green)">${avgAtt}%</div><div class="kpi-lbl">Avg Attendance</div></div>
+    <div class="kpi" style="animation-delay:.1s"><div class="kpi-val" style="color:var(--gold)">${totalDuties}</div><div class="kpi-lbl">Total Duties</div></div>
+    <div class="kpi" style="animation-delay:.15s"><div class="kpi-val" style="color:var(--accent2)">${perfect}</div><div class="kpi-lbl">100% Att.</div></div>
+    <div class="kpi" style="animation-delay:.2s"><div class="kpi-val" style="color:var(--gold);font-size:1.3rem;padding-top:6px">${avgPts}</div><div class="kpi-lbl">Avg Points</div></div>
+  `;
+}
+
+function renderTable(){
+  const tbody=document.getElementById('summaryTableBody');
+  tbody.innerHTML=summaryData.map((s,i)=>{
+    const attColor=s._att>=80?'var(--green)':s._att>=50?'var(--gold)':'var(--red)';
+    return `<tr style="animation:rowIn .2s ${Math.min(i,.5)*.04}s both">
+      <td style="font-weight:600;color:var(--text)">${s.fullname||'—'}<br><span style="font-size:.65rem;color:var(--text-muted)">${s.studentId||''}</span></td>
+      <td style="color:var(--text-sub)">Grade ${s.grade||'—'}</td>
+      <td><span style="font-size:.7rem;background:rgba(6,182,212,.1);color:var(--accent2);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:2px 7px">${s.department||'—'}</span></td>
+      <td style="color:var(--green);font-weight:700">${s._present}</td>
+      <td style="color:var(--gold);font-weight:700">${s._late}</td>
+      <td style="color:var(--red);font-weight:700">${s._absent}</td>
+      <td style="color:var(--text-sub)">${s._total}</td>
+      <td><strong style="color:${attColor}">${s._att}%</strong></td>
+      <td style="color:var(--gold);font-family:var(--font-display);font-weight:700">${s.dutyPoints||0}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderEvents(){
+  const el=document.getElementById('eventList');
+  if(!schedEvents.length){el.innerHTML='<div class="event-item" style="color:var(--text-muted)">No duty events found for this month.</div>';return;}
+  const flat=[];
+  schedEvents.forEach(s=>{
+    (s.dates||[]).forEach(d=>{flat.push({date:d,label:s.label,period:s.period,count:(s.assignedStudentIds||[]).length});});
+  });
+  flat.sort((a,b)=>a.date.localeCompare(b.date));
+  el.innerHTML=flat.map(e=>{
+    const dt=new Date(e.date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'});
+    return `<div class="event-item">
+      <span class="event-date-chip">${dt}</span>
+      <span style="font-weight:600;color:var(--text)">${e.label||'Duty'}</span>
+      <span style="color:var(--text-muted);font-size:.75rem">${e.period||''}</span>
+      <span style="margin-left:auto;font-size:.72rem;color:var(--text-muted)">${e.count} student${e.count!==1?'s':''}</span>
+    </div>`;
+  }).join('');
+}
+
+window.exportExcel=function(){
+  if(!summaryData.length){alert('Generate a summary first.');return;}
+  const month=document.getElementById('monthSelect').value;
+  const label=new Date(month+'-01').toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+
+  const rows=summaryData.map(s=>({
+    'Student Name':s.fullname||'',
+    'Student ID':s.studentId||'',
+    'Grade':`Grade ${s.grade||''}`,
+    'Department':s.department||'',
+    'Role':s.role||'',
+    'Present':s._present,
+    'Late':s._late,
+    'Absent':s._absent,
+    'Total Duties':s._total,
+    'Attendance %':s._att,
+    'Duty Points':Number(s.dutyPoints)||0
+  }));
+
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[20,14,10,14,12,9,9,9,12,13,12].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,`${label} Summary`);
+
+  // Events sheet
+  const flat=[];
+  schedEvents.forEach(s=>{(s.dates||[]).forEach(d=>{flat.push({'Date':d,'Duty Label':s.label||'','Period':s.period||'','Assigned Students':(s.assignedStudentIds||[]).length,'Created By':s.createdBy||''});});});
+  if(flat.length){
+    const ws2=XLSX.utils.json_to_sheet(flat);
+    XLSX.utils.book_append_sheet(wb,ws2,'Duty Events');
+  }
+
+  XLSX.writeFile(wb,`RCMU_Monthly_Summary_${month}.xlsx`);
+};
+
+document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

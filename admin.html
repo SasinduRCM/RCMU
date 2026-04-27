@@ -3,220 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel — Rahula College Media Unit Database</title>
+  <title>Admin Panel — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="Icon.png">
+  <link rel="shortcut icon" href="Icon.png">
+  <link rel="apple-touch-icon" href="Icon.png">
+  <!-- SEO Meta -->
+  <meta name="description" content="System administration panel for the Rahula College Media Unit.">
+  <meta name="keywords" content="Rahula College, Media Unit, admin, administration, RCMU">
+  <meta name="author" content="Sasindu Ruwaneka">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Admin Panel — Rahula College Media Unit">
+  <meta property="og:description" content="System administration panel for the Rahula College Media Unit.">
+  <meta property="og:image" content="Icon.png">
+  <meta property="og:site_name" content="Rahula College Media Unit">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Admin Panel — Rahula College Media Unit">
+  <meta name="twitter:description" content="System administration panel for the Rahula College Media Unit.">
+  <meta name="twitter:image" content="Icon.png">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RCMU">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="RCMU">
   <link rel="stylesheet" href="style.css">
-  <style>
-    .admin-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
-      animation: fadeSlideUp 0.5s 0.15s cubic-bezier(.22,1,.36,1) both;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 16px 18px;
-      text-align: center;
-      transition: all var(--transition);
-      position: relative;
-      overflow: hidden;
-      cursor: default;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.4s cubic-bezier(.22,1,.36,1);
-    }
-
-    .stat-card:hover { border-color: var(--border-soft); transform: translateY(-3px); box-shadow: var(--shadow-sm); }
-    .stat-card:hover::before { transform: scaleX(1); }
-
-    .stat-value {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent);
-      line-height: 1;
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      font-weight: 600;
-    }
-
-    .section-title {
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    @media (max-width: 600px) {
-      .admin-stats { grid-template-columns: 1fr 1fr; }
-      .admin-stats .stat-card:last-child { grid-column: 1 / -1; }
-    }
-
-    @media (max-width: 420px) {
-      .admin-stats { grid-template-columns: 1fr; }
-      .admin-stats .stat-card:last-child { grid-column: auto; }
-    }
-  </style>
 </head>
 <body>
-
 <div class="container">
   <header class="page-header">
     <div class="header-logos-row">
-      <div class="header-logo logo-left">
-        <img src="Rahula_College_Crest.png" alt="Rahula College logo">
-        <span class="logo-label"></span>
-      </div>
-      <div class="header-logo logo-right">
-        <img src="Media Unit Original logo.png" alt="Media Unit logo">
-        <span class="logo-label"></span>
-      </div>
+      <div class="header-logo logo-left"><img src="Rahula_College_Crest.png" alt="Rahula College"></div>
+      <div class="header-logo logo-right"><img src="Media Unit Original logo.png" alt="Media Unit"></div>
     </div>
     <div class="header-title">
       <h1>Rahula College Media Unit</h1>
-      <p class="subtitle">Admin panel — manage administrators and database access.</p>
+      <p class="subtitle">Admin Panel</p>
     </div>
   </header>
-
   <div class="header-actions">
     <span id="currentUser" class="user-badge"></span>
-    <a class="secondary-link" href="add.html">Add Student</a>
-    <a class="secondary-link" href="index.html">View Students</a>
+    <a class="secondary-link" href="index.html" id="rosterLink" style="display:none">🗄️ DataBase</a>
+    <a class="secondary-link" href="duty-mark.html" id="dutyMarkLink" style="display:none">🗂 Mark Duty</a>
+    <a class="secondary-link" href="duty-schedule.html" id="dutySchedLink" style="display:none">📅 Schedule</a>
     <button class="logout-btn" onclick="doLogout()">Sign Out</button>
   </div>
 
+  <div class="page-hero">
+    <div class="page-hero-title">⚙️ Admin Panel</div>
+    <div class="page-hero-sub">System administrators and access roles. Accounts are managed in <code>admin-data.js</code>.</div>
+  </div>
+
   <div class="admin-stats">
-    <div class="stat-card">
-      <div class="stat-value" id="statAdmins">—</div>
-      <div class="stat-label">Total Admins</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statEditors" style="color:var(--accent2)">—</div>
-      <div class="stat-label">Editors</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statViewers" style="color:var(--green)">—</div>
-      <div class="stat-label">Viewers</div>
+    <div class="stat-card"><div class="stat-value" id="statAdmins" style="color:var(--gold)">—</div><div class="stat-label">Admins</div></div>
+    <div class="stat-card"><div class="stat-value" id="statEditors" style="color:var(--accent2)">—</div><div class="stat-label">Editors</div></div>
+    <div class="stat-card"><div class="stat-value" id="statViewers" style="color:var(--green)">—</div><div class="stat-label">Viewers</div></div>
+    <div class="stat-card"><div class="stat-value" id="statTotal" style="color:var(--accent)">—</div><div class="stat-label">Total Users</div></div>
+  </div>
+
+  <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.22);border-radius:var(--radius-sm);padding:13px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;font-size:.82rem;color:var(--text-sub);animation:fadeSlideUp .4s cubic-bezier(.22,1,.36,1) both">
+    <span style="font-size:1.2rem;flex-shrink:0">ℹ️</span>
+    <div>
+      <strong style="color:var(--text)">Managing admin accounts</strong><br>
+      Edit <code>admin-data.js</code> directly to add or remove administrators.
+      Roles: <strong style="color:var(--gold)">⚡ Admin</strong> full access ·
+      <strong style="color:var(--accent2)">✏️ Editor</strong> add/edit/duty ·
+      <strong style="color:var(--green)">👁 Viewer</strong> view &amp; mark duty.
     </div>
   </div>
 
-  <p class="section-title">Manage Administrators</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;animation:fadeSlideUp .4s .05s cubic-bezier(.22,1,.36,1) both">
+    <a class="secondary-link" href="attendance-report.html">📊 Attendance Report</a>
+    <a class="secondary-link" href="activity-log.html">🔍 Audit Log</a>
+  </div>
 
-  <div class="panel-grid" id="adminPanel">
-    <div class="panel-card">
-      <h2>Create Admin User</h2>
-      <input id="ADM_Email"    placeholder="Email address" type="email">
-      <input id="ADM_ID"       placeholder="Admin ID (e.g. ADM001)">
-      <input id="ADM_Uname"    placeholder="Username">
-      <input id="ADM_name"     placeholder="Full Name">
-      <input id="ADM_password" type="password" placeholder="Password">
-      <select id="ADM_role">
-        <option value="" disabled selected>Select role…</option>
-        <option value="admin">⚡ Admin — full access</option>
-        <option value="editor">✏️ Editor — add/edit students</option>
-        <option value="viewer">👁 Viewer — view only</option>
-      </select>
-      <button onclick="createUser()">Create User</button>
-      <p id="userMsg"></p>
-    </div>
-
-    <div class="panel-card">
-      <h2>Existing Administrators</h2>
-      <div id="userList">
-        <div class="empty-state">Loading…</div>
-      </div>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:22px;animation:fadeSlideUp .4s .05s cubic-bezier(.22,1,.36,1) both">
+    <div style="background:var(--bg-panel);padding:12px 18px;font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border)">Role Permissions</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.8rem">
+        <thead>
+          <tr>
+            <th style="padding:10px 16px;text-align:left;color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border)">Feature</th>
+            <th style="padding:10px 12px;text-align:center;color:#f59e0b;font-weight:700;border-bottom:1px solid var(--border)">⚡ Admin</th>
+            <th style="padding:10px 12px;text-align:center;color:var(--accent2);font-weight:700;border-bottom:1px solid var(--border)">✏️ Editor</th>
+            <th style="padding:10px 12px;text-align:center;color:var(--green);font-weight:700;border-bottom:1px solid var(--border)">👁 Viewer</th>
+          </tr>
+        </thead>
+        <tbody id="permTable"></tbody>
+      </table>
     </div>
   </div>
+
+  <div style="font-size:.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:10px;animation:fadeSlideUp .4s .08s cubic-bezier(.22,1,.36,1) both">
+    All System Users
+    <span style="flex:1;height:1px;background:var(--border);display:block"></span>
+  </div>
+  <div id="adminListWrap"><div class="empty-state">Loading…</div></div>
 </div>
 
-<!-- ── FOOTER ──────────────────────────────────────────────── -->
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-top">
-
       <div class="footer-brand">
         <div class="footer-logos">
           <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
           <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
-          <div>
-            <div class="footer-brand-name">Rahula College<br>Media Unit</div>
-          </div>
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
         </div>
-        <p class="footer-brand-desc">
-          The official database system for the Rahula College Media Unit — managing student records, roles, and departments across all grades.
-        </p>
-        <div class="footer-tech-badges">
-          <span class="tech-badge">Firebase</span>
-          <span class="tech-badge">Firestore</span>
-          <span class="tech-badge">Vanilla JS</span>
-          <span class="tech-badge">SheetJS</span>
-        </div>
+        <p class="footer-brand-desc">Official database system for the Rahula College Media Unit.</p>
+        <div class="footer-tech-badges"><span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">Vanilla JS</span></div>
       </div>
-
       <div>
         <div class="footer-col-title">Navigation</div>
         <div class="footer-links">
-          <a href="index.html">Student Roster</a>
-          <a href="add.html">Add Student</a>
-          <a href="admin.html">Admin Panel</a>
-          <a href="login.html">Sign In</a>
+          <a href="index.html">Student Roster</a><a href="attendance-report.html">Report</a>
+          <a href="activity-log.html">Audit Log</a><a href="duty-schedule.html">Schedule</a>
         </div>
       </div>
-
       <div>
-        <div class="footer-col-title">Access Roles</div>
+        <div class="footer-col-title">Roles</div>
         <div class="footer-links">
-          <a href="#" onclick="return false;">⚡ Admin — Full access</a>
-          <a href="#" onclick="return false;">✏️ Editor — Add &amp; edit</a>
-          <a href="#" onclick="return false;">👁 Viewer — View only</a>
-          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+          <a href="#" onclick="return false">⚡ Admin — Full access</a>
+          <a href="#" onclick="return false">✏️ Editor — Add &amp; edit</a>
+          <a href="#" onclick="return false">👁 Viewer — View &amp; mark duty</a>
+          <a href="#" onclick="doLogout();return false">Sign Out</a>
         </div>
       </div>
-
     </div>
-
     <div class="footer-bottom">
-      <div class="footer-copy">
-        &copy; <span id="footerYear"></span> Rahula College Media Unit.<br>
-        <span>All rights reserved. Unauthorised access is prohibited.</span>
-      </div>
-
+      <div class="footer-copy">&copy; <span id="footerYear"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
       <div class="footer-dev">
         <span class="footer-dev-label">Designed &amp; Developed by</span>
-        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link" title="Visit Sasindu Ruwaneka's portfolio" id="devPortfolioLink">
-          <div class="dev-avatar">SR</div>
-          <span class="dev-name">Sasindu Ruwaneka</span>
-          <span class="dev-badge">Dev</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
         </a>
       </div>
     </div>
@@ -226,7 +150,47 @@
 <script src="admin-data.js"></script>
 <script type="module" src="app.js"></script>
 <script>
-  document.getElementById('footerYear').textContent = new Date().getFullYear();
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const raw = sessionStorage.getItem('rcmu_admin');
+    if (raw) {
+      const u = JSON.parse(raw);
+      // Call updateHeaderUser from app.js to display user badge
+      if (window.updateHeaderUser) window.updateHeaderUser();
+      
+      if (u.ADM_role === 'admin') {
+        document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+        document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
+        document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
+      } else if (u.ADM_role === 'editor') {
+        document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+        document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
+        document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
+      }
+    }
+  } catch(e) {}
+});
+const PERMS = [
+  ['View student roster',    true, true, true],
+  ['View duty schedules',    true, true, true],
+  ['Mark duty attendance',   true, true, true],
+  ['Attendance report',      true, true, true],
+  ['Add new student',        true, true, false],
+  ['Edit student record',    true, true, false],
+  ['Create duty schedule',   true, true, false],
+  ['Adjust student points',  true, true, false],
+  ['Review appeals',         true, true, false],
+  ['Delete student',         true, false, false],
+  ['View audit log',         true, false, false],
+  ['Access admin panel',     true, false, false],
+];
+const tbody = document.getElementById('permTable');
+if (tbody) tbody.innerHTML = PERMS.map((row, i) => `
+  <tr style="animation:rowIn .2s ${i*.03}s both">
+    <td style="padding:9px 16px;border-bottom:1px solid var(--border);color:var(--text-sub)">${row[0]}</td>
+    ${[1,2,3].map(j=>`<td style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border)">${row[j]?'<span style="color:var(--green);font-weight:700">✓</span>':'<span style="color:var(--border-soft)">—</span>'}</td>`).join('')}
+  </tr>`).join('');
 </script>
 </body>
 </html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Report Card — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="shortcut icon" href="icon-32.png">
+  <meta name="description" content="Generate per-student PDF report cards for the Rahula College Media Unit.">
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .rc-hero{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:24px;margin-bottom:22px;position:relative;overflow:hidden;animation:fadeSlideUp .5s cubic-bezier(.22,1,.36,1) both}
+    .rc-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--green),var(--gold))}
+
+    /* Student selector */
+    .student-selector{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+    .sel-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:200px}
+    .sel-field label{font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em}
+    .sel-field select,.sel-field input{background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.88rem;padding:10px 12px;outline:none;transition:border-color var(--transition)}
+    .sel-field select:focus,.sel-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+    .gen-btn{padding:11px 22px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:var(--font-body);font-size:.9rem;font-weight:700;cursor:pointer;transition:all var(--transition);white-space:nowrap}
+    .gen-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,130,246,.4)}
+    .pdf-btn{padding:11px 22px;border:1px solid rgba(16,185,129,.3);border-radius:var(--radius-sm);background:rgba(16,185,129,.1);color:var(--green);font-family:var(--font-body);font-size:.9rem;font-weight:700;cursor:pointer;transition:all var(--transition);white-space:nowrap}
+    .pdf-btn:hover{background:rgba(16,185,129,.2)}
+
+    /* Report card preview */
+    #reportPreview{display:none}
+    .report-card{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;box-shadow:0 4px 24px rgba(0,0,0,.25)}
+
+    /* Card header */
+    .rc-card-header{background:linear-gradient(135deg,#0b0f1a,#111827);padding:28px 28px 20px;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+    .rc-card-header::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent),var(--green),var(--gold))}
+    .rc-header-logos{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .rc-logo{height:56px;width:56px;object-fit:contain;border-radius:50%;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);padding:4px}
+    .rc-header-text{text-align:center}
+    .rc-org{font-family:var(--font-display);font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em}
+    .rc-doc-title{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--text);margin:4px 0}
+    .rc-period{font-size:.78rem;color:var(--text-muted)}
+
+    /* Student identity */
+    .rc-identity{display:flex;align-items:center;gap:20px;padding:20px 28px;border-bottom:1px solid var(--border);background:var(--bg-panel)}
+    .rc-avatar-lg{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:#fff;flex-shrink:0;border:3px solid rgba(59,130,246,.3)}
+    .rc-fullname{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text)}
+    .rc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .rc-chip{padding:3px 10px;border-radius:10px;font-size:.66rem;font-weight:600;background:rgba(59,130,246,.1);color:var(--accent);border:1px solid rgba(59,130,246,.2)}
+    .rc-chip.gold{background:rgba(245,158,11,.1);color:var(--gold);border-color:rgba(245,158,11,.2)}
+    .rc-chip.green{background:rgba(16,185,129,.1);color:var(--green);border-color:rgba(16,185,129,.2)}
+
+    /* Stats row */
+    .rc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)}
+    .rc-stat{padding:18px 16px;text-align:center;border-right:1px solid var(--border)}
+    .rc-stat:last-child{border-right:none}
+    .rc-stat-val{font-family:var(--font-display);font-size:1.6rem;font-weight:700;line-height:1}
+    .rc-stat-lbl{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
+    @media(max-width:600px){.rc-stats{grid-template-columns:repeat(2,1fr)}.rc-stat:nth-child(2){border-right:none}.rc-stat:nth-child(3){border-top:1px solid var(--border)}}
+
+    /* Grade bar */
+    .rc-grade-section{padding:20px 28px;border-bottom:1px solid var(--border)}
+    .grade-title{font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+    .att-bar-large{height:12px;background:var(--bg-panel);border-radius:6px;overflow:hidden;margin-bottom:6px}
+    .att-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width 1s cubic-bezier(.22,1,.36,1)}
+    .att-bar-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-muted)}
+
+    /* Duty log mini table */
+    .rc-log-section{padding:20px 28px}
+    .rc-log-table{width:100%;border-collapse:collapse;font-size:.78rem}
+    .rc-log-table th{padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);background:var(--bg-panel)}
+    .rc-log-table td{padding:7px 10px;border-bottom:1px solid rgba(30,41,59,.4)}
+    .rc-log-table tr:last-child td{border-bottom:none}
+    .type-present{color:var(--green);font-weight:600}
+    .type-late{color:var(--gold);font-weight:600}
+    .type-absent{color:var(--red);font-weight:600}
+
+    /* Footer watermark */
+    .rc-card-footer{padding:14px 28px;background:var(--bg-panel);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:.65rem;color:var(--text-muted)}
+
+    .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+
+    @media print{
+      body{background:#fff!important}
+      .container,.report-card{box-shadow:none!important;border:none!important}
+      .rc-hero,.student-selector,.action-row{display:none!important}
+      #reportPreview{display:block!important}
+      .rc-card-header{background:#0b0f1a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="rc-hero">
+    <div class="page-hero-title">📄 Student Report Card</div>
+    <div class="page-hero-sub">Generate and download a detailed duty performance report card for any student.</div>
+  </div>
+
+  <div class="student-selector">
+    <div class="sel-field">
+      <label>Select Student</label>
+      <select id="studentPicker"><option value="">Choose a student…</option></select>
+    </div>
+    <div class="sel-field" style="flex:0 0 160px">
+      <label>Filter by Month</label>
+      <select id="monthPicker">
+        <option value="all">All Time</option>
+        <option value="2025-01">Jan 2025</option><option value="2025-02">Feb 2025</option>
+        <option value="2025-03">Mar 2025</option><option value="2025-04">Apr 2025</option>
+        <option value="2025-05">May 2025</option><option value="2025-06">Jun 2025</option>
+        <option value="2025-07">Jul 2025</option><option value="2025-08">Aug 2025</option>
+        <option value="2025-09">Sep 2025</option><option value="2025-10">Oct 2025</option>
+        <option value="2025-11">Nov 2025</option><option value="2025-12">Dec 2025</option>
+        <option value="2026-01">Jan 2026</option><option value="2026-02">Feb 2026</option>
+        <option value="2026-03">Mar 2026</option><option value="2026-04">Apr 2026</option>
+      </select>
+    </div>
+    <button class="gen-btn" onclick="generateReport()">📋 Generate Report</button>
+  </div>
+
+  <div id="reportPreview">
+    <div class="action-row">
+      <button class="pdf-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      <button class="pdf-btn" style="color:var(--accent);border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.1)" onclick="document.getElementById('reportPreview').style.display='none'">✕ Close</button>
+    </div>
+
+    <div class="report-card" id="reportCard">
+      <!-- Dynamically filled -->
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit.</p>
+        <div class="footer-tech-badges"><span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">Vanilla JS</span></div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="attendance-report.html">Attendance Report</a>
+          <a href="dept-analytics.html">Analytics</a><a href="leaderboard.html">Leaderboard</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="login.html">Staff Sign In</a>
+          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="admin-data.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",authDomain:"rcmu-db.firebaseapp.com",projectId:"rcmu-db",storageBucket:"rcmu-db.firebasestorage.app",messagingSenderId:"1043134894673",appId:"1:1043134894673:web:dbd89dd271749cea6fde70"};
+const app=initializeApp(cfg); const db=getFirestore(app);
+
+let cu=null;
+try{const r=sessionStorage.getItem('rcmu_admin');if(!r){window.location.href='login.html';}else{cu=JSON.parse(r);}}catch(e){window.location.href='login.html';}
+window.doLogout=()=>{sessionStorage.removeItem('rcmu_admin');window.location.href='login.html';};
+
+let allStudents=[];
+
+async function loadStudents(){
+  const snap=await getDocs(collection(db,'RCMU_DB'));
+  allStudents=snap.docs.map(d=>({_docId:d.id,...d.data()})).filter(s=>s.status==='active').sort((a,b)=>(a.fullname||'').localeCompare(b.fullname||''));
+  const sel=document.getElementById('studentPicker');
+  sel.innerHTML='<option value="">Choose a student…</option>'+allStudents.map(s=>`<option value="${s._docId}">${s.fullname} — ${s.studentId||''} · Gr ${s.grade||''} · ${s.department||''}</option>`).join('');
+}
+
+window.generateReport=async function(){
+  const docId=document.getElementById('studentPicker').value;
+  const month=document.getElementById('monthPicker').value;
+  if(!docId){alert('Please select a student first.');return;}
+  const student=allStudents.find(s=>s._docId===docId);
+  if(!student) return;
+
+  // Load duty logs
+  const q=query(collection(db,'RCMU_DutyLogs'),where('studentDocId','==',docId));
+  const snap=await getDocs(q);
+  let logs=snap.docs.map(d=>({_id:d.id,...d.data()}));
+  if(month!=='all') logs=logs.filter(l=>(l.date||'').startsWith(month));
+  logs.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+  const present=logs.filter(l=>l.type==='present').length;
+  const late=logs.filter(l=>l.type==='late').length;
+  const absent=logs.filter(l=>l.type==='absent').length;
+  const total=present+late+absent;
+  const attPct=total>0?Math.round(((present+late)/total)*100):0;
+  const pts=Number(student.dutyPoints)||0;
+  const initials=(student.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const grade=attPct>=90?'Excellent':attPct>=75?'Good':attPct>=50?'Average':'Needs Improvement';
+  const gradeColor=attPct>=90?'var(--green)':attPct>=75?'var(--accent)':attPct>=50?'var(--gold)':'var(--red)';
+  const genDate=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  const periodLabel=month==='all'?'All Time':new Date(month+'-01').toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+
+  const logRows=logs.slice(0,20).map(l=>{
+    const dt=l.date?new Date(l.date+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    const typeCls=l.type==='present'?'type-present':l.type==='late'?'type-late':'type-absent';
+    const typeIcon=l.type==='present'?'✓':l.type==='late'?'⚠':'✗';
+    const ptChg=l.pointChange?`${l.pointChange>0?'+':''}${l.pointChange}`:'—';
+    return `<tr><td>${dt}</td><td>${l.label||l.period||'—'}</td><td class="${typeCls}">${typeIcon} ${l.type}</td><td style="text-align:right;color:${l.pointChange>0?'var(--green)':l.pointChange<0?'var(--red)':'var(--text-muted)'}">${ptChg}</td></tr>`;
+  }).join('');
+
+  const card=document.getElementById('reportCard');
+  card.innerHTML=`
+    <div class="rc-card-header">
+      <div class="rc-header-logos">
+        <img src="Rahula_College_Crest.png" alt="Rahula College" class="rc-logo">
+        <div class="rc-header-text">
+          <div class="rc-org">Rahula College Media Unit</div>
+          <div class="rc-doc-title">Student Report Card</div>
+          <div class="rc-period">Period: ${periodLabel} · Generated: ${genDate}</div>
+        </div>
+        <img src="Media Unit Original logo.png" alt="Media Unit" class="rc-logo">
+      </div>
+    </div>
+
+    <div class="rc-identity">
+      <div class="rc-avatar-lg">${initials}</div>
+      <div>
+        <div class="rc-fullname">${student.fullname||'—'}</div>
+        <div class="rc-chips">
+          <span class="rc-chip">${student.studentId||'—'}</span>
+          <span class="rc-chip gold">Grade ${student.grade||'—'}</span>
+          <span class="rc-chip green">${student.department||'—'}</span>
+          <span class="rc-chip">${student.role||'—'}</span>
+          <span class="rc-chip" style="background:rgba(${student.status==='active'?'16,185,129':'239,68,68'},.1);color:var(--${student.status==='active'?'green':'red'})">${student.status||'active'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rc-stats">
+      <div class="rc-stat">
+        <div class="rc-stat-val" style="color:var(--green)">${attPct}%</div>
+        <div class="rc-stat-lbl">Attendance</div>
+      </div>
+      <div class="rc-stat">
+        <div class="rc-stat-val" style="color:var(--gold)">${pts}</div>
+        <div class="rc-stat-lbl">Duty Points</div>
+      </div>
+      <div class="rc-stat">
+        <div class="rc-stat-val" style="color:var(--accent)">${total}</div>
+        <div class="rc-stat-lbl">Total Duties</div>
+      </div>
+      <div class="rc-stat">
+        <div class="rc-stat-val" style="color:${gradeColor};font-size:1rem;padding-top:8px">${grade}</div>
+        <div class="rc-stat-lbl">Performance</div>
+      </div>
+    </div>
+
+    <div class="rc-grade-section">
+      <div class="grade-title">Attendance Breakdown</div>
+      <div class="att-bar-large"><div class="att-bar-fill" style="width:${attPct}%"></div></div>
+      <div class="att-bar-label"><span>0%</span><span style="color:${gradeColor};font-weight:700">${attPct}% — ${grade}</span><span>100%</span></div>
+      <div style="display:flex;gap:16px;margin-top:10px;font-size:.75rem">
+        <span style="color:var(--green)">✓ Present: <strong>${present}</strong></span>
+        <span style="color:var(--gold)">⚠ Late: <strong>${late}</strong></span>
+        <span style="color:var(--red)">✗ Absent: <strong>${absent}</strong></span>
+      </div>
+    </div>
+
+    <div class="rc-log-section">
+      <div class="grade-title">Recent Duty Log ${logs.length>20?'(showing last 20)':''}</div>
+      ${logs.length?`<table class="rc-log-table">
+        <thead><tr><th>Date</th><th>Duty</th><th>Status</th><th style="text-align:right">Points</th></tr></thead>
+        <tbody>${logRows}</tbody>
+      </table>`:'<div style="color:var(--text-muted);font-size:.82rem;padding:12px 0">No duty records found for this period.</div>'}
+    </div>
+
+    <div class="rc-card-footer">
+      <span>📅 Generated on ${genDate} by ${cu?.ADM_name||cu?.ADM_Uname||'Staff'}</span>
+      <span>Rahula College Media Unit · Official Record</span>
+    </div>
+  `;
+
+  document.getElementById('reportPreview').style.display='block';
+  document.getElementById('reportPreview').scrollIntoView({behavior:'smooth'});
+};
+
+loadStudents();
+document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

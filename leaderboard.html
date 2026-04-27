@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Points Leaderboard — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="shortcut icon" href="icon-32.png">
+  <meta name="description" content="Duty points leaderboard for the Rahula College Media Unit.">
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .lb-hero { text-align:center;padding:40px 20px 28px;position:relative; }
+    .lb-hero-title { font-family:var(--font-display);font-size:clamp(1.6rem,5vw,2.6rem);font-weight:700;background:linear-gradient(135deg,var(--gold),#f97316,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px; }
+    .lb-hero-sub { color:var(--text-muted);font-size:.88rem; }
+
+    /* Podium */
+    .podium { display:flex;align-items:flex-end;justify-content:center;gap:12px;margin:0 auto 36px;max-width:540px;padding:0 16px; }
+    .podium-place { display:flex;flex-direction:column;align-items:center;flex:1;max-width:160px; }
+    .podium-avatar { width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:8px;border:3px solid transparent;position:relative; }
+    .podium-avatar.rank-1 { background:linear-gradient(135deg,#f59e0b,#f97316);border-color:#f59e0b;box-shadow:0 0 24px rgba(245,158,11,.5);width:80px;height:80px;font-size:1.6rem; }
+    .podium-avatar.rank-2 { background:linear-gradient(135deg,#94a3b8,#64748b);border-color:#94a3b8;box-shadow:0 0 16px rgba(148,163,184,.3); }
+    .podium-avatar.rank-3 { background:linear-gradient(135deg,#cd7c3a,#a05c28);border-color:#cd7c3a;box-shadow:0 0 16px rgba(205,124,58,.3); }
+    .podium-crown { position:absolute;top:-18px;font-size:1.3rem;animation:crownBob 2s ease-in-out infinite; }
+    @keyframes crownBob { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-4px) rotate(5deg)} }
+    .podium-name { font-size:.78rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .podium-pts { font-family:var(--font-display);font-weight:700;color:var(--gold); }
+    .podium-pts.rank-2 { color:#94a3b8; }
+    .podium-pts.rank-3 { color:#cd7c3a; }
+    .podium-block { width:100%;border-radius:var(--radius-sm) var(--radius-sm) 0 0;margin-top:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:rgba(255,255,255,.6); }
+    .podium-block.rank-1 { background:linear-gradient(180deg,rgba(245,158,11,.25),rgba(245,158,11,.1));border:1px solid rgba(245,158,11,.3);height:90px; }
+    .podium-block.rank-2 { background:linear-gradient(180deg,rgba(148,163,184,.15),rgba(148,163,184,.05));border:1px solid rgba(148,163,184,.2);height:65px; }
+    .podium-block.rank-3 { background:linear-gradient(180deg,rgba(205,124,58,.15),rgba(205,124,58,.05));border:1px solid rgba(205,124,58,.2);height:50px; }
+
+    /* Filters */
+    .lb-filters { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center; }
+    .lb-filters select { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:8px 12px;outline:none; }
+    .lb-count { margin-left:auto;font-size:.75rem;color:var(--text-muted); }
+    .lb-search { flex:1;min-width:160px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:8px 12px;outline:none; }
+    .lb-search:focus { border-color:var(--accent); }
+
+    /* Table */
+    .lb-table-wrap { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
+    .lb-table { width:100%;border-collapse:collapse; }
+    .lb-table thead tr { background:var(--bg-panel);border-bottom:1px solid var(--border); }
+    .lb-table th { padding:10px 16px;text-align:left;font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em; }
+    .lb-table td { padding:10px 16px;border-bottom:1px solid rgba(30,41,59,.6);font-size:.84rem; }
+    .lb-table tr:last-child td { border-bottom:none; }
+    .lb-table tr { transition:background var(--transition); }
+    .lb-table tr:hover td { background:rgba(59,130,246,.04); }
+    .lb-rank { font-family:var(--font-display);font-weight:700;font-size:.95rem;min-width:32px;display:inline-block;text-align:center; }
+    .lb-rank.top1 { color:var(--gold); }
+    .lb-rank.top2 { color:#94a3b8; }
+    .lb-rank.top3 { color:#cd7c3a; }
+    .lb-rank.top10 { color:var(--accent2); }
+    .lb-avatar-sm { width:34px;height:34px;border-radius:50%;background:var(--bg-panel);border:1.5px solid var(--border-soft);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.8rem;font-weight:700;color:var(--text-muted);flex-shrink:0; }
+    .lb-name-cell { display:flex;align-items:center;gap:10px; }
+    .lb-name { font-weight:600;color:var(--text); }
+    .lb-sub { font-size:.68rem;color:var(--text-muted);margin-top:1px; }
+    .lb-pts { font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold); }
+    .lb-bar-wrap { display:flex;align-items:center;gap:8px;min-width:100px; }
+    .lb-bar { flex:1;height:6px;background:var(--bg-panel);border-radius:3px;overflow:hidden; }
+    .lb-bar-fill { height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .6s cubic-bezier(.22,1,.36,1); }
+    .lb-pct { font-size:.65rem;color:var(--text-muted);min-width:28px; }
+    .you-badge { background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:var(--accent);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.05em;text-transform:uppercase;margin-left:6px; }
+    .dept-chip { padding:2px 9px;border-radius:10px;font-size:.65rem;font-weight:600;background:rgba(6,182,212,.1);color:var(--accent2);border:1px solid rgba(6,182,212,.2); }
+    .loading-state { text-align:center;padding:48px;color:var(--text-muted);font-size:.9rem; }
+    @media(max-width:600px){ .lb-table th:nth-child(4),.lb-table td:nth-child(4),.lb-table th:nth-child(6),.lb-table td:nth-child(6){display:none} }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="lb-hero">
+    <div class="lb-hero-title">🏆 Points Leaderboard</div>
+    <div class="lb-hero-sub">Rankings by duty performance points across all Media Unit students</div>
+  </div>
+
+  <!-- Podium top 3 -->
+  <div class="podium" id="podium">
+    <div class="loading-state" style="flex:1">Loading podium…</div>
+  </div>
+
+  <!-- Filters -->
+  <div class="lb-filters">
+    <input class="lb-search" type="search" id="lbSearch" placeholder="🔎 Search student…" autocomplete="off">
+    <select id="lbDept">
+      <option value="all">All Departments</option>
+      <option value="Photography">Photography</option>
+      <option value="Web">Web</option>
+      <option value="Media">Media</option>
+    </select>
+    <select id="lbGrade">
+      <option value="all">All Grades</option>
+    </select>
+    <span class="lb-count" id="lbCount">— students</span>
+  </div>
+
+  <!-- Table -->
+  <div class="lb-table-wrap">
+    <div class="loading-state" id="lbLoading">
+      <div class="spinner-ring" style="margin:0 auto 12px"></div>Loading leaderboard…
+    </div>
+    <table class="lb-table" id="lbTable" style="display:none">
+      <thead>
+        <tr>
+          <th style="width:48px">#</th>
+          <th>Student</th>
+          <th style="width:80px">Grade</th>
+          <th style="width:110px">Department</th>
+          <th style="width:90px">Points</th>
+          <th style="width:160px">Duty %</th>
+        </tr>
+      </thead>
+      <tbody id="lbBody"></tbody>
+    </table>
+    <div class="empty-state" id="lbEmpty" style="display:none">No students match the filters.</div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit — managing student records, roles, and departments across all grades.</p>
+        <div class="footer-tech-badges">
+          <span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span>
+          <span class="tech-badge">Vanilla JS</span><span class="tech-badge">SheetJS</span>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="duty-schedule.html">Duty Schedule</a>
+          <a href="duty-mark.html">Mark Duty</a><a href="duty-swap.html">Duty Swaps</a>
+          <a href="attendance-report.html">Attendance Report</a><a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="leaderboard.html">🏆 Leaderboard</a>
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="login.html">Staff Sign In</a>
+          <a href="#" onclick="doLogout&&doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="admin-data.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",authDomain:"rcmu-db.firebaseapp.com",projectId:"rcmu-db",storageBucket:"rcmu-db.firebasestorage.app",messagingSenderId:"1043134894673",appId:"1:1043134894673:web:dbd89dd271749cea6fde70"};
+const app=initializeApp(cfg); const db=getFirestore(app);
+
+// Allow both staff and students to view leaderboard
+let myStudentId=null;
+try{const s=sessionStorage.getItem('rcmu_student');if(s){const st=JSON.parse(s);myStudentId=st._docId;}}catch(e){}
+window.doLogout=()=>{sessionStorage.removeItem('rcmu_admin');sessionStorage.removeItem('rcmu_student');window.location.href='student-login.html';};
+
+let allStudents=[];
+
+onSnapshot(collection(db,'RCMU_DB'),snap=>{
+  allStudents=snap.docs.map(d=>({_docId:d.id,...d.data()})).filter(s=>s.status==='active');
+  populateGrades();
+  renderLeaderboard();
+  document.getElementById('lbLoading').style.display='none';
+  document.getElementById('lbTable').style.display='table';
+});
+
+function populateGrades(){
+  const sel=document.getElementById('lbGrade');
+  if(sel.options.length>1) return;
+  const grades=[...new Set(allStudents.map(s=>(s.grade||'').toString()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  grades.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent='Grade '+g;sel.appendChild(o);});
+}
+
+function getFiltered(){
+  const search=(document.getElementById('lbSearch')?.value||'').toLowerCase().trim();
+  const dept=document.getElementById('lbDept')?.value||'all';
+  const grade=document.getElementById('lbGrade')?.value||'all';
+  let list=[...allStudents];
+  if(dept!=='all') list=list.filter(s=>s.department===dept);
+  if(grade!=='all') list=list.filter(s=>(s.grade||'').toString()===grade);
+  if(search) list=list.filter(s=>(s.fullname||'').toLowerCase().includes(search)||(s.studentId||'').toLowerCase().includes(search));
+  return list.sort((a,b)=>(Number(b.dutyPoints)||0)-(Number(a.dutyPoints)||0));
+}
+
+function renderPodium(top3){
+  const el=document.getElementById('podium');
+  if(!top3.length){el.innerHTML='';return;}
+  const order=[1,0,2]; // 2nd, 1st, 3rd for visual podium
+  const rankClass=['rank-1','rank-2','rank-3'];
+  const rankColors=['rank-1','rank-2','rank-3'];
+  el.innerHTML=order.filter(i=>top3[i]).map(i=>{
+    const s=top3[i];
+    const rank=i+1;
+    const initials=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    return `<div class="podium-place">
+      <div class="podium-avatar ${rankClass[i]}" style="position:relative">
+        ${rank===1?'<div class="podium-crown">👑</div>':''}
+        ${initials}
+      </div>
+      <div class="podium-name" title="${s.fullname||''}">${s.fullname||'—'}</div>
+      <div class="podium-pts ${rankColors[i]}" style="font-size:${rank===1?'1.2rem':'1rem'}">${s.dutyPoints||0} pts</div>
+      <div class="podium-block ${rankClass[i]}">${rank}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLeaderboard(){
+  const list=getFiltered();
+  const maxPts=list[0]?Number(list[0].dutyPoints)||1:1;
+  document.getElementById('lbCount').textContent=list.length+' student'+(list.length!==1?'s':'');
+  renderPodium(list.slice(0,3));
+  const tbody=document.getElementById('lbBody');
+  const empty=document.getElementById('lbEmpty');
+  if(!list.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=list.map((s,i)=>{
+    const rank=i+1;
+    const rankCls=rank===1?'top1':rank===2?'top2':rank===3?'top3':rank<=10?'top10':'';
+    const pts=Number(s.dutyPoints)||0;
+    const pct=Number(s.dutyPercentage)||0;
+    const barW=maxPts>0?Math.round((pts/maxPts)*100):0;
+    const initials=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const isMe=s._docId===myStudentId;
+    return `<tr style="animation:rowIn .2s ${Math.min(i,.4)*0.04}s both${isMe?';background:rgba(59,130,246,.06)':''}">
+      <td><span class="lb-rank ${rankCls}">${rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank}</span></td>
+      <td>
+        <div class="lb-name-cell">
+          <div class="lb-avatar-sm">${initials}</div>
+          <div>
+            <div class="lb-name">${s.fullname||'—'}${isMe?'<span class="you-badge">You</span>':''}</div>
+            <div class="lb-sub">${s.studentId||'—'} · ${s.role||'—'}</div>
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--text-sub);font-size:.78rem">Grade ${s.grade||'—'}</td>
+      <td><span class="dept-chip">${s.department||'—'}</span></td>
+      <td><span class="lb-pts">${pts}</span></td>
+      <td>
+        <div class="lb-bar-wrap">
+          <div class="lb-bar"><div class="lb-bar-fill" style="width:${pct}%"></div></div>
+          <span class="lb-pct">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+['lbSearch','lbDept','lbGrade'].forEach(id=>{
+  const el=document.getElementById(id);
+  el?.addEventListener(id==='lbSearch'?'input':'change',renderLeaderboard);
+});
+
+document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

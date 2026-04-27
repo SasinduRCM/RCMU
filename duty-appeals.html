@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appeals & Reports — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Favicon all sizes -->
+  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon"         href="icon-32.png">
+  <!-- Apple / iOS icons -->
+  <link rel="apple-touch-icon"              href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <!-- Windows / PWA tile -->
+  <meta name="msapplication-TileImage"   content="icon-144.png">
+  <meta name="msapplication-TileColor"   content="#0b0f1a">
+  <meta name="msapplication-config"      content="none">
+  <!-- Favicon -->
+  <!-- SEO Meta -->
+  <meta name="description" content="Submit and review duty appeals for the Rahula College Media Unit.">
+  <meta name="keywords" content="Rahula College, Media Unit, appeals, reports, RCMU">
+  <meta name="author" content="Sasindu Ruwaneka">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Appeals & Reports — Rahula College Media Unit">
+  <meta property="og:description" content="Submit and review duty appeals for the Rahula College Media Unit.">
+  <meta property="og:image" content="Icon.png">
+  <meta property="og:site_name" content="Rahula College Media Unit">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Appeals & Reports — Rahula College Media Unit">
+  <meta name="twitter:description" content="Submit and review duty appeals for the Rahula College Media Unit.">
+  <meta name="twitter:image" content="Icon.png">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RCMU">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="RCMU">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page-tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+    .pt-btn { padding:8px 18px; border-radius:var(--radius-sm); font-size:0.82rem; font-weight:600; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); cursor:pointer; transition:all var(--transition); font-family:var(--font-body); }
+    .pt-btn.active { background:rgba(59,130,246,0.15); border-color:var(--accent); color:var(--accent); }
+    .pt-panel { display:none; }
+    .pt-panel.active { display:block; }
+
+    /* Appeals */
+    .appeal-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; margin-bottom:12px; transition:border-color var(--transition); animation:fadeSlideUp 0.4s cubic-bezier(.22,1,.36,1) both; }
+    .appeal-card:hover { border-color:var(--border-soft); }
+    .appeal-card.pending { border-left:3px solid var(--gold); }
+    .appeal-card.approved { border-left:3px solid var(--green); }
+    .appeal-card.rejected { border-left:3px solid var(--red); }
+    .appeal-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .appeal-who { font-weight:700; font-size:0.9rem; color:var(--text); }
+    .appeal-date-label { font-size:0.75rem; color:var(--text-muted); margin-top:2px; }
+    .appeal-status-chip { padding:3px 10px; border-radius:12px; font-size:0.72rem; font-weight:700; flex-shrink:0; }
+    .appeal-status-chip.pending { background:rgba(245,158,11,0.15); color:var(--gold); border:1px solid rgba(245,158,11,0.3); }
+    .appeal-status-chip.approved { background:rgba(16,185,129,0.15); color:var(--green); border:1px solid rgba(16,185,129,0.3); }
+    .appeal-status-chip.rejected { background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
+    .appeal-reason { font-size:0.83rem; color:var(--text-sub); margin-top:10px; padding:10px 12px; background:var(--bg-panel); border-radius:var(--radius-sm); }
+    .appeal-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; }
+    .appeal-approve-btn { padding:7px 16px; border:none; border-radius:var(--radius-sm); background:linear-gradient(135deg,var(--green),var(--accent2)); color:#fff; font-family:var(--font-body); font-size:0.8rem; font-weight:700; cursor:pointer; transition:all var(--transition); }
+    .appeal-reject-btn { padding:7px 16px; border:none; border-radius:var(--radius-sm); background:linear-gradient(135deg,#ef4444,#f97316); color:#fff; font-family:var(--font-body); font-size:0.8rem; font-weight:700; cursor:pointer; transition:all var(--transition); }
+    .appeal-approve-btn:hover,.appeal-reject-btn:hover { transform:translateY(-1px); }
+    .appeal-note-input { flex:1; min-width:160px; background:var(--bg-panel); border:1px solid var(--border-soft); border-radius:var(--radius-sm); color:var(--text); font-family:var(--font-body); font-size:0.8rem; padding:7px 10px; outline:none; transition:border-color var(--transition); }
+    .appeal-note-input:focus { border-color:var(--accent); }
+
+    /* Admin review enhancements */
+    .appeal-meta-row { display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center; }
+    .appeal-meta-chip { padding:2px 9px;border-radius:8px;font-size:.63rem;font-weight:600;background:rgba(59,130,246,.08);color:var(--accent2);border:1px solid rgba(59,130,246,.15); }
+    .appeal-bulk-bar { background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:.8rem;color:var(--text-sub);animation:fadeSlideUp .3s cubic-bezier(.22,1,.36,1) both; }
+    .bulk-btn { padding:6px 14px;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.76rem;font-weight:700;cursor:pointer;transition:all var(--transition); }
+    .bulk-approve { border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.1);color:var(--green); }
+    .bulk-reject { border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:var(--red); }
+    .bulk-approve:hover { background:rgba(16,185,129,.2); }
+    .bulk-reject:hover { background:rgba(239,68,68,.2); }
+    .appeal-select-cb { width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
+    .appeal-auto-close-badge { display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;font-size:.62rem;font-weight:700;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2); }
+    .quick-stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px; }
+    @media(max-width:640px){ .quick-stats-row{grid-template-columns:repeat(2,1fr)} }
+    .qs { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center; }
+    .qs-val { font-family:var(--font-display);font-size:1.4rem;font-weight:700; }
+    .qs-lbl { font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-top:3px; }
+    .filter-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center; }
+    .filter-bar input { flex:1;min-width:160px;background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:8px 12px;outline:none; }
+    .filter-bar input:focus { border-color:var(--accent); }
+    .filter-bar select { background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:8px 12px;outline:none; }
+
+    /* Reports */
+    .report-section { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:16px; animation:fadeSlideUp 0.4s cubic-bezier(.22,1,.36,1) both; }
+    .report-title { font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--text); margin-bottom:14px; }
+    .report-controls { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
+    .report-controls select, .report-controls input { background:var(--bg-panel); border:1px solid var(--border-soft); border-radius:var(--radius-sm); color:var(--text); padding:7px 12px; font-size:0.82rem; font-family:var(--font-body); }
+    .export-btn { padding:8px 18px; border:none; border-radius:var(--radius-sm); background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-family:var(--font-body); font-size:0.82rem; font-weight:700; cursor:pointer; transition:all var(--transition); }
+    .export-btn:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(59,130,246,0.4); }
+
+    /* Report table */
+    .report-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .report-table th { text-align:left; padding:8px 10px; color:var(--text-muted); font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; border-bottom:1px solid var(--border); }
+    .report-table td { padding:10px 10px; border-bottom:1px solid var(--border); color:var(--text); }
+    .report-table tr:last-child td { border-bottom:none; }
+    .report-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .pct-bar { height:6px; border-radius:3px; background:var(--border); overflow:hidden; margin-top:4px; }
+    .pct-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--green),var(--accent2)); transition:width 0.8s cubic-bezier(.22,1,.36,1); }
+    .pts-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:700; }
+    .pts-pos { background:rgba(16,185,129,0.15); color:var(--green); }
+    .pts-neg { background:rgba(239,68,68,0.15); color:var(--red); }
+
+    /* Filters bar */
+    .filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+    .filter-bar select, .filter-bar input { background:var(--bg-panel); border:1px solid var(--border-soft); border-radius:var(--radius-sm); color:var(--text); padding:6px 10px; font-size:0.8rem; font-family:var(--font-body); outline:none; }
+    .filter-bar select:focus, .filter-bar input:focus { border-color:var(--accent); }
+    .stat-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
+    @media(max-width:600px){ .stat-summary{grid-template-columns:1fr 1fr} }
+    .sum-tile { background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; text-align:center; }
+    .sum-num { font-family:var(--font-display); font-size:1.4rem; font-weight:700; }
+    .sum-lbl { font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; }
+    .empty-state { text-align:center; color:var(--text-muted); font-size:0.85rem; padding:32px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header class="page-header">
+    <div class="header-logos-row">
+      <div class="header-logo logo-left"><img src="Rahula_College_Crest.png" alt="Rahula College logo"></div>
+      <div class="header-logo logo-right"><img src="Media Unit Original logo.png" alt="Media Unit logo"></div>
+    </div>
+    <div class="header-title">
+      <h1>Rahula College Media Unit</h1>
+      <p class="subtitle">Duty Appeals & Monthly Reports</p>
+    </div>
+  </header>
+
+  <div class="header-actions">
+    <span id="currentUser" class="user-badge"></span>
+    <a class="secondary-link" href="index.html" id="rosterLink" style="display:none">📊 Roster</a>
+    <a class="secondary-link" href="duty-mark.html" id="dutyMarkLink" style="display:none">🗂 Mark Duty</a>
+    <a class="secondary-link" href="duty-schedule.html" id="dutySchedLink" style="display:none">📅 Schedule</a>
+    <a class="secondary-link" href="admin.html" id="adminLink" style="display:none">Admin Panel</a>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <div class="page-tabs">
+    <button class="pt-btn active" onclick="switchTab('appeals',this)">📣 Duty Appeals</button>
+    <button class="pt-btn" onclick="switchTab('reports',this)">📊 Monthly Reports</button>
+    <button class="pt-btn" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
+  </div>
+
+  <!-- Appeals Tab -->
+  <div class="pt-panel active" id="tab-appeals">
+    <div class="quick-stats-row">
+      <div class="qs"><div class="qs-val" id="apPending" style="color:var(--gold)">—</div><div class="qs-lbl">Pending</div></div>
+      <div class="qs"><div class="qs-val" id="apApproved" style="color:var(--green)">—</div><div class="qs-lbl">Approved</div></div>
+      <div class="qs"><div class="qs-val" id="apRejected" style="color:var(--red)">—</div><div class="qs-lbl">Rejected</div></div>
+      <div class="qs"><div class="qs-val" id="apTotal" style="color:var(--accent)">—</div><div class="qs-lbl">Total</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <select id="appealFilter" onchange="filterAppeals()">
+        <option value="pending">⏳ Pending</option>
+        <option value="approved">✅ Approved</option>
+        <option value="rejected">❌ Rejected</option>
+        <option value="auto_closed">🔒 Auto-Closed</option>
+        <option value="all">📋 All Appeals</option>
+      </select>
+      <select id="appealDeptFilter" onchange="filterAppeals()">
+        <option value="all">All Departments</option>
+        <option value="Photography">Photography</option>
+        <option value="Web">Web</option>
+        <option value="Media">Media</option>
+      </select>
+      <input type="search" id="appealSearch" placeholder="🔎 Search by name, ID or date…" oninput="filterAppeals()">
+      <button onclick="autoCloseOld()" style="padding:7px 13px;border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);background:rgba(239,68,68,.08);color:var(--red);font-family:var(--font-body);font-size:.75rem;font-weight:700;cursor:pointer">🔒 Auto-close old</button>
+    </div>
+
+    <!-- Bulk action bar (shows when items are selected) -->
+    <div id="bulkBar" class="appeal-bulk-bar" style="display:none">
+      <span id="bulkCount">0 selected</span>
+      <input type="text" id="bulkNote" placeholder="Bulk admin note…" style="flex:1;min-width:140px;background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.78rem;padding:5px 10px;outline:none">
+      <button class="bulk-btn bulk-approve" onclick="bulkResolve('approved')">✓ Approve All Selected</button>
+      <button class="bulk-btn bulk-reject" onclick="bulkResolve('rejected')">✗ Reject All Selected</button>
+      <button onclick="clearSelections()" style="padding:5px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--text-muted);font-family:var(--font-body);font-size:.75rem;cursor:pointer">Clear</button>
+    </div>
+
+    <div id="appealsList"></div>
+  </div>
+
+  <!-- Reports Tab -->
+  <div class="pt-panel" id="tab-reports">
+    <div class="report-section">
+      <div class="report-title">Monthly Duty Report</div>
+      <div class="report-controls">
+        <select id="reportMonth"></select>
+        <select id="reportDept">
+          <option value="all">All Departments</option>
+          <option value="Photography">Photography</option>
+          <option value="Web">Web</option>
+          <option value="Media">Media</option>
+        </select>
+        <button class="export-btn" onclick="exportReport()">⬇ Export CSV</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="report-table">
+          <thead><tr><th>Name</th><th>ID</th><th>Grade</th><th>Dept</th><th>Present</th><th>Absent</th><th>Duty %</th><th>Points</th></tr></thead>
+          <tbody id="reportBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Tab -->
+  <div class="pt-panel" id="tab-leaderboard">
+    <div class="report-section">
+      <div class="report-title">🏆 Duty Leaderboard</div>
+      <div class="filter-bar">
+        <select id="lbDept" onchange="renderLeaderboard()">
+          <option value="all">All Departments</option>
+          <option value="Photography">Photography</option>
+          <option value="Web">Web</option>
+          <option value="Media">Media</option>
+        </select>
+        <select id="lbSort" onchange="renderLeaderboard()">
+          <option value="pct">Sort by Duty %</option>
+          <option value="points">Sort by Points</option>
+          <option value="present">Sort by Days Present</option>
+        </select>
+      </div>
+      <div id="leaderboardList"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit — managing student records, roles, and departments across all grades.</p>
+        <div class="footer-tech-badges"><span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">Vanilla JS</span></div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="add.html">Add Student</a>
+          <a href="duty-schedule.html">Duty Schedule</a><a href="duty-mark.html">Mark Duty</a>
+          <a href="duty-swap.html">Duty Swaps</a><a href="duty-appeals.html">Appeals</a>
+          <a href="attendance-report.html">Attendance Report</a><a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="leaderboard.html">🏆 Leaderboard</a>
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="dept-analytics.html">📊 Analytics</a>
+          <a href="report-card.html">📄 Report Cards</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved. Unauthorised access is prohibited.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getFirestore, collection, doc, getDocs, updateDoc, onSnapshot, query, where, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",
+    authDomain: "rcmu-db.firebaseapp.com",
+    projectId: "rcmu-db",
+    storageBucket: "rcmu-db.firebasestorage.app",
+    messagingSenderId: "1043134894673",
+    appId: "1:1043134894673:web:dbd89dd271749cea6fde70"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let allAppeals = [];
+  let allStudents = [];
+  let allDutyLogs = [];
+
+  // Auth
+  try {
+    const raw = sessionStorage.getItem('rcmu_admin');
+    if (!raw) window.location.href = 'login.html';
+    else {
+      currentUser = JSON.parse(raw);
+      if (!['admin','editor'].includes(currentUser.ADM_role)) window.location.href = 'login.html';
+    }
+  } catch(e) { window.location.href = 'login.html'; }
+
+  window.doLogout = function() { sessionStorage.removeItem('rcmu_admin'); window.location.href = 'login.html'; };
+
+  function updateHeaderUser() {
+    const u = currentUser; if (!u) return;
+    const el = document.getElementById('currentUser'); if (!el) return;
+    const roleColors = { admin:'#f59e0b', editor:'#3b82f6', viewer:'#10b981' };
+    const color = roleColors[u.ADM_role] || '#64748b';
+    el.innerHTML = `<span class="user-avatar">${u.ADM_name.charAt(0).toUpperCase()}</span><span>${u.ADM_Uname}</span><span class="role-tag" style="background:${color}22;color:${color};border-color:${color}44">${u.ADM_role}</span>`;
+  }
+  updateHeaderUser();
+
+  // Show/hide navigation links based on role
+  if (currentUser.ADM_role === 'admin') {
+    document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+    document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
+    document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
+    document.getElementById('adminLink')?.style && (document.getElementById('adminLink').style.display = 'inline-flex');
+  } else if (currentUser.ADM_role === 'editor') {
+    document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+    document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
+    document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
+  }
+
+  window.switchTab = function(name, btn) {
+    document.querySelectorAll('.pt-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.pt-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name)?.classList.add('active');
+    btn.classList.add('active');
+    if (name === 'reports') renderReport();
+    if (name === 'leaderboard') renderLeaderboard();
+  };
+
+  // ── LOAD DATA ──
+  onSnapshot(collection(db, 'RCMU_Appeals'), snap => {
+    allAppeals = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+    filterAppeals();
+    updateAppealStats();
+  });
+
+  onSnapshot(collection(db, 'RCMU_DB'), snap => {
+    allStudents = snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+  });
+
+  onSnapshot(collection(db, 'RCMU_DutyLogs'), snap => {
+    allDutyLogs = snap.docs.map(d => ({ _logId: d.id, ...d.data() }));
+  });
+
+  // Populate month filter
+  (() => {
+    const sel = document.getElementById('reportMonth');
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const now = new Date();
+    let html = '';
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      html += `<option value="${val}">${months[d.getMonth()]} ${d.getFullYear()}</option>`;
+    }
+    sel.innerHTML = html;
+  })();
+
+  // ── APPEALS ──
+  let selectedAppealIds = new Set();
+
+  window.loadAppeals = function() { filterAppeals(); };
+
+  window.filterAppeals = function() {
+    const filter = document.getElementById('appealFilter').value;
+    const search = document.getElementById('appealSearch').value.toLowerCase();
+    const dept = document.getElementById('appealDeptFilter').value;
+    let list = filter === 'all' ? allAppeals : allAppeals.filter(a => a.status === filter);
+    if (search) list = list.filter(a => (a.studentName||'').toLowerCase().includes(search) || (a.studentId||'').toLowerCase().includes(search) || (a.date||'').includes(search));
+    if (dept !== 'all') list = list.filter(a => (a.studentDept||'') === dept);
+    renderAppeals(list);
+  };
+
+  function updateAppealStats() {
+    document.getElementById('apPending').textContent = allAppeals.filter(a => a.status === 'pending').length;
+    document.getElementById('apApproved').textContent = allAppeals.filter(a => a.status === 'approved').length;
+    document.getElementById('apRejected').textContent = allAppeals.filter(a => a.status === 'rejected').length;
+    document.getElementById('apTotal').textContent = allAppeals.length;
+  }
+
+  function getDaysOld(createdAt) {
+    if (!createdAt) return 0;
+    return Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000*60*60*24));
+  }
+
+  function renderAppeals(list) {
+    const container = document.getElementById('appealsList');
+    if (!list.length) { container.innerHTML = '<div class="empty-state">No appeals found.</div>'; return; }
+    const sorted = [...list].sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+    container.innerHTML = sorted.map((a,i) => {
+      const daysOld = getDaysOld(a.createdAt);
+      const isOld = daysOld >= 14 && a.status === 'pending';
+      const submittedDt = a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      const isSelected = selectedAppealIds.has(a._id);
+      return `<div class="appeal-card ${a.status}" style="animation-delay:${i*0.05}s${isSelected?';outline:2px solid var(--accent)':''}">
+        <div class="appeal-top">
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            ${a.status==='pending'?`<input type="checkbox" class="appeal-select-cb" onchange="toggleSelectAppeal('${a._id}',this.checked)" ${isSelected?'checked':''}>`:''}
+            <div>
+              <div class="appeal-who">${a.studentName||'—'} <span style="color:var(--text-muted);font-size:.8rem;font-weight:400">(${a.studentId||'—'})</span></div>
+              <div class="appeal-meta-row">
+                <span class="appeal-meta-chip">📅 Duty: ${a.date||'—'}</span>
+                <span class="appeal-meta-chip">📤 Submitted: ${submittedDt}</span>
+                ${a.studentDept?`<span class="appeal-meta-chip">${a.studentDept}</span>`:''}
+                ${daysOld>0?`<span class="appeal-meta-chip" style="color:${daysOld>=14?'var(--red)':'var(--text-muted)'}">⏱ ${daysOld}d old</span>`:''}
+                ${isOld?`<span class="appeal-auto-close-badge">⚠ 14d+ — eligible for auto-close</span>`:''}
+              </div>
+            </div>
+          </div>
+          <span class="appeal-status-chip ${a.status}">${a.status==='auto_closed'?'🔒 Auto-closed':a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span>
+        </div>
+        <div class="appeal-reason">${a.reason||'—'}</div>
+        ${a.adminNote?`<div style="font-size:.78rem;color:var(--text-muted);margin-top:8px;padding:6px 10px;background:var(--bg-panel);border-radius:var(--radius-sm)">📝 Admin: ${a.adminNote}</div>`:''}
+        ${a.resolvedBy?`<div style="font-size:.68rem;color:var(--text-muted);margin-top:6px">Reviewed by <strong>${a.resolvedBy}</strong> on ${a.resolvedAt?new Date(a.resolvedAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):''}</div>`:''}
+        ${a.status === 'pending' ? `
+        <div class="appeal-actions">
+          <input type="text" class="appeal-note-input" id="note-${a._id}" placeholder="Admin note (optional)…">
+          <button class="appeal-approve-btn" onclick="resolveAppeal('${a._id}','${a.studentDocId}','${a.date}','approved')">✓ Approve</button>
+          <button class="appeal-reject-btn" onclick="resolveAppeal('${a._id}','${a.studentDocId}','${a.date}','rejected')">✗ Reject</button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  window.toggleSelectAppeal = function(id, checked) {
+    if (checked) selectedAppealIds.add(id); else selectedAppealIds.delete(id);
+    const bar = document.getElementById('bulkBar');
+    const cnt = document.getElementById('bulkCount');
+    bar.style.display = selectedAppealIds.size > 0 ? 'flex' : 'none';
+    cnt.textContent = selectedAppealIds.size + ' selected';
+  };
+
+  window.clearSelections = function() {
+    selectedAppealIds.clear();
+    document.getElementById('bulkBar').style.display = 'none';
+    filterAppeals();
+  };
+
+  window.bulkResolve = async function(status) {
+    if (!selectedAppealIds.size) return;
+    const note = document.getElementById('bulkNote').value.trim() || (status === 'rejected' ? 'Bulk rejected by admin.' : 'Bulk approved by admin.');
+    const ids = [...selectedAppealIds];
+    for (const id of ids) {
+      const appeal = allAppeals.find(a => a._id === id);
+      if (!appeal || appeal.status !== 'pending') continue;
+      await resolveAppealInternal(id, appeal.studentDocId, appeal.date, status, note);
+    }
+    selectedAppealIds.clear();
+    document.getElementById('bulkBar').style.display = 'none';
+    showToast(`✅ ${ids.length} appeal(s) ${status}.`);
+  };
+
+  window.autoCloseOld = async function() {
+    const cutoff = Date.now() - 14*24*60*60*1000;
+    const old = allAppeals.filter(a => a.status === 'pending' && new Date(a.createdAt).getTime() < cutoff);
+    if (!old.length) { showToast('No appeals older than 14 days found.', 'info'); return; }
+    if (!confirm(`Auto-close ${old.length} appeal(s) older than 14 days?`)) return;
+    for (const a of old) {
+      await resolveAppealInternal(a._id, a.studentDocId, a.date, 'auto_closed', 'Automatically closed after 14 days without review.');
+    }
+    showToast(`🔒 Auto-closed ${old.length} old appeal(s).`);
+  };
+
+  async function resolveAppealInternal(appealId, studentDocId, date, status, note='') {
+    try {
+      await updateDoc(doc(db, 'RCMU_Appeals', appealId), { status, adminNote: note, resolvedAt: new Date().toISOString(), resolvedBy: currentUser.ADM_Uname });
+      if (status === 'approved') {
+        const existingLog = allDutyLogs.find(l => l.studentDocId === studentDocId && l.date === date);
+        if (existingLog) {
+          await updateDoc(doc(db, 'RCMU_DutyLogs', existingLog._logId), { type: 'present', pointChange: 10, appealApproved: true });
+        } else {
+          await addDoc(collection(db, 'RCMU_DutyLogs'), { studentDocId, date, timestamp: new Date().toISOString(), type: 'present', period: 'Appeal', markedBy: currentUser.ADM_Uname, markedByName: currentUser.ADM_name, pointChange: 10, appealApproved: true });
+        }
+        await recalcStudentDuty(studentDocId);
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  window.resolveAppeal = async function(appealId, studentDocId, date, status) {
+    const noteEl = document.getElementById(`note-${appealId}`);
+    const note = noteEl ? noteEl.value.trim() : '';
+    await resolveAppealInternal(appealId, studentDocId, date, status, note);
+    showToast(status === 'approved' ? '✅ Appeal approved. Duty updated.' : '❌ Appeal rejected.', status === 'approved' ? 'success' : 'error');
+  };
+
+  async function recalcStudentDuty(studentDocId) {
+    const logs = allDutyLogs.filter(l => l.studentDocId === studentDocId);
+    const presentCount = logs.filter(l => l.type === 'present').length;
+    const totalScheduled = logs.length;
+    const pct = totalScheduled > 0 ? Math.round((presentCount / totalScheduled) * 100) : 0;
+    let pts = 0; logs.forEach(l => { pts += l.type === 'present' ? 10 : -25; });
+    await updateDoc(doc(db, 'RCMU_DB', studentDocId), { dutyPercentage: pct, dutyPoints: pts });
+  }
+
+  // ── REPORTS ──
+  window.renderReport = function() {
+    const month = document.getElementById('reportMonth').value;
+    const dept = document.getElementById('reportDept').value;
+    const tbody = document.getElementById('reportBody');
+
+    let students = [...allStudents];
+    if (dept !== 'all') students = students.filter(s => s.department === dept);
+
+    const rows = students.map(s => {
+      const logs = allDutyLogs.filter(l => l.studentDocId === s._docId && l.date.startsWith(month));
+      const presentCount = logs.filter(l => l.type === 'present').length;
+      const absentCount = logs.filter(l => l.type === 'absent').length;
+      const total = logs.length;
+      const pct = total > 0 ? Math.round((presentCount / total) * 100) : (s.dutyPercentage || 0);
+      let pts = 0; logs.forEach(l => { pts += l.type === 'present' ? 10 : -25; });
+      return { ...s, presentCount, absentCount, pct, pts, total };
+    });
+
+    rows.sort((a,b) => b.pct - a.pct);
+
+    tbody.innerHTML = rows.map((r,i) => `
+      <tr>
+        <td><strong>${r.fullname||'—'}</strong></td>
+        <td style="color:var(--text-muted);font-size:0.78rem">${r.studentId||'—'}</td>
+        <td style="color:var(--text-muted);font-size:0.78rem">${r.grade||'—'}</td>
+        <td style="color:var(--text-muted);font-size:0.78rem">${r.department||'—'}</td>
+        <td style="color:var(--green)">${r.presentCount}</td>
+        <td style="color:var(--red)">${r.absentCount}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="min-width:34px;font-weight:600">${r.pct}%</span>
+            <div class="pct-bar" style="flex:1"><div class="pct-fill" style="width:${r.pct}%;background:${r.pct>=75?'linear-gradient(90deg,var(--green),var(--accent2))':r.pct>=50?'linear-gradient(90deg,var(--gold),#f97316)':'linear-gradient(90deg,var(--red),#f97316)'}"></div></div>
+          </div>
+        </td>
+        <td><span class="pts-badge ${r.pts >= 0 ? 'pts-pos':'pts-neg'}">${r.pts >= 0 ? '+':''}${r.pts}</span></td>
+      </tr>
+    `).join('');
+  };
+
+  window.exportReport = function() {
+    const month = document.getElementById('reportMonth').value;
+    const dept = document.getElementById('reportDept').value;
+    let students = [...allStudents];
+    if (dept !== 'all') students = students.filter(s => s.department === dept);
+
+    const rows = [['Name','ID','Grade','Department','Present','Absent','Duty%','Points']];
+    students.forEach(s => {
+      const logs = allDutyLogs.filter(l => l.studentDocId === s._docId && l.date.startsWith(month));
+      const presentCount = logs.filter(l => l.type === 'present').length;
+      const absentCount = logs.filter(l => l.type === 'absent').length;
+      const total = logs.length;
+      const pct = total > 0 ? Math.round((presentCount / total) * 100) : (s.dutyPercentage || 0);
+      let pts = 0; logs.forEach(l => { pts += l.type === 'present' ? 10 : -25; });
+      rows.push([s.fullname, s.studentId, s.grade, s.department, presentCount, absentCount, pct+'%', pts]);
+    });
+
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type:'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `RCMU_DutyReport_${month}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // ── LEADERBOARD ──
+  window.renderLeaderboard = function() {
+    const dept = document.getElementById('lbDept').value;
+    const sortBy = document.getElementById('lbSort').value;
+    let students = [...allStudents];
+    if (dept !== 'all') students = students.filter(s => s.department === dept);
+
+    const enriched = students.map(s => {
+      const logs = allDutyLogs.filter(l => l.studentDocId === s._docId);
+      const presentCount = logs.filter(l => l.type === 'present').length;
+      let pts = 0; logs.forEach(l => { pts += l.type === 'present' ? 10 : -25; });
+      return { ...s, presentCount, pts };
+    });
+
+    if (sortBy === 'pct') enriched.sort((a,b) => (b.dutyPercentage||0) - (a.dutyPercentage||0));
+    else if (sortBy === 'points') enriched.sort((a,b) => (b.pts||0) - (a.pts||0));
+    else enriched.sort((a,b) => (b.presentCount||0) - (a.presentCount||0));
+
+    const container = document.getElementById('leaderboardList');
+    const medals = ['🥇','🥈','🥉'];
+    container.innerHTML = enriched.slice(0,20).map((s,i) => {
+      const initials = (s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const pct = Number(s.dutyPercentage) || 0;
+      const ptsVal = s.pts || 0;
+      return `<div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--bg-panel);border-radius:var(--radius-sm);margin-bottom:6px;transition:background var(--transition)" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-panel)'">
+        <span style="font-size:1.1rem;min-width:24px;text-align:center">${medals[i] || `#${i+1}`}</span>
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:0.88rem;color:var(--text)">${s.fullname||'—'}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">${s.department||'—'} · Grade ${s.grade||'—'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:${pct>=75?'var(--green)':pct>=50?'var(--gold)':'var(--red)'}">${pct}%</div>
+          <div class="pts-badge ${ptsVal>=0?'pts-pos':'pts-neg'}" style="font-size:0.7rem">${ptsVal>=0?'+':''}${ptsVal} pts</div>
+        </div>
+      </div>`;
+    }).join('');
+  };
+
+  function showToast(msg, type='success') {
+    const existing = document.querySelector('.rcmu-toast');
+    if (existing) existing.remove();
+    const t = document.createElement('div');
+    t.className = `rcmu-toast rcmu-toast-${type}`;
+    t.innerHTML = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('rcmu-toast-visible'));
+    setTimeout(() => { t.classList.remove('rcmu-toast-visible'); setTimeout(() => t.remove(), 400); }, 3200);
+  }
+
+  // Init
+  document.getElementById('reportMonth').addEventListener('change', renderReport);
+  document.getElementById('reportDept').addEventListener('change', renderReport);
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

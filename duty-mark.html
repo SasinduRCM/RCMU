@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mark Duty — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Favicon all sizes -->
+  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon"         href="icon-32.png">
+  <!-- Apple / iOS icons -->
+  <link rel="apple-touch-icon"              href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <!-- Windows / PWA tile -->
+  <meta name="msapplication-TileImage"   content="icon-144.png">
+  <meta name="msapplication-TileColor"   content="#0b0f1a">
+  <meta name="msapplication-config"      content="none">
+  <!-- Favicon -->
+  <!-- SEO Meta -->
+  <meta name="description" content="Mark student duty attendance for the Rahula College Media Unit.">
+  <meta name="keywords" content="Rahula College, Media Unit, duty, mark attendance, RCMU">
+  <meta name="author" content="Sasindu Ruwaneka">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Mark Duty — Rahula College Media Unit">
+  <meta property="og:description" content="Mark student duty attendance for the Rahula College Media Unit.">
+  <meta property="og:image" content="Icon.png">
+  <meta property="og:site_name" content="Rahula College Media Unit">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Mark Duty — Rahula College Media Unit">
+  <meta name="twitter:description" content="Mark student duty attendance for the Rahula College Media Unit.">
+  <meta name="twitter:image" content="Icon.png">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RCMU">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="RCMU">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Clock bar */
+    .clock-bar { background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;position:relative;overflow:hidden;animation:fadeSlideUp 0.5s cubic-bezier(.22,1,.36,1) both; }
+    .clock-bar::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#a855f7,var(--accent),var(--accent2)); }
+    .clock-time { font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--text);letter-spacing:0.04em;line-height:1; }
+    .clock-time span { color:var(--accent); }
+    .clock-date { font-size:0.8rem;color:var(--text-muted);margin-top:2px; }
+    .window-chip { display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:12px;font-size:0.75rem;font-weight:600; }
+    .window-chip::before { content:'';width:7px;height:7px;border-radius:50%;background:currentColor;animation:wPulse 1.6s ease-in-out infinite; }
+    @keyframes wPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .window-chip.open { background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--green); }
+    .window-chip.late { background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--gold); }
+    .window-chip.closed { background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:var(--red); }
+
+    /* Stats */
+    .stats-bar { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;animation:fadeSlideUp 0.5s 0.05s cubic-bezier(.22,1,.36,1) both; }
+    @media(max-width:580px){.stats-bar{grid-template-columns:repeat(2,1fr)}}
+    .sbar-tile { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;position:relative;overflow:hidden;transition:all var(--transition);cursor:default; }
+    .sbar-tile:hover { border-color:var(--border-soft);transform:translateY(-2px);box-shadow:var(--shadow-sm); }
+    .sbar-tile::after { content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform 0.4s; }
+    .sbar-tile:hover::after { transform:scaleX(1); }
+    .sbar-num { font-family:var(--font-display);font-size:1.7rem;font-weight:700;line-height:1; }
+    .sbar-lbl { font-size:0.64rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:3px; }
+
+    /* Window config */
+    .window-config { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;animation:fadeSlideUp 0.5s 0.08s cubic-bezier(.22,1,.36,1) both; }
+    .wc-title { font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px; }
+    .wc-grid { display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap; }
+    .wc-field { display:flex;flex-direction:column;gap:4px;min-width:120px; }
+    .wc-field label { font-size:0.67rem;color:var(--text-muted);font-weight:600; }
+    .wc-field input[type=time],.wc-field select { background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);padding:6px 9px;font-family:var(--font-body);font-size:0.82rem;outline:none;transition:border-color var(--transition); }
+    .wc-field input[type=time]:focus,.wc-field select:focus { border-color:var(--accent); }
+    .wc-save { padding:6px 14px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:700;cursor:pointer;transition:all var(--transition);white-space:nowrap; }
+    .wc-save:hover { transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.4); }
+    .wc-desc { font-size:0.7rem;color:var(--text-muted);margin-top:8px; }
+
+    /* Scheduled students */
+    .scheduled-section { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;animation:fadeSlideUp 0.5s 0.1s cubic-bezier(.22,1,.36,1) both; }
+    .sched-students-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:7px;margin-top:10px; }
+    .sched-chip { display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.78rem;transition:all 0.2s;cursor:default; }
+    .sched-chip.present { border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.07); }
+    .sched-chip.absent { border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05); }
+    .sched-chip.late { border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.06); }
+    .chip-av { width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.63rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;border:1.5px solid var(--border); }
+    .chip-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+    .chip-nm { font-size:0.76rem;font-weight:600;color:var(--text);line-height:1.2; }
+    .chip-st { font-size:0.6rem;color:var(--text-muted); }
+    .chip-st.present{color:var(--green)} .chip-st.absent{color:var(--red)} .chip-st.late{color:var(--gold)}
+
+    /* Scanner */
+    .scanner-box { background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:20px;margin-bottom:14px;animation:fadeSlideUp 0.5s 0.12s cubic-bezier(.22,1,.36,1) both;position:relative;overflow:hidden; }
+    .scanner-glow { position:absolute;top:-50px;right:-50px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,0.12) 0%,transparent 70%);pointer-events:none; }
+    .period-row { display:flex;gap:6px;margin-bottom:11px;flex-wrap:wrap; }
+    .period-chip { padding:5px 12px;border-radius:18px;font-size:0.74rem;font-weight:600;border:1px solid var(--border);background:var(--bg-panel);color:var(--text-muted);cursor:pointer;transition:all 0.2s; }
+    .period-chip.active { background:rgba(168,85,247,0.15);border-color:#a855f7;color:#a855f7; }
+    .id-row { display:flex;gap:8px;align-items:stretch; }
+    .id-wrap { flex:1;position:relative; }
+    .id-icon { position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none; }
+    .id-wrap input { width:100%;padding:11px 14px 11px 38px;border-radius:var(--radius-sm);border:1.5px solid var(--border-soft);background:var(--bg-panel);color:var(--text);font-family:var(--font-body);font-size:1rem;font-weight:600;outline:none;transition:border-color var(--transition),box-shadow var(--transition);letter-spacing:0.03em; }
+    .id-wrap input:focus { border-color:#a855f7;box-shadow:0 0 0 3px rgba(168,85,247,0.15); }
+    .check-btn { padding:11px 20px;border-radius:var(--radius-sm);border:none;background:linear-gradient(135deg,#a855f7,var(--accent));color:#fff;font-family:var(--font-body);font-size:0.9rem;font-weight:700;cursor:pointer;transition:all var(--transition);box-shadow:0 4px 14px rgba(168,85,247,0.3);white-space:nowrap; }
+    .check-btn:hover { transform:translateY(-1px);box-shadow:0 6px 20px rgba(168,85,247,0.45); }
+    .scan-msg { margin-top:8px;font-size:0.8rem;min-height:16px;display:flex;align-items:center;gap:5px; }
+
+    /* Confirm card */
+    .confirm-card { background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:20px;margin-bottom:14px;display:none;position:relative;overflow:hidden; }
+    .confirm-card.visible { display:block;animation:confirmIn 0.35s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes confirmIn { from{opacity:0;transform:scale(0.95) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .confirm-card::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;transition:background 0.3s; }
+    .confirm-card.type-present::before { background:linear-gradient(90deg,var(--green),var(--accent2)); }
+    .confirm-card.type-late::before { background:linear-gradient(90deg,var(--gold),#f97316); }
+    .confirm-card.type-absent::before { background:linear-gradient(90deg,#ef4444,#f97316); }
+    .c-student-row { display:flex;align-items:center;gap:14px; }
+    .c-avatar-wrap { position:relative;flex-shrink:0; }
+    .c-avatar { width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:#fff;overflow:hidden;border:2px solid var(--border-soft); }
+    .c-avatar img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+    .c-ring { position:absolute;inset:-3px;border-radius:50%;border:3px solid transparent;transition:border-color 0.3s; }
+    .c-ring.present{border-color:var(--green)} .c-ring.late{border-color:var(--gold)} .c-ring.absent{border-color:var(--red)}
+    .c-name { font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text); }
+    .c-meta { font-size:0.76rem;color:var(--text-muted);margin-top:2px;line-height:1.5; }
+    .tw-status { display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600; }
+    .tw-status.ontime { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green); }
+    .tw-status.late { background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:var(--gold); }
+    .tw-status.closed { background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red); }
+    .pts-preview { display:flex;gap:6px;margin-top:8px;flex-wrap:wrap; }
+    .pts-tag { padding:3px 9px;border-radius:9px;font-size:0.73rem;font-weight:700; }
+    .pts-tag.g{background:rgba(16,185,129,0.15);color:var(--green)} .pts-tag.o{background:rgba(245,158,11,0.15);color:var(--gold)} .pts-tag.r{background:rgba(239,68,68,0.15);color:var(--red)}
+    .c-actions { display:flex;gap:8px;margin-top:12px;flex-wrap:wrap; }
+    .c-btn { flex:1;padding:10px;border-radius:var(--radius-sm);border:none;font-family:var(--font-body);font-size:0.87rem;font-weight:700;cursor:pointer;min-width:100px;transition:all var(--transition); }
+    .c-btn.present{background:linear-gradient(135deg,var(--green),var(--accent2));color:#fff}
+    .c-btn.late{background:linear-gradient(135deg,var(--gold),#f97316);color:#fff}
+    .c-btn.absent{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff}
+    .c-btn.cancel{background:var(--bg-panel);border:1px solid var(--border-soft);color:var(--text-muted);flex:0;padding:10px 14px}
+    .c-btn:hover { transform:translateY(-1px); }
+    .already-warned { margin-top:8px;padding:8px 12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-sm);font-size:0.78rem;color:var(--gold); }
+
+    /* Log */
+    .today-log { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;animation:fadeSlideUp 0.5s 0.18s cubic-bezier(.22,1,.36,1) both; }
+    .log-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px; }
+    .log-title { font-family:var(--font-display);font-size:0.95rem;font-weight:700;color:var(--text); }
+    .log-controls { display:flex;gap:7px;align-items:center;flex-wrap:wrap; }
+    .log-filter,.log-search { background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);padding:5px 9px;font-size:0.78rem;font-family:var(--font-body);outline:none;transition:border-color var(--transition); }
+    .log-filter:focus,.log-search:focus{border-color:var(--accent)}
+    .log-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+    .log-table th{text-align:left;padding:7px 9px;color:var(--text-muted);font-weight:600;font-size:0.67rem;text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--border)}
+    .log-table td{padding:9px 9px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+    .log-table tr:last-child td{border-bottom:none}
+    .log-table tr:hover td{background:rgba(255,255,255,0.018)}
+    .log-av { width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;color:#fff;vertical-align:middle;margin-right:7px;overflow:hidden;border:1.5px solid var(--border);flex-shrink:0; }
+    .log-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .sbadge { display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:9px;font-size:0.7rem;font-weight:700; }
+    .sbadge.present{background:rgba(16,185,129,0.15);color:var(--green)}
+    .sbadge.absent{background:rgba(239,68,68,0.12);color:var(--red)}
+    .sbadge.late{background:rgba(245,158,11,0.12);color:var(--gold)}
+    .pts-sm{font-size:0.74rem;font-weight:700}
+    .pts-sm.pos{color:var(--green)} .pts-sm.neg{color:var(--red)} .pts-sm.warn{color:var(--gold)}
+    .undo-btn{background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);font-size:0.67rem;padding:3px 7px;cursor:pointer;transition:all var(--transition);font-family:var(--font-body)}
+    .undo-btn:hover{border-color:var(--red);color:var(--red)}
+    .empty-log{text-align:center;color:var(--text-muted);font-size:0.83rem;padding:32px}
+    .empty-log-icon{font-size:2.2rem;opacity:0.35;margin-bottom:6px}
+
+    /* Mark feedback splash */
+    .mark-feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:var(--bg-card);border:1px solid var(--border-soft);border-radius:20px;padding:26px 36px;text-align:center;z-index:9999;box-shadow:0 20px 80px rgba(0,0,0,0.6);opacity:0;pointer-events:none;transition:all 0.3s cubic-bezier(.22,1,.36,1)}
+    .mark-feedback.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    .mf-icon{font-size:2.8rem;margin-bottom:7px;display:block;animation:iconPop 0.4s cubic-bezier(.22,1,.36,1) both}
+    @keyframes iconPop{from{transform:scale(0.3);opacity:0} 70%{transform:scale(1.2)} to{transform:scale(1);opacity:1}}
+    .mf-name{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:3px}
+    .mf-sub{font-size:0.78rem;color:var(--text-muted);margin-bottom:4px}
+    .mf-pts{font-size:1.45rem;font-weight:700}
+    .mf-pts.pos{color:var(--green)} .mf-pts.neg{color:var(--red)} .mf-pts.warn{color:var(--gold)}
+  </style>
+</head>
+<body>
+
+<!-- MAIN PLATFORM -->
+<div id="platformWrap">
+<div class="container">
+  <header class="page-header">
+    <div class="header-logos-row">
+      <div class="header-logo logo-left"><img src="Rahula_College_Crest.png" alt="Rahula College"></div>
+      <div class="header-logo logo-right"><img src="Media Unit Original logo.png" alt="Media Unit"></div>
+    </div>
+    <div class="header-title">
+      <h1>Rahula College Media Unit</h1>
+      <p class="subtitle">Duty Marking Platform</p>
+    </div>
+  </header>
+  <div class="header-actions">
+    <span id="currentUser" class="user-badge"></span>
+    <a class="secondary-link" href="index.html" id="rosterLink" style="display:none">📊 Roster</a>
+    <a class="secondary-link" href="duty-schedule.html" id="dutySchedLink" style="display:none">📅 Schedule</a>
+    <a class="secondary-link" href="duty-appeals.html" id="appealsLink" style="display:none">📣 Appeals</a>
+    <a class="secondary-link" href="admin.html" id="adminLink" style="display:none">Admin Panel</a>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <!-- Clock -->
+  <div class="clock-bar">
+    <div>
+      <div class="clock-time" id="liveClock">--<span>:</span>--<span>:</span>--</div>
+      <div class="clock-date" id="clockDate"></div>
+    </div>
+    <div id="windowStatus"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="sbar-tile"><div class="sbar-num" id="sbPresent" style="color:var(--green)">0</div><div class="sbar-lbl">Present</div></div>
+    <div class="sbar-tile"><div class="sbar-num" id="sbLate" style="color:var(--gold)">0</div><div class="sbar-lbl">Late</div></div>
+    <div class="sbar-tile"><div class="sbar-num" id="sbAbsent" style="color:var(--red)">0</div><div class="sbar-lbl">Absent</div></div>
+    <div class="sbar-tile"><div class="sbar-num" id="sbScheduled" style="color:var(--accent)">0</div><div class="sbar-lbl">Scheduled</div></div>
+  </div>
+
+  <!-- Window config -->
+  <div class="window-config" id="windowConfig">
+    <div class="wc-title">⏰ Duty Time Window</div>
+    <div class="wc-grid">
+      <div class="wc-field"><label>Preset Period</label>
+        <select id="wcPeriod" onchange="onPeriodPresetChange()">
+          <option value="Morning">Morning Assembly (6:00–7:30)</option>
+          <option value="Afternoon">Afternoon (12:30–13:20)</option>
+          <option value="Event">Special Event (7:00–8:00)</option>
+          <option value="Custom">Custom…</option>
+        </select>
+      </div>
+      <div class="wc-field" id="wfStart" style="display:none"><label>Start</label><input type="time" id="wcStart" value="06:00"></div>
+      <div class="wc-field" id="wfOnTime" style="display:none"><label>On-time Until</label><input type="time" id="wcOnTime" value="07:10"></div>
+      <div class="wc-field" id="wfClose" style="display:none"><label>Window Closes</label><input type="time" id="wcClose" value="07:30"></div>
+      <div class="wc-field"><button class="wc-save" onclick="applyWindow()">✓ Apply</button></div>
+    </div>
+    <div class="wc-desc" id="wcDesc"></div>
+  </div>
+
+  <!-- Scheduled students -->
+  <div class="scheduled-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-family:var(--font-display);font-size:0.92rem;font-weight:700;color:var(--text)">Today's Scheduled Students</div>
+      <span style="font-size:0.73rem;color:var(--text-muted)" id="schedCount">Loading…</span>
+    </div>
+    <div class="sched-students-grid" id="schedGrid"></div>
+  </div>
+
+  <!-- Scanner -->
+  <div class="scanner-box">
+    <div class="scanner-glow"></div>
+    <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">Mark Attendance</div>
+    <div class="period-row">
+      <div class="period-chip active" onclick="selectPeriod(this,'Morning')">☀️ Morning</div>
+      <div class="period-chip" onclick="selectPeriod(this,'Afternoon')">🌤 Afternoon</div>
+      <div class="period-chip" onclick="selectPeriod(this,'Full Day')">📅 Full Day</div>
+      <div class="period-chip" onclick="selectPeriod(this,'Event')">🎭 Event</div>
+    </div>
+    <div class="id-row">
+      <div class="id-wrap">
+        <span class="id-icon">🎓</span>
+        <input type="text" id="markIdInput" placeholder="Type or scan Student ID…" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="characters">
+      </div>
+      <button class="check-btn" onclick="lookupStudent()">→ Check In</button>
+    </div>
+    <div class="scan-msg" id="scanMsg"></div>
+  </div>
+
+  <!-- Confirm card -->
+  <div class="confirm-card" id="confirmCard">
+    <div class="c-student-row">
+      <div class="c-avatar-wrap">
+        <div class="c-avatar" id="cAvatar"></div>
+        <div class="c-ring" id="cRing"></div>
+      </div>
+      <div>
+        <div class="c-name" id="cName"></div>
+        <div class="c-meta" id="cMeta"></div>
+      </div>
+    </div>
+    <div id="twStatus"></div>
+    <div class="pts-preview" id="ptsPreview"></div>
+    <div id="alreadyWarn" style="display:none" class="already-warned"></div>
+    <div class="c-actions" id="cActions"></div>
+  </div>
+
+  <!-- Log -->
+  <div class="today-log">
+    <div class="log-head">
+      <div class="log-title">Today's Attendance Log</div>
+      <div class="log-controls">
+        <select class="log-filter" id="logFilter" onchange="renderLog()">
+          <option value="all">All</option>
+          <option value="present">Present</option>
+          <option value="late">Late</option>
+          <option value="absent">Absent</option>
+        </select>
+        <input type="text" class="log-search" id="logSearch" placeholder="Search…" oninput="renderLog()">
+        <span style="font-size:0.73rem;color:var(--text-muted)" id="logCount">0 records</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="log-table">
+        <thead><tr><th>Student</th><th>ID</th><th>Period</th><th>Time</th><th>Status</th><th>Pts</th><th>By</th><th></th></tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+    <div class="empty-log" id="emptyLog"><div class="empty-log-icon">📋</div>No records yet today.</div>
+  </div>
+</div>
+</div>
+
+<!-- Mark feedback -->
+<div class="mark-feedback" id="markFeedback">
+  <span class="mf-icon" id="mfIcon"></span>
+  <div class="mf-name" id="mfName"></div>
+  <div class="mf-sub" id="mfSub"></div>
+  <div class="mf-pts" id="mfPts"></div>
+</div>
+
+<script src="admin-data.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+const cfg = { apiKey:"AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo", authDomain:"rcmu-db.firebaseapp.com", projectId:"rcmu-db", storageBucket:"rcmu-db.firebasestorage.app", messagingSenderId:"1043134894673", appId:"1:1043134894673:web:dbd89dd271749cea6fde70" };
+const app = initializeApp(cfg);
+const db = getFirestore(app);
+
+const PTS = { present:10, late:5, absent:-25 };
+const WINDOWS = {
+  Morning:   { start:'06:00', onTime:'07:10', close:'07:30' },
+  Afternoon: { start:'12:30', onTime:'13:00', close:'13:20' },
+  Event:     { start:'07:00', onTime:'07:30', close:'08:00' }
+};
+let activeWin = { ...WINDOWS.Morning };
+let pendingStudent = null, selectedPeriod = 'Morning';
+let allLogs = [], schedStudents = [];
+const todayStr = new Date().toISOString().slice(0,10);
+
+// Auto-login if session exists
+document.addEventListener('DOMContentLoaded', () => {
+  /* ── Auth guard: only admin / editor / viewer can access this page ── */
+  let currentUser = null;
+  try {
+    const raw = sessionStorage.getItem('rcmu_admin');
+    if (!raw) { window.location.href = 'login.html'; return; }
+    currentUser = JSON.parse(raw);
+    if (!['admin','editor','viewer'].includes(currentUser.ADM_role)) {
+      window.location.href = 'login.html'; return;
+    }
+  } catch(e) { window.location.href = 'login.html'; return; }
+
+  // Set global currentUser for use in other functions
+  window.currentUser = currentUser;
+  initPlatform();
+});
+window.doLogout=()=>{ sessionStorage.removeItem('rcmu_admin'); window.location.href='login.html'; };
+
+function initPlatform() {
+  updateHeader(); startClock();
+  applyPreset('Morning'); loadData();
+}
+
+function updateHeader() {
+  const u=window.currentUser; if(!u) return;
+  const el=document.getElementById('currentUser'); if(!el) return;
+  const c={admin:'#f59e0b',editor:'#3b82f6',viewer:'#10b981'}[u.ADM_role]||'#64748b';
+  el.innerHTML=`<span class="user-avatar">${u.ADM_name[0].toUpperCase()}</span><span>${u.ADM_Uname}</span><span class="role-tag" style="background:${c}22;color:${c};border-color:${c}44">${u.ADM_role}</span>`;
+
+  // Show/hide navigation links based on role
+  if (u.ADM_role === 'admin') {
+    document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+    document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
+    document.getElementById('appealsLink')?.style && (document.getElementById('appealsLink').style.display = 'inline-flex');
+    document.getElementById('adminLink')?.style && (document.getElementById('adminLink').style.display = 'inline-flex');
+  } else if (u.ADM_role === 'editor') {
+    document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+    document.getElementById('dutySchedLink')?.style && (document.getElementById('dutySchedLink').style.display = 'inline-flex');
+    document.getElementById('appealsLink')?.style && (document.getElementById('appealsLink').style.display = 'inline-flex');
+  } else if (u.ADM_role === 'viewer') {
+    document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+  }
+}
+
+// Clock
+function startClock() {
+  function tick() {
+    const n=new Date();
+    const pad=v=>String(v).padStart(2,'0');
+    document.getElementById('liveClock').innerHTML=`${pad(n.getHours())}<span>:</span>${pad(n.getMinutes())}<span>:</span>${pad(n.getSeconds())}`;
+    document.getElementById('clockDate').textContent=n.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    updateWindowChip();
+  }
+  tick(); setInterval(tick,1000);
+}
+
+function getWindowState() {
+  const n=new Date(); const hhmm=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+  if(hhmm<activeWin.start) return 'before';
+  if(hhmm<=activeWin.onTime) return 'ontime';
+  if(hhmm<=activeWin.close) return 'late';
+  return 'closed';
+}
+
+function updateWindowChip() {
+  const el=document.getElementById('windowStatus'); if(!el) return;
+  const s=getWindowState();
+  const map={before:{c:'open',t:'⏳ Window not yet open'},ontime:{c:'open',t:'✅ Open — On-time marking'},late:{c:'late',t:'⚠️ Late window active'},closed:{c:'closed',t:'🔒 Window closed'}};
+  const m=map[s];
+  el.innerHTML=`<span class="window-chip ${m.c}">${m.t}</span>`;
+}
+
+// Window config
+function applyPreset(p) {
+  activeWin={ ...(WINDOWS[p]||WINDOWS.Morning) };
+  const el=document.getElementById('wcDesc');
+  if(el) el.textContent=`On-time: before ${activeWin.onTime} · Late: ${activeWin.onTime}–${activeWin.close} · Closed after ${activeWin.close}`;
+}
+window.onPeriodPresetChange=function(){
+  const v=document.getElementById('wcPeriod').value;
+  ['wfStart','wfOnTime','wfClose'].forEach(id=>document.getElementById(id).style.display=v==='Custom'?'block':'none');
+  if(v!=='Custom') applyPreset(v);
+};
+window.applyWindow=function(){
+  const v=document.getElementById('wcPeriod').value;
+  if(v==='Custom'){ activeWin={start:document.getElementById('wcStart').value,onTime:document.getElementById('wcOnTime').value,close:document.getElementById('wcClose').value}; }
+  else applyPreset(v);
+  showToast('✅ Time window updated.','success');
+};
+applyPreset('Morning');
+
+window.selectPeriod=function(el,v){
+  document.querySelectorAll('.period-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active'); selectedPeriod=v;
+  if(WINDOWS[v]) applyPreset(v);
+};
+
+// Load data
+function loadData(){
+  const logsQ=query(collection(db,'RCMU_DutyLogs'),where('date','==',todayStr));
+  onSnapshot(logsQ,snap=>{
+    allLogs=snap.docs.map(d=>({_logId:d.id,...d.data()}));
+    renderLog(); updateStats(); renderSchedGrid();
+  });
+  onSnapshot(collection(db,'RCMU_DutySchedules'),snap=>{
+    const today=snap.docs.map(d=>d.data()).filter(s=>Array.isArray(s.dates)&&s.dates.includes(todayStr));
+    const ids=new Set(); today.forEach(s=>{ if(Array.isArray(s.assignedStudentIds)) s.assignedStudentIds.forEach(id=>ids.add(id)); });
+    document.getElementById('sbScheduled').textContent=ids.size;
+    if(!ids.size){ schedStudents=[]; renderSchedGrid(); return; }
+    getDocs(collection(db,'RCMU_DB')).then(snap2=>{
+      schedStudents=snap2.docs.map(d=>({_docId:d.id,...d.data()})).filter(s=>ids.has(s._docId)||ids.has(s.studentId));
+      renderSchedGrid();
+    });
+  });
+}
+
+function renderSchedGrid(){
+  const g=document.getElementById('schedGrid');
+  const countEl=document.getElementById('schedCount');
+  if(!schedStudents.length){ g.innerHTML='<div style="color:var(--text-muted);font-size:0.78rem;grid-column:1/-1;padding:6px">No students assigned to today\'s schedule.</div>'; countEl.textContent='0 students'; return; }
+  countEl.textContent=schedStudents.length+' students';
+  g.innerHTML=schedStudents.map(s=>{
+    const log=allLogs.find(l=>l.studentDocId===s._docId);
+    const cls=log?log.type:''; const stTxt=log?log.type:'Pending';
+    const ini=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const av=s.profileImageUrl?`<div class="chip-av"><img src="${s.profileImageUrl}" alt="${s.fullname}" onerror="this.parentNode.innerHTML='${ini}'"></div>`:`<div class="chip-av">${ini}</div>`;
+    return `<div class="sched-chip ${cls}" title="${s.fullname} — ${stTxt}">${av}<div><div class="chip-nm">${(s.fullname||'').split(' ')[0]}</div><div class="chip-st ${cls}">${log?log.type:'Pending'}</div></div></div>`;
+  }).join('');
+}
+
+function updateStats(){
+  document.getElementById('sbPresent').textContent=allLogs.filter(l=>l.type==='present').length;
+  document.getElementById('sbLate').textContent=allLogs.filter(l=>l.type==='late').length;
+  document.getElementById('sbAbsent').textContent=allLogs.filter(l=>l.type==='absent').length;
+  document.getElementById('logCount').textContent=allLogs.length+' records';
+}
+
+window.lookupStudent=async function(){
+  const id=document.getElementById('markIdInput').value.trim().toUpperCase();
+  if(!id){ setScanMsg('⚠️ Enter a Student ID.','orange'); return; }
+  setScanMsg('🔍 Looking up…','gray');
+  try{
+    let found=null;
+    const q=query(collection(db,'RCMU_DB'),where('studentId','==',id));
+    const snap=await getDocs(q);
+    if(!snap.empty) found=snap.docs[0];
+    if(!found){
+      // fallback case-insensitive
+      const all=await getDocs(collection(db,'RCMU_DB'));
+      found=all.docs.find(d=>(d.data().studentId||'').toUpperCase()===id);
+    }
+    if(!found){ setScanMsg('❌ No student found with ID: '+id,'red'); return; }
+    pendingStudent={_docId:found.id,...found.data()};
+    showConfirm(pendingStudent); setScanMsg('');
+  }catch(e){ console.error(e); setScanMsg('❌ Error. Try again.','red'); }
+};
+
+function showConfirm(s){
+  const ini=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const av=document.getElementById('cAvatar');
+  av.innerHTML=s.profileImageUrl?`<img src="${s.profileImageUrl}" alt="${s.fullname}" onerror="this.innerHTML='${ini}'">`:`${ini}`;
+  document.getElementById('cName').textContent=s.fullname||s.studentId;
+  document.getElementById('cMeta').innerHTML=`ID: <strong>${s.studentId}</strong> &nbsp;|&nbsp; Grade ${s.grade||'—'} ${s.studentClass||''} &nbsp;|&nbsp; ${s.role||'—'}<br>${s.department||'—'} · ${s.experienceLevel||'—'}`;
+
+  const state=getWindowState();
+  const ring=document.getElementById('cRing');
+  const twEl=document.getElementById('twStatus');
+  const ptsEl=document.getElementById('ptsPreview');
+  const actEl=document.getElementById('cActions');
+  const card=document.getElementById('confirmCard');
+  card.className='confirm-card';
+
+  if(state==='before'){
+    twEl.className='tw-status closed'; twEl.textContent='⏳ Duty window has not opened yet.';
+    ring.className='c-ring absent'; ptsEl.innerHTML='';
+    actEl.innerHTML=`<button class="c-btn cancel" onclick="cancelConfirm()">Close</button>`;
+    card.classList.add('visible','type-absent');
+  } else if(state==='ontime'){
+    twEl.className='tw-status ontime'; twEl.textContent=`✅ On time — before ${activeWin.onTime}`;
+    ring.className='c-ring present';
+    ptsEl.innerHTML=`<span class="pts-tag g">Present: +${PTS.present} pts</span>`;
+    actEl.innerHTML=`<button class="c-btn present" onclick="confirmMark('present')">✓ Present (+${PTS.present})</button><button class="c-btn absent" onclick="confirmMark('absent')">✗ Absent (${PTS.absent})</button><button class="c-btn cancel" onclick="cancelConfirm()">Cancel</button>`;
+    card.classList.add('visible','type-present');
+  } else if(state==='late'){
+    twEl.className='tw-status late'; twEl.textContent=`⚠️ Late — window closes at ${activeWin.close}`;
+    ring.className='c-ring late';
+    ptsEl.innerHTML=`<span class="pts-tag o">Late: +${PTS.late} pts</span><span class="pts-tag r">Absent: ${PTS.absent} pts</span>`;
+    actEl.innerHTML=`<button class="c-btn late" onclick="confirmMark('late')">⚠ Late (+${PTS.late})</button><button class="c-btn absent" onclick="confirmMark('absent')">✗ Absent (${PTS.absent})</button><button class="c-btn cancel" onclick="cancelConfirm()">Cancel</button>`;
+    card.classList.add('visible','type-late');
+  } else {
+    twEl.className='tw-status closed'; twEl.textContent='🔒 Window closed — can only log absent.';
+    ring.className='c-ring absent';
+    ptsEl.innerHTML=`<span class="pts-tag r">Absent: ${PTS.absent} pts</span>`;
+    actEl.innerHTML=`<button class="c-btn absent" onclick="confirmMark('absent')">✗ Mark Absent (${PTS.absent})</button><button class="c-btn cancel" onclick="cancelConfirm()">Cancel</button>`;
+    card.classList.add('visible','type-absent');
+  }
+
+  const ex=allLogs.find(l=>l.studentDocId===s._docId);
+  const alEl=document.getElementById('alreadyWarn');
+  if(ex){ alEl.style.display='block'; alEl.textContent=`⚠️ Already marked "${ex.type}" at ${new Date(ex.timestamp).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} — will be updated.`; }
+  else { alEl.style.display='none'; }
+}
+
+window.confirmMark=async function(type){
+  if(!pendingStudent) return;
+  const s=pendingStudent; const ts=new Date().toISOString(); const pts=PTS[type];
+  const ex=allLogs.find(l=>l.studentDocId===s._docId);
+  if(ex) await deleteDoc(doc(db,'RCMU_DutyLogs',ex._logId));
+  await addDoc(collection(db,'RCMU_DutyLogs'),{
+    studentDocId:s._docId, studentId:s.studentId, studentName:s.fullname,
+    grade:s.grade||'', department:s.department||'', profileImageUrl:s.profileImageUrl||'',
+    date:todayStr, timestamp:ts, type, period:selectedPeriod,
+    markedBy:window.currentUser.ADM_Uname, markedByName:window.currentUser.ADM_name, pointChange:pts
+  });
+  await recalcDuty(s._docId);
+  const icons={present:'✅',late:'⚠️',absent:'❌'};
+  const clss={present:'pos',late:'warn',absent:'neg'};
+  showFeedback(icons[type],s.fullname,type,pts>=0?`+${pts}`:`${pts}`,clss[type]);
+  cancelConfirm();
+  document.getElementById('markIdInput').value='';
+  document.getElementById('markIdInput').focus();
+};
+
+window.cancelConfirm=function(){
+  document.getElementById('confirmCard').className='confirm-card';
+  pendingStudent=null;
+};
+
+async function recalcDuty(docId){
+  try{
+    const snap=await getDocs(query(collection(db,'RCMU_DutyLogs'),where('studentDocId','==',docId)));
+    const logs=snap.docs.map(d=>d.data());
+    const attended=logs.filter(l=>l.type==='present'||l.type==='late').length;
+    const total=logs.length;
+    const pct=total>0?Math.round((attended/total)*100):0;
+    let pts=0; logs.forEach(l=>{pts+=l.pointChange||(l.type==='present'?10:l.type==='late'?5:-25);});
+    await updateDoc(doc(db,'RCMU_DB',docId),{dutyPercentage:pct,dutyPoints:pts});
+  }catch(e){console.error(e);}
+}
+
+window.renderLog=function(){
+  const tbody=document.getElementById('logBody'); const empty=document.getElementById('emptyLog');
+  const filter=document.getElementById('logFilter')?.value||'all';
+  const search=document.getElementById('logSearch')?.value.toLowerCase()||'';
+  let list=[...allLogs];
+  if(filter!=='all') list=list.filter(l=>l.type===filter);
+  if(search) list=list.filter(l=>(l.studentName||'').toLowerCase().includes(search)||(l.studentId||'').toLowerCase().includes(search));
+  list.sort((a,b)=>b.timestamp.localeCompare(a.timestamp));
+  if(!list.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML=list.map(l=>{
+    const pts=l.pointChange||(l.type==='present'?10:l.type==='late'?5:-25);
+    const pCls=pts>0?'pos':pts===0?'warn':'neg';
+    const ini=(l.studentName||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const av=l.profileImageUrl?`<span class="log-av"><img src="${l.profileImageUrl}" alt="${l.studentName}" onerror="this.parentNode.innerHTML='${ini}'"></span>`:`<span class="log-av">${ini}</span>`;
+    return `<tr><td>${av}<strong>${l.studentName||'—'}</strong></td><td style="color:var(--text-muted);font-size:0.73rem">${l.studentId||'—'}</td><td style="color:var(--text-sub);font-size:0.73rem">${l.period||'—'}</td><td style="color:var(--text-muted);font-size:0.7rem">${new Date(l.timestamp).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</td><td><span class="sbadge ${l.type}">${l.type==='present'?'✓ Present':l.type==='late'?'⚠ Late':'✗ Absent'}</span></td><td><span class="pts-sm ${pCls}">${pts>0?'+':''}${pts}</span></td><td style="color:var(--text-muted);font-size:0.7rem">${l.markedBy||'—'}</td><td><button class="undo-btn" onclick="undoLog('${l._logId}','${l.studentDocId}')">Undo</button></td></tr>`;
+  }).join('');
+};
+
+window.undoLog=async function(id,docId){
+  if(!confirm('Remove this marking?')) return;
+  await deleteDoc(doc(db,'RCMU_DutyLogs',id));
+  await recalcDuty(docId);
+  showToast('🗑 Removed.','error');
+};
+
+function showFeedback(icon,name,status,ptsStr,cls){
+  const el=document.getElementById('markFeedback');
+  document.getElementById('mfIcon').textContent=icon;
+  document.getElementById('mfName').textContent=name;
+  document.getElementById('mfSub').textContent=status.charAt(0).toUpperCase()+status.slice(1);
+  const pe=document.getElementById('mfPts'); pe.textContent=ptsStr+' pts'; pe.className='mf-pts '+cls;
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+function setScanMsg(t,c){
+  const el=document.getElementById('scanMsg');
+  const m={red:'var(--red)',orange:'var(--gold)',gray:'var(--text-muted)',green:'var(--green)'};
+  el.style.color=m[c]||'var(--text-muted)'; el.textContent=t;
+}
+function showToast(msg,type='success'){
+  const e=document.querySelector('.rcmu-toast'); if(e) e.remove();
+  const t=document.createElement('div'); t.className=`rcmu-toast rcmu-toast-${type}`; t.innerHTML=msg;
+  document.body.appendChild(t); requestAnimationFrame(()=>t.classList.add('rcmu-toast-visible'));
+  setTimeout(()=>{ t.classList.remove('rcmu-toast-visible'); setTimeout(()=>t.remove(),400); },3000);
+}
+document.getElementById('markIdInput').addEventListener('keydown',e=>{ if(e.key==='Enter') window.lookupStudent(); });
+</script>
+<script type="module" src="app.js"></script>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit — managing student records, roles, and departments across all grades.</p>
+        <div class="footer-tech-badges"><span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">Vanilla JS</span></div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="add.html">Add Student</a>
+          <a href="duty-schedule.html">Duty Schedule</a><a href="duty-mark.html">Mark Duty</a>
+          <a href="duty-swap.html">Duty Swaps</a><a href="duty-appeals.html">Appeals</a>
+          <a href="attendance-report.html">Attendance Report</a><a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="leaderboard.html">🏆 Leaderboard</a>
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="dept-analytics.html">📊 Analytics</a>
+          <a href="report-card.html">📄 Report Cards</a>
+          <a href="monthly-summary.html">📅 Monthly Summary</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());</script>
+</body>
+</html>

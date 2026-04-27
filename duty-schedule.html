@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duty Schedule — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Favicon all sizes -->
+  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon"         href="icon-32.png">
+  <!-- Apple / iOS icons -->
+  <link rel="apple-touch-icon"              href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <!-- Windows / PWA tile -->
+  <meta name="msapplication-TileImage"   content="icon-144.png">
+  <meta name="msapplication-TileColor"   content="#0b0f1a">
+  <meta name="msapplication-config"      content="none">
+  <!-- Favicon -->
+  <!-- SEO Meta -->
+  <meta name="description" content="View and manage the Rahula College Media Unit duty schedule.">
+  <meta name="keywords" content="Rahula College, Media Unit, duty schedule, calendar, RCMU">
+  <meta name="author" content="Sasindu Ruwaneka">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Duty Schedule — Rahula College Media Unit">
+  <meta property="og:description" content="View and manage the Rahula College Media Unit duty schedule.">
+  <meta property="og:image" content="Icon.png">
+  <meta property="og:site_name" content="Rahula College Media Unit">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Duty Schedule — Rahula College Media Unit">
+  <meta name="twitter:description" content="View and manage the Rahula College Media Unit duty schedule.">
+  <meta name="twitter:image" content="Icon.png">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RCMU">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="RCMU">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Calendar grid */
+    .sched-header { background:var(--bg-card); border:1px solid var(--border-soft); border-radius:var(--radius); padding:24px; margin-bottom:20px; position:relative; overflow:hidden; animation:fadeSlideUp 0.5s cubic-bezier(.22,1,.36,1) both; }
+    .sched-header::before { content:''; position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold)); }
+    .sched-title { font-family:var(--font-display); font-size:1.4rem; font-weight:700; color:var(--text); }
+    .sched-sub { font-size:0.82rem; color:var(--text-muted); margin-top:4px; }
+
+    .cal-container { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px; animation:fadeSlideUp 0.5s 0.1s cubic-bezier(.22,1,.36,1) both; }
+    .cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .cal-nav-btn { background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-muted); padding:7px 16px; cursor:pointer; font-size:0.85rem; transition:all var(--transition); font-family:var(--font-body); }
+    .cal-nav-btn:hover { color:var(--accent); border-color:var(--accent); }
+    .cal-month-title { font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--text); }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-day-header { text-align:center; font-size:0.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; padding:6px 0; }
+    .cal-cell { aspect-ratio:1; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.82rem; font-weight:600; cursor:pointer; border:1.5px solid transparent; transition:all 0.15s; position:relative; user-select:none; }
+    .stats-bar { display:grid; grid-template-columns:repeat(3,minmax(120px,1fr)); gap:14px; margin-bottom:20px; }
+    .sbar-tile { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; display:flex; flex-direction:column; gap:8px; }
+    .sbar-num { font-size:1.6rem; font-weight:700; color:var(--accent); }
+    .sbar-lbl { font-size:0.85rem; color:var(--text-muted); }
+    .cal-cell:hover { background:var(--border); }
+    .cal-cell.empty { cursor:default; }
+    .cal-cell.today { border-color:var(--accent); color:var(--accent); }
+    .cal-cell.past { opacity:0.4; cursor:not-allowed; }
+    .cal-cell.selected { background:rgba(59,130,246,0.2); border-color:var(--accent); color:var(--accent); }
+    .cal-cell.has-duty { background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.35); color:var(--green); }
+    .cal-cell.has-duty.selected { background:rgba(59,130,246,0.25); border-color:var(--accent); color:var(--accent); }
+    .cal-cell .duty-dot { width:5px; height:5px; border-radius:50%; background:var(--green); position:absolute; bottom:3px; }
+    .cal-cell .num-duties { position:absolute; top:3px; right:4px; font-size:0.55rem; color:var(--text-muted); font-weight:700; }
+
+    /* Side panel */
+    .main-layout { display:grid; grid-template-columns:1fr 360px; gap:16px; }
+    @media(max-width:800px){ .main-layout{grid-template-columns:1fr} }
+    .side-panel { display:flex; flex-direction:column; gap:14px; }
+
+    /* Add duty form */
+    .add-duty-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; animation:fadeSlideUp 0.5s 0.15s cubic-bezier(.22,1,.36,1) both; }
+    .add-duty-title { font-family:var(--font-display); font-size:0.95rem; font-weight:700; color:var(--text); margin-bottom:14px; }
+    .form-field { margin-bottom:12px; }
+    .form-field label { display:block; font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px; }
+    .form-field input, .form-field select, .form-field textarea { width:100%; background:var(--bg-panel); border:1px solid var(--border-soft); border-radius:var(--radius-sm); color:var(--text); font-family:var(--font-body); font-size:0.85rem; padding:9px 12px; outline:none; transition:border-color var(--transition); }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .selected-dates-wrap { background:var(--bg-panel); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:10px 12px; min-height:48px; font-size:0.8rem; color:var(--text-muted); }
+    .date-chip { display:inline-flex; align-items:center; gap:5px; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); border-radius:12px; padding:3px 10px; font-size:0.75rem; color:var(--accent); margin:2px; }
+    .date-chip button { background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.85rem; padding:0; line-height:1; }
+    .add-btn { width:100%; padding:11px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:var(--radius-sm); color:#fff; font-family:var(--font-body); font-size:0.9rem; font-weight:700; cursor:pointer; transition:all var(--transition); }
+    .add-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(59,130,246,0.4); }
+    .quick-sel { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+    .quick-chip { padding:5px 12px; border-radius:16px; font-size:0.72rem; font-weight:600; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:all var(--transition); }
+    .quick-chip:hover { color:var(--accent); border-color:var(--accent); }
+
+    /* Existing duties list */
+    .duties-list-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; animation:fadeSlideUp 0.5s 0.2s cubic-bezier(.22,1,.36,1) both; }
+    .duty-entry { background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px; }
+    .duty-entry-top { display:flex; align-items:center; justify-content:space-between; }
+    .duty-entry-name { font-weight:600; font-size:0.88rem; color:var(--text); }
+    .duty-entry-period { font-size:0.72rem; color:var(--accent); background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:2px 8px; }
+    .duty-dates-wrap { margin-top:6px; display:flex; flex-wrap:wrap; gap:4px; }
+    .duty-date-tag { font-size:0.7rem; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--green); border-radius:8px; padding:2px 8px; }
+    .duty-actions { display:flex; gap:6px; margin-top:8px; }
+    .duty-del-btn { background:none; border:1px solid rgba(239,68,68,0.3); color:var(--red); border-radius:5px; font-size:0.72rem; padding:4px 10px; cursor:pointer; font-family:var(--font-body); transition:all var(--transition); }
+    .duty-del-btn:hover { background:rgba(239,68,68,0.1); }
+    .duty-edit-btn { background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:5px; font-size:0.72rem; padding:4px 10px; cursor:pointer; font-family:var(--font-body); transition:all var(--transition); }
+    .duty-edit-btn:hover { color:var(--accent); border-color:var(--accent); }
+
+    /* Selected day panel */
+    .day-detail-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+    .day-detail-title { font-family:var(--font-display); font-size:0.95rem; font-weight:700; color:var(--text); margin-bottom:12px; }
+    .day-duty-item { display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--bg-panel); border-radius:var(--radius-sm); margin-bottom:6px; font-size:0.83rem; }
+    .day-duty-period { background:rgba(59,130,246,0.12); color:var(--accent); border-radius:10px; padding:2px 8px; font-size:0.7rem; font-weight:600; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header class="page-header">
+    <div class="header-logos-row">
+      <div class="header-logo logo-left"><img src="Rahula_College_Crest.png" alt="Rahula College logo"></div>
+      <div class="header-logo logo-right"><img src="Media Unit Original logo.png" alt="Media Unit logo"></div>
+    </div>
+    <div class="header-title">
+      <h1>Rahula College Media Unit</h1>
+      <p class="subtitle">Duty Schedule Management</p>
+    </div>
+  </header>
+  <div class="header-actions">
+    <span id="currentUser" class="user-badge"></span>
+    <a class="secondary-link" href="index.html" id="rosterLink" style="display:none">📊 Roster</a>
+    <a class="secondary-link" href="duty-mark.html" id="dutyMarkLink" style="display:none">🗂 Mark Duty</a>
+    <a class="secondary-link" href="duty-appeals.html" id="appealsLink" style="display:none">📣 Appeals</a>
+    <a class="secondary-link" href="admin.html" id="adminLink" style="display:none">Admin Panel</a>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <div class="page-hero">
+    <div class="page-hero-title">📅 Duty Schedule Manager</div>
+    <div class="page-hero-sub">Create and manage duty schedules. Click calendar dates to select, then define duty details and assign students by name search.</div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="sbar-tile">
+      <div class="sbar-num" id="sbTotalSchedules">0</div>
+      <div class="sbar-lbl">Total Schedules</div>
+    </div>
+    <div class="sbar-tile">
+      <div class="sbar-num" id="sbScheduledDates">0</div>
+      <div class="sbar-lbl">Scheduled Dates</div>
+    </div>
+    <div class="sbar-tile">
+      <div class="sbar-num" id="sbSelectedDates">0</div>
+      <div class="sbar-lbl">Selected Dates</div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- Calendar -->
+    <div>
+      <div class="cal-container">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeCalMonth(-1)">← Prev</button>
+          <div class="cal-month-title" id="calTitle"></div>
+          <button class="cal-nav-btn" onclick="changeCalMonth(1)">Next →</button>
+        </div>
+        <div class="quick-sel">
+          <div class="quick-chip" onclick="selectThisWeek()">📅 This Week</div>
+          <div class="quick-chip" onclick="selectNextWeek()">➡️ Next Week</div>
+          <div class="quick-chip" onclick="selectThisMonth()">🗓 Full Month</div>
+          <div class="quick-chip" onclick="selectWeekdays()">Mon–Fri</div>
+          <div class="quick-chip" onclick="clearSelection()">✕ Clear</div>
+        </div>
+        <div class="cal-grid" id="mainCalGrid"></div>
+      </div>
+
+      <!-- Selected day detail -->
+      <div class="day-detail-card" id="dayDetailCard" style="display:none">
+        <div class="day-detail-title" id="dayDetailTitle">Duties on selected date</div>
+        <div id="dayDutyList"></div>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <div class="side-panel">
+      <!-- Add duty form -->
+      <div class="add-duty-card">
+        <div class="add-duty-title">➕ Add Duty Period</div>
+
+        <div class="form-field">
+          <label>Selected Dates</label>
+          <div class="selected-dates-wrap" id="selectedDatesWrap">
+            <span style="color:var(--text-muted);font-size:0.78rem">Click calendar dates to select…</span>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Duty Label</label>
+          <input type="text" id="dutyLabel" placeholder="e.g. Morning Assembly Duty, Sports Meet…">
+        </div>
+
+        <div class="form-field">
+          <label>Assign To</label>
+          <select id="dutyAssignType" onchange="onAssignTypeChange()">
+            <option value="all">All Active Students</option>
+            <option value="dept">By Department</option>
+            <option value="grade">By Grade</option>
+            <option value="select">🔍 Search &amp; Select Students</option>
+          </select>
+        </div>
+        <div class="form-field" id="deptFilterField" style="display:none">
+          <label>Department</label>
+          <select id="dutyDept">
+            <option value="Photography">Photography</option>
+            <option value="Web">Web</option>
+            <option value="Media">Media</option>
+          </select>
+        </div>
+        <div class="form-field" id="gradeFilterField" style="display:none">
+          <label>Grade</label>
+          <input type="text" id="dutyGrade" placeholder="e.g. 10, 11, 12A">
+        </div>
+        <div class="form-field" id="studentSelectField" style="display:none">
+          <label>Search &amp; Select Students</label>
+          <div class="student-search-wrap">
+            <span class="student-search-icon">🔍</span>
+            <input class="student-search-input" id="stuSearchInput" type="text" placeholder="Type name, grade or department…" autocomplete="off">
+            <div class="student-dropdown" id="stuDropdown" style="display:none"></div>
+          </div>
+          <div class="selected-students-chips" id="selectedStudentsChips"></div>
+          <div id="selectedCount" style="font-size:.7rem;color:var(--text-muted);margin-top:5px"></div>
+        </div>
+
+        <div class="form-field">
+          <label>Duty Period</label>
+          <select id="dutyPeriod">
+            <option value="Morning">☀️ Morning (6:00–7:30)</option>
+            <option value="Afternoon">🌤 Afternoon (12:30–13:20)</option>
+            <option value="Full Day">📅 Full Day</option>
+            <option value="Event">🎭 Special Event</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>On-time Until</label>
+          <input type="time" id="dutyOnTime" value="07:10">
+        </div>
+        <div class="form-field">
+          <label>Window Closes</label>
+          <input type="time" id="dutyClose" value="07:30">
+        </div>
+
+        <div class="form-field">
+          <label>Notes (optional)</label>
+          <textarea id="dutyNotes" placeholder="Any extra instructions or notes…" rows="2"></textarea>
+        </div>
+
+        <!-- Recurring Schedule -->
+        <div class="form-group" style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px">
+          <label style="font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;display:block">🔁 Recurring Schedule (optional)</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div>
+              <label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:3px">Repeat</label>
+              <select id="recurType" onchange="toggleRecurOptions()" style="width:100%;background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:7px 10px;outline:none">
+                <option value="none">No repeat</option>
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Every 2 weeks</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div id="recurUntilWrap" style="display:none">
+              <label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:3px">Until date</label>
+              <input type="date" id="recurUntil" style="width:100%;background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:7px 10px;outline:none">
+            </div>
+            <div id="recurCountWrap" style="display:none">
+              <label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:3px">Or repeat # times</label>
+              <input type="number" id="recurCount" min="1" max="52" placeholder="e.g. 8" style="width:100%;background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:7px 10px;outline:none">
+            </div>
+          </div>
+          <div id="recurPreview" style="font-size:.72rem;color:var(--text-muted);margin-top:8px"></div>
+        </div>
+
+        <button class="add-btn" onclick="saveDutySchedule()">Save Duty Schedule</button>
+        <p id="saveMsg" style="font-size:0.8rem;text-align:center;margin-top:8px;min-height:16px;"></p>
+      </div>
+
+      <!-- Existing schedules -->
+      <div class="duties-list-card">
+        <div class="add-duty-title">📋 Scheduled Duties</div>
+        <div id="schedulesList"><div style="color:var(--text-muted);font-size:0.82rem;padding:8px">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",
+    authDomain: "rcmu-db.firebaseapp.com",
+    projectId: "rcmu-db",
+    storageBucket: "rcmu-db.firebasestorage.app",
+    messagingSenderId: "1043134894673",
+    appId: "1:1043134894673:web:dbd89dd271749cea6fde70"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let calYear, calMonth;
+  let selectedDates = new Set();
+  let existingSchedules = [];
+  let clickedDate = null;
+
+  const today = new Date();
+  calYear = today.getFullYear();
+  calMonth = today.getMonth();
+
+  // Auth
+  try {
+    const raw = sessionStorage.getItem('rcmu_admin');
+    if (!raw) { window.location.href = 'login.html'; }
+    else {
+      currentUser = JSON.parse(raw);
+      if (currentUser.ADM_role !== 'admin' && currentUser.ADM_role !== 'editor') window.location.href = 'login.html';
+    }
+  } catch(e) { window.location.href = 'login.html'; }
+
+  window.doLogout = function() { sessionStorage.removeItem('rcmu_admin'); window.location.href = 'login.html'; };
+
+  function updateHeaderUser() {
+    const u = currentUser; if (!u) return;
+    const el = document.getElementById('currentUser'); if (!el) return;
+    const roleColors = { admin:'#f59e0b', editor:'#3b82f6', viewer:'#10b981' };
+    const color = roleColors[u.ADM_role] || '#64748b';
+    el.innerHTML = `<span class="user-avatar">${u.ADM_name.charAt(0).toUpperCase()}</span><span>${u.ADM_Uname}</span><span class="role-tag" style="background:${color}22;color:${color};border-color:${color}44">${u.ADM_role}</span>`;
+  }
+  updateHeaderUser();
+
+  // Show/hide navigation links based on role
+  if (currentUser.ADM_role === 'admin') {
+    document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+    document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
+    document.getElementById('appealsLink')?.style && (document.getElementById('appealsLink').style.display = 'inline-flex');
+    document.getElementById('adminLink')?.style && (document.getElementById('adminLink').style.display = 'inline-flex');
+  } else if (currentUser.ADM_role === 'editor') {
+    document.getElementById('rosterLink')?.style && (document.getElementById('rosterLink').style.display = 'inline-flex');
+    document.getElementById('dutyMarkLink')?.style && (document.getElementById('dutyMarkLink').style.display = 'inline-flex');
+    document.getElementById('appealsLink')?.style && (document.getElementById('appealsLink').style.display = 'inline-flex');
+  }
+
+  // Live load schedules
+  onSnapshot(collection(db, 'RCMU_DutySchedules'), snap => {
+    existingSchedules = snap.docs.map(d => ({ _schedId: d.id, ...d.data() }));
+    renderCalendar();
+    renderSchedulesList();
+    updateScheduleSummary();
+  });
+
+  window.changeCalMonth = function(dir) {
+    calMonth += dir;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  };
+
+  function renderCalendar() {
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('calTitle').textContent = `${months[calMonth]} ${calYear}`;
+
+    const grid = document.getElementById('mainCalGrid');
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let html = days.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const todayStr = today.toISOString().slice(0,10);
+
+    // Build date→schedules map
+    const dateSchedMap = {};
+    existingSchedules.forEach(s => {
+      if (Array.isArray(s.dates)) {
+        s.dates.forEach(d => {
+          if (!dateSchedMap[d]) dateSchedMap[d] = [];
+          dateSchedMap[d].push(s);
+        });
+      }
+    });
+
+    for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell empty"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isPast = dateStr < todayStr;
+      const isToday = dateStr === todayStr;
+      const isSelected = selectedDates.has(dateStr);
+      const hasDuty = !!dateSchedMap[dateStr];
+      const dutyCount = dateSchedMap[dateStr]?.length || 0;
+
+      let cls = 'cal-cell';
+      if (isPast) cls += ' past';
+      if (isToday) cls += ' today';
+      if (isSelected) cls += ' selected';
+      if (hasDuty) cls += ' has-duty';
+
+      html += `<div class="${cls}" onclick="toggleDate('${dateStr}',${isPast})" title="${dateStr}${hasDuty ? ' — ' + dutyCount + ' duty(ies)' : ''}">
+        ${d}
+        ${hasDuty ? `<span class="num-duties">${dutyCount}</span>` : ''}
+        ${isSelected ? `<span class="duty-dot" style="background:var(--accent)"></span>` : (hasDuty ? `<span class="duty-dot"></span>` : '')}
+      </div>`;
+    }
+
+    grid.innerHTML = html;
+  }
+
+  window.toggleDate = function(dateStr, isPast) {
+    if (isPast) return;
+    if (selectedDates.has(dateStr)) selectedDates.delete(dateStr);
+    else selectedDates.add(dateStr);
+    renderCalendar();
+    renderSelectedDates();
+
+    // Show day detail
+    clickedDate = dateStr;
+    showDayDetail(dateStr);
+  };
+
+  function showDayDetail(dateStr) {
+    const card = document.getElementById('dayDetailCard');
+    const list = document.getElementById('dayDutyList');
+    const title = document.getElementById('dayDetailTitle');
+    const duties = existingSchedules.filter(s => Array.isArray(s.dates) && s.dates.includes(dateStr));
+    title.textContent = `Duties on ${dateStr}`;
+    if (!duties.length) { list.innerHTML = `<div style="color:var(--text-muted);font-size:0.82rem;padding:8px">No duties scheduled for this date.</div>`; }
+    else {
+      list.innerHTML = duties.map(d => `<div class="day-duty-item"><span class="day-duty-period">${d.period||'—'}</span><span style="flex:1">${d.label||'Unnamed duty'}</span><button class="duty-del-btn" onclick="deleteSchedule('${d._schedId}')">Delete</button></div>`).join('');
+    }
+    card.style.display = 'block';
+  }
+
+  function renderSelectedDates() {
+    const wrap = document.getElementById('selectedDatesWrap');
+    if (!selectedDates.size) {
+      wrap.innerHTML = `<span style="color:var(--text-muted);font-size:0.78rem">Click calendar dates to select…</span>`;
+      updateScheduleSummary();
+      return;
+    }
+    const sorted = [...selectedDates].sort();
+    wrap.innerHTML = sorted.map(d => `<span class="date-chip">${d}<button onclick="removeSelectedDate('${d}')">×</button></span>`).join('');
+    updateScheduleSummary();
+  }
+
+  window.removeSelectedDate = function(d) { selectedDates.delete(d); renderCalendar(); renderSelectedDates(); };
+
+  function updateScheduleSummary() {
+    const total = existingSchedules.length;
+    const dates = new Set(existingSchedules.flatMap(s => Array.isArray(s.dates) ? s.dates : []));
+    document.getElementById('sbTotalSchedules').textContent = total;
+    document.getElementById('sbScheduledDates').textContent = dates.size;
+    document.getElementById('sbSelectedDates').textContent = selectedDates.size;
+  }
+
+  window.clearSelection = function() { selectedDates.clear(); renderCalendar(); renderSelectedDates(); };
+
+  window.selectThisWeek = function() {
+    const d = new Date(); d.setHours(0,0,0,0);
+    const day = d.getDay();
+    const mon = new Date(d); mon.setDate(d.getDate() - day + 1);
+    for (let i = 0; i < 7; i++) {
+      const nd = new Date(mon); nd.setDate(mon.getDate() + i);
+      if (nd >= today || nd.toISOString().slice(0,10) === today.toISOString().slice(0,10))
+        selectedDates.add(nd.toISOString().slice(0,10));
+    }
+    renderCalendar(); renderSelectedDates();
+  };
+
+  window.selectNextWeek = function() {
+    const d = new Date(); d.setHours(0,0,0,0);
+    const day = d.getDay();
+    const mon = new Date(d); mon.setDate(d.getDate() - day + 8);
+    for (let i = 0; i < 7; i++) {
+      const nd = new Date(mon); nd.setDate(mon.getDate() + i);
+      selectedDates.add(nd.toISOString().slice(0,10));
+    }
+    renderCalendar(); renderSelectedDates();
+  };
+
+  window.selectThisMonth = function() {
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const todayStr = today.toISOString().slice(0,10);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if (dateStr >= todayStr) selectedDates.add(dateStr);
+    }
+    renderCalendar(); renderSelectedDates();
+  };
+
+  window.selectWeekdays = function() {
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const todayStr = today.toISOString().slice(0,10);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dow = new Date(dateStr + 'T00:00:00').getDay();
+      if (dow >= 1 && dow <= 5 && dateStr >= todayStr) selectedDates.add(dateStr);
+    }
+    renderCalendar(); renderSelectedDates();
+  };
+
+  // ── RECURRING SCHEDULE HELPERS ───────────────────────────────
+  window.toggleRecurOptions = function() {
+    const type = document.getElementById('recurType').value;
+    const showRecur = type !== 'none';
+    document.getElementById('recurUntilWrap').style.display = showRecur ? 'block' : 'none';
+    document.getElementById('recurCountWrap').style.display = showRecur ? 'block' : 'none';
+    updateRecurPreview();
+  };
+
+  function getRecurringDates(baseDates, recurType, recurUntil, recurCount) {
+    if (recurType === 'none' || !baseDates.length) return baseDates;
+    const intervalDays = recurType === 'weekly' ? 7 : recurType === 'biweekly' ? 14 : 30;
+    const allDates = new Set(baseDates);
+    const untilDate = recurUntil ? new Date(recurUntil + 'T00:00:00') : null;
+    const maxReps = recurCount ? Number(recurCount) : 52;
+
+    baseDates.forEach(baseDate => {
+      let current = new Date(baseDate + 'T00:00:00');
+      let reps = 0;
+      while (reps < maxReps) {
+        if (recurType === 'monthly') {
+          current = new Date(current.getFullYear(), current.getMonth() + 1, current.getDate());
+        } else {
+          current = new Date(current.getTime() + intervalDays * 86400000);
+        }
+        if (untilDate && current > untilDate) break;
+        reps++;
+        allDates.add(current.toISOString().slice(0, 10));
+      }
+    });
+    return [...allDates].sort();
+  }
+
+  function updateRecurPreview() {
+    const type = document.getElementById('recurType').value;
+    const until = document.getElementById('recurUntil')?.value;
+    const count = document.getElementById('recurCount')?.value;
+    const preview = document.getElementById('recurPreview');
+    if (!preview) return;
+    if (type === 'none') { preview.textContent = ''; return; }
+    const baseDates = [...selectedDates];
+    if (!baseDates.length) { preview.textContent = 'Select at least one date first.'; return; }
+    const generated = getRecurringDates(baseDates, type, until || null, count || null);
+    preview.innerHTML = `🔁 Will create <strong style="color:var(--accent)">${generated.length}</strong> duty date${generated.length !== 1 ? 's' : ''} total (including originals)`;
+  }
+
+  window.saveDutySchedule = async function() {
+    if (!selectedDates.size) { setSaveMsg('⚠️ Select at least one date.', 'orange'); return; }
+    const label = document.getElementById('dutyLabel').value.trim();
+    const period = document.getElementById('dutyPeriod').value;
+    const notes = document.getElementById('dutyNotes').value.trim();
+    const onTime = document.getElementById('dutyOnTime')?.value || '07:10';
+    const closeTime = document.getElementById('dutyClose')?.value || '07:30';
+    if (!label) { setSaveMsg('⚠️ Enter a duty label.', 'orange'); return; }
+
+    // Expand recurring dates
+    const recurType = document.getElementById('recurType')?.value || 'none';
+    const recurUntil = document.getElementById('recurUntil')?.value || null;
+    const recurCount = document.getElementById('recurCount')?.value || null;
+    const expandedDates = getRecurringDates([...selectedDates].sort(), recurType, recurUntil, recurCount);
+
+    // Resolve assigned student IDs
+    let assignedStudentIds = [];
+    const assignType = document.getElementById('dutyAssignType')?.value || 'all';
+    if (assignType === 'all') {
+      const allSnap = await getDocs(collection(db, 'RCMU_DB'));
+      assignedStudentIds = allSnap.docs.filter(d => d.data().status === 'active').map(d => d.id);
+    } else if (assignType === 'dept') {
+      const dept = document.getElementById('dutyDept')?.value;
+      const snap = await getDocs(collection(db, 'RCMU_DB'));
+      assignedStudentIds = snap.docs.filter(d => d.data().department === dept && d.data().status === 'active').map(d => d.id);
+    } else if (assignType === 'grade') {
+      const grade = document.getElementById('dutyGrade')?.value.trim();
+      const snap = await getDocs(collection(db, 'RCMU_DB'));
+      assignedStudentIds = snap.docs.filter(d => d.data().grade === grade && d.data().status === 'active').map(d => d.id);
+    } else if (assignType === 'select') {
+      assignedStudentIds = Array.from(document.querySelectorAll('#studentSelectList input[type=checkbox]:checked')).map(c => c.value);
+    }
+
+    try {
+      await addDoc(collection(db, 'RCMU_DutySchedules'), {
+        dates: expandedDates,
+        label, period, notes, onTime, closeTime,
+        assignedStudentIds, assignType,
+        recurType, recurUntil: recurUntil || null, recurCount: recurCount ? Number(recurCount) : null,
+        createdAt: new Date().toISOString(),
+        createdBy: currentUser.ADM_Uname
+      });
+      const recurMsg = recurType !== 'none' ? ` (${expandedDates.length} dates — ${recurType})` : '';
+      setSaveMsg(`✅ Duty schedule saved!${recurMsg}`, 'green');
+      selectedDates.clear();
+      document.getElementById('dutyLabel').value = '';
+      document.getElementById('dutyNotes').value = '';
+      if (document.getElementById('recurType')) document.getElementById('recurType').value = 'none';
+      if (document.getElementById('recurPreview')) document.getElementById('recurPreview').textContent = '';
+      document.getElementById('recurUntilWrap').style.display = 'none';
+      document.getElementById('recurCountWrap').style.display = 'none';
+      renderSelectedDates();
+      renderCalendar();
+    } catch(e) {
+      console.error(e);
+      setSaveMsg('❌ Error saving.', 'red');
+    }
+  };
+
+  window.deleteSchedule = async function(schedId) {
+    if (!confirm('Delete this duty schedule?')) return;
+    await deleteDoc(doc(db, 'RCMU_DutySchedules', schedId));
+    if (clickedDate) showDayDetail(clickedDate);
+  };
+
+  function renderSchedulesList() {
+    const container = document.getElementById('schedulesList');
+    if (!existingSchedules.length) { container.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px">No schedules yet.</div>'; updateScheduleSummary(); return; }
+    const sorted = [...existingSchedules].sort((a,b) => (a.dates?.[0]||'').localeCompare(b.dates?.[0]||''));
+    container.innerHTML = sorted.map(s => {
+      const dates = (s.dates || []).slice(0, 6);
+      const extra = (s.dates?.length || 0) - 6;
+      return `<div class="duty-entry">
+        <div class="duty-entry-top">
+          <span class="duty-entry-name">${s.label||'Unnamed'}</span>
+          <span class="duty-entry-period">${s.period||'—'}</span>
+        </div>
+        ${s.notes ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px">${s.notes}</div>` : ''}
+        <div class="duty-dates-wrap">${dates.map(d => `<span class="duty-date-tag">${d}</span>`).join('')}${extra > 0 ? `<span class="duty-date-tag">+${extra} more</span>` : ''}</div>
+        <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px">Added by ${s.createdBy||'—'}</div>
+        <div class="duty-actions">
+          <button class="duty-del-btn" onclick="deleteSchedule('${s._schedId}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.onAssignTypeChange = function() {
+    const v = document.getElementById('dutyAssignType')?.value;
+    document.getElementById('deptFilterField').style.display = v === 'dept' ? 'block' : 'none';
+    document.getElementById('gradeFilterField').style.display = v === 'grade' ? 'block' : 'none';
+    document.getElementById('studentSelectField').style.display = v === 'select' ? 'block' : 'none';
+    if (v === 'select') loadStudentsForSelect();
+  };
+
+  // ── STUDENT SEARCH ──────────────────────────────────────────────
+  let allStudentsCache = [];
+  let selectedStudents = []; // [{_docId, fullname, grade, department, studentId}]
+
+  async function loadStudentsForSelect() {
+    if (allStudentsCache.length) { renderStudentSearch(''); return; }
+    try {
+      const snap = await getDocs(collection(db, 'RCMU_DB'));
+      allStudentsCache = snap.docs.map(d=>({_docId:d.id,...d.data()}))
+        .filter(s=>s.status==='active')
+        .sort((a,b)=>(a.fullname||'').localeCompare(b.fullname||''));
+    } catch(e) { console.error(e); }
+    renderStudentSearch('');
+  }
+
+  function renderStudentSearch(query) {
+    const input    = document.getElementById('stuSearchInput');
+    const dropdown = document.getElementById('stuDropdown');
+    if (!dropdown) return;
+    const q = query.toLowerCase().trim();
+    const already = new Set(selectedStudents.map(s=>s._docId));
+    const matches = allStudentsCache.filter(s => !already.has(s._docId) && (
+      !q ||
+      (s.fullname||'').toLowerCase().includes(q) ||
+      (s.grade||'').toString().toLowerCase().includes(q) ||
+      (s.department||'').toLowerCase().includes(q) ||
+      (s.studentId||'').toLowerCase().includes(q)
+    )).slice(0,30);
+
+    if (!matches.length) {
+      dropdown.style.display = 'none';
+      return;
+    }
+    dropdown.style.display = 'block';
+    dropdown.innerHTML = matches.map(s => {
+      const init = (s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      return `<div class="student-dropdown-item" data-docid="${s._docId}" onclick="addStudentToSelection('${s._docId}')">
+        <div class="std-av">${init}</div>
+        <div>
+          <div class="std-name">${s.fullname||'—'}</div>
+          <div class="std-info">${s.studentId||'—'} · Grade ${s.grade||'—'} · ${s.department||'—'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.addStudentToSelection = function(docId) {
+    const student = allStudentsCache.find(s=>s._docId===docId);
+    if (!student || selectedStudents.find(s=>s._docId===docId)) return;
+    selectedStudents.push(student);
+    document.getElementById('stuDropdown').style.display = 'none';
+    document.getElementById('stuSearchInput').value = '';
+    renderSelectedChips();
+  };
+
+  function renderSelectedChips() {
+    const wrap  = document.getElementById('selectedStudentsChips');
+    const count = document.getElementById('selectedCount');
+    if (!wrap) return;
+    wrap.innerHTML = selectedStudents.map(s => `
+      <span class="stu-chip">
+        ${s.fullname}
+        <button class="stu-chip-remove" onclick="removeStudentFromSelection('${s._docId}')" title="Remove">×</button>
+      </span>`).join('');
+    if (count) count.textContent = selectedStudents.length ? `${selectedStudents.length} student${selectedStudents.length>1?'s':''} selected` : '';
+  }
+
+  window.removeStudentFromSelection = function(docId) {
+    selectedStudents = selectedStudents.filter(s=>s._docId!==docId);
+    renderSelectedChips();
+    renderStudentSearch(document.getElementById('stuSearchInput')?.value||'');
+  };
+
+  // Wire up search input
+  setTimeout(() => {
+    const inp = document.getElementById('stuSearchInput');
+    if (!inp) return;
+    inp.addEventListener('input', e => renderStudentSearch(e.target.value));
+    inp.addEventListener('focus', () => renderStudentSearch(inp.value));
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#studentSelectField')) {
+        document.getElementById('stuDropdown').style.display = 'none';
+      }
+    });
+  }, 0);
+
+  function setSaveMsg(text, type) {
+    const el = document.getElementById('saveMsg');
+    const colors = { green:'var(--green)', orange:'var(--gold)', red:'var(--red)' };
+    el.style.color = colors[type] || 'var(--text-muted)';
+    el.textContent = text;
+    setTimeout(() => el.textContent = '', 3000);
+  }
+
+  renderCalendar();
+</script>
+<script type="module" src="app.js"></script>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit — managing student records, roles, and departments across all grades.</p>
+        <div class="footer-tech-badges"><span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">Vanilla JS</span></div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="add.html">Add Student</a>
+          <a href="duty-schedule.html">Duty Schedule</a><a href="duty-mark.html">Mark Duty</a>
+          <a href="duty-swap.html">Duty Swaps</a><a href="duty-appeals.html">Appeals</a>
+          <a href="attendance-report.html">Attendance Report</a><a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="leaderboard.html">🏆 Leaderboard</a>
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="dept-analytics.html">📊 Analytics</a>
+          <a href="report-card.html">📄 Report Cards</a>
+          <a href="monthly-summary.html">📅 Monthly Summary</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="#" onclick="doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());</script>
+</body>
+</html>

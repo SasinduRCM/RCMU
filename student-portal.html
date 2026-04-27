@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">  <link rel="manifest" href="manifest.json">
+  <!-- Favicon all sizes -->
+  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon"         href="icon-32.png">
+  <!-- Apple / iOS icons -->
+  <link rel="apple-touch-icon"              href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <!-- Windows / PWA tile -->
+  <meta name="msapplication-TileImage"   content="icon-144.png">
+  <meta name="msapplication-TileColor"   content="#0b0f1a">
+  <meta name="msapplication-config"      content="none">
+  <!-- Favicon -->
+  <!-- SEO Meta -->
+  <meta name="description" content="View your student profile, duty schedule, and performance in the RCMU.">
+  <meta name="keywords" content="Rahula College, Media Unit, student profile, duty, RCMU">
+  <meta name="author" content="Sasindu Ruwaneka">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="My Profile — Rahula College Media Unit">
+  <meta property="og:description" content="View your student profile, duty schedule, and performance in the RCMU.">
+  <meta property="og:image" content="Icon.png">
+  <meta property="og:site_name" content="Rahula College Media Unit">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="My Profile — Rahula College Media Unit">
+  <meta name="twitter:description" content="View your student profile, duty schedule, and performance in the RCMU.">
+  <meta name="twitter:image" content="Icon.png">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RCMU">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="RCMU">
+  <title>My Profile — Rahula College Media Unit</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── INSTALL BANNER ─────────────────── */
+    .install-banner {
+      position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);
+      background:var(--bg-card);border:1px solid var(--border-soft);border-radius:16px;
+      padding:14px 20px;display:flex;align-items:center;gap:14px;z-index:8000;
+      box-shadow:0 8px 40px rgba(0,0,0,0.5);width:calc(100% - 32px);max-width:400px;
+      transition:transform 0.45s cubic-bezier(.22,1,.36,1);
+    }
+    .install-banner.show { transform:translateX(-50%) translateY(0); }
+    .install-banner::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:16px 16px 0 0;background:linear-gradient(90deg,var(--green),var(--accent2)); }
+    .install-icon { font-size:2rem;flex-shrink:0; }
+    .install-text { flex:1; }
+    .install-title { font-size:0.85rem;font-weight:700;color:var(--text); }
+    .install-sub { font-size:0.72rem;color:var(--text-muted);margin-top:2px; }
+    .install-btn { padding:8px 14px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--green),var(--accent2));color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all var(--transition); }
+    .install-btn:hover { transform:translateY(-1px); }
+    .install-dismiss { background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px;transition:color var(--transition); }
+    .install-dismiss:hover { color:var(--red); }
+
+    /* ── NOTIFICATION BADGE ─────────────── */
+    .notif-dot { position:fixed;top:16px;right:16px;z-index:7000;cursor:pointer; }
+    .notif-ring { width:44px;height:44px;border-radius:50%;background:var(--bg-card);border:1.5px solid var(--border-soft);display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 20px rgba(0,0,0,0.4);transition:all var(--transition);position:relative; }
+    .notif-ring:hover { border-color:var(--accent);box-shadow:0 4px 24px rgba(59,130,246,0.3); }
+    .notif-count { position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:0.58rem;font-weight:700;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);animation:notifPop 0.3s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes notifPop { from{transform:scale(0)} to{transform:scale(1)} }
+
+    /* ── HERO ───────────────────────────── */
+    .portal-hero {
+      background:var(--bg-card);border:1px solid var(--border-soft);
+      border-radius:var(--radius);padding:24px;margin-bottom:16px;
+      position:relative;overflow:hidden;
+      animation:fadeSlideUp 0.5s cubic-bezier(.22,1,.36,1) both;
+    }
+    .portal-hero::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--accent),var(--accent2)); }
+    .portal-hero::after { content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,0.08) 0%,transparent 70%);pointer-events:none; }
+    .hero-row { display:flex;align-items:center;gap:18px;flex-wrap:wrap; }
+    .hero-avatar-wrap { position:relative;flex-shrink:0; }
+    .hero-avatar { width:82px;height:82px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.9rem;font-weight:700;color:#fff;overflow:hidden;border:3px solid var(--border-soft);transition:box-shadow 0.3s; }
+    .hero-avatar:hover { box-shadow:0 0 28px rgba(16,185,129,0.4); }
+    .hero-avatar img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+    .online-dot { position:absolute;bottom:3px;right:3px;width:14px;height:14px;border-radius:50%;background:var(--green);border:2px solid var(--bg-card);animation:modPulse2 2s ease-in-out infinite; }
+    @keyframes modPulse2 { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.5)} 50%{box-shadow:0 0 0 5px rgba(16,185,129,0)} }
+    .hero-info { flex:1;min-width:160px; }
+    .hero-name { font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--text);line-height:1.2; }
+    .hero-nick { color:var(--text-muted);font-size:0.88rem;margin-top:2px; }
+    .hero-tags { display:flex;flex-wrap:wrap;gap:6px;margin-top:10px; }
+    .h-tag { padding:3px 11px;border-radius:18px;font-size:0.7rem;font-weight:600;letter-spacing:0.05em;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.22);color:var(--accent); }
+    .h-tag.green{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.22);color:var(--green)}
+    .h-tag.gold{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.22);color:var(--gold)}
+    .h-tag.red{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.22);color:var(--red)}
+
+    /* Duty ring */
+    .duty-ring-wrap { display:flex;flex-direction:column;align-items:center;flex-shrink:0; }
+    .duty-ring { position:relative;width:84px;height:84px; }
+    .duty-ring svg { transform:rotate(-90deg); }
+    .duty-ring-fill { fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1); }
+    .duty-ring-track { fill:none;stroke:var(--border);stroke-width:8; }
+    .duty-ring-label { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;font-weight:700; }
+
+    /* Stats */
+    .stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;animation:fadeSlideUp 0.5s 0.08s cubic-bezier(.22,1,.36,1) both; }
+    @media(max-width:580px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+    .stat-tile { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;position:relative;overflow:hidden;transition:all var(--transition);cursor:default; }
+    .stat-tile:hover { border-color:var(--border-soft);transform:translateY(-2px);box-shadow:var(--shadow-sm); }
+    .stat-tile::after { content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform 0.4s; }
+    .stat-tile:hover::after { transform:scaleX(1); }
+    .stat-num { font-family:var(--font-display);font-size:1.8rem;font-weight:700;line-height:1; }
+    .stat-lbl { font-size:0.64rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:3px; }
+
+    /* Upcoming duty countdown */
+    .countdown-section { background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;animation:fadeSlideUp 0.5s 0.1s cubic-bezier(.22,1,.36,1) both; }
+    .countdown-section::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),#f97316); }
+    .cd-title { font-family:var(--font-display);font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px; }
+    .cd-items { display:flex;flex-direction:column;gap:8px; }
+    .cd-item { display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-panel);border-radius:var(--radius-sm);border-left:3px solid var(--border);transition:border-color var(--transition); }
+    .cd-item.urgent { border-left-color:var(--red); }
+    .cd-item.soon { border-left-color:var(--gold); }
+    .cd-item.upcoming { border-left-color:var(--accent); }
+    .cd-days { font-family:var(--font-display);font-size:1.3rem;font-weight:700;min-width:28px;text-align:center; }
+    .cd-days.urgent{color:var(--red)} .cd-days.soon{color:var(--gold)} .cd-days.upcoming{color:var(--accent)}
+    .cd-lbl { font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em; }
+    .cd-name { font-size:0.85rem;font-weight:600;color:var(--text); }
+    .cd-date { font-size:0.72rem;color:var(--text-muted); }
+
+    /* Tabs */
+    /* ── Tab bar ── */
+    .tab-bar { display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center; }
+    .tab-btn { padding:7px 14px;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;transition:all var(--transition);font-family:var(--font-body); }
+    .tab-btn.active { background:rgba(16,185,129,0.12);border-color:var(--green);color:var(--green); }
+
+    /* ── Mobile tab hamburger ── */
+    .tab-ham-btn {
+      display:none;
+      align-items:center;gap:8px;
+      padding:8px 14px;
+      border-radius:var(--radius-sm);
+      border:1px solid var(--border);
+      background:var(--bg-card);
+      color:var(--text-muted);
+      font-family:var(--font-body);
+      font-size:0.82rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:all var(--transition);
+      margin-bottom:14px;
+      width:100%;
+      justify-content:space-between;
+    }
+    .tab-ham-btn .tab-ham-label { display:flex;align-items:center;gap:8px; }
+    .tab-ham-btn .tab-ham-arrow { transition:transform .22s cubic-bezier(.4,0,.2,1);opacity:.6; }
+    .tab-ham-btn.open .tab-ham-arrow { transform:rotate(180deg);opacity:1; }
+    .tab-ham-btn.open { border-color:var(--green);color:var(--green);background:rgba(16,185,129,.06); }
+
+    /* Mobile dropdown menu */
+    .tab-dropdown {
+      display:none;
+      flex-direction:column;
+      gap:3px;
+      background:rgba(11,15,26,.97);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border:1px solid var(--border-soft);
+      border-radius:var(--radius);
+      padding:6px;
+      margin-bottom:14px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      animation:ddIn .18s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes ddIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+    .tab-dropdown.open { display:flex; }
+    .tab-dd-item {
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;
+      border-radius:var(--radius-sm);
+      border:1px solid transparent;
+      background:none;
+      color:var(--text-muted);
+      font-family:var(--font-body);
+      font-size:0.84rem;
+      font-weight:500;
+      cursor:pointer;
+      text-align:left;
+      transition:all .15s;
+      width:100%;
+    }
+    .tab-dd-item:hover { color:var(--text);background:rgba(255,255,255,.05);border-color:var(--border); }
+    .tab-dd-item.active { color:var(--green);background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.25);font-weight:700; }
+
+    @media(max-width:640px) {
+      .tab-bar { display:none; }
+      .tab-ham-btn { display:flex; }
+    }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* Section card */
+    .section { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;animation:fadeSlideUp 0.4s cubic-bezier(.22,1,.36,1) both; }
+    .sec-title { font-family:var(--font-display);font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px; }
+    .sec-title::after { content:'';flex:1;height:1px;background:var(--border); }
+
+    /* Profile grid */
+    .pf-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+    @media(max-width:480px){.pf-grid{grid-template-columns:1fr}}
+    .pf { background:var(--bg-panel);border-radius:var(--radius-sm);padding:10px 13px;transition:background var(--transition); }
+    .pf:hover { background:var(--border); }
+    .pf-lbl { font-size:0.67rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:2px; }
+    .pf-val { font-size:0.88rem;color:var(--text); }
+    .pf.full { grid-column:1/-1; }
+
+    /* Calendar */
+    .cal-nav { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+    .cal-nav-btn { background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);padding:5px 12px;cursor:pointer;font-size:0.8rem;transition:all var(--transition);font-family:var(--font-body); }
+    .cal-nav-btn:hover { color:var(--accent);border-color:var(--accent); }
+    .cal-month-lbl { font-family:var(--font-display);font-size:0.95rem;font-weight:700;color:var(--text); }
+    .duty-cal { display:grid;grid-template-columns:repeat(7,1fr);gap:3px; }
+    .dc-hdr { font-size:0.6rem;color:var(--text-muted);text-align:center;font-weight:600;padding:4px 0;text-transform:uppercase; }
+    .dc-day { aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:600;transition:transform 0.15s;position:relative;cursor:default; }
+    .dc-day:hover { transform:scale(1.12);z-index:2; }
+    .dc-day.empty { background:transparent; }
+    .dc-day.noduty { background:var(--bg-panel);color:var(--text-muted); }
+    .dc-day.present { background:rgba(16,185,129,0.22);color:var(--green);border:1px solid rgba(16,185,129,0.4); }
+    .dc-day.late { background:rgba(245,158,11,0.2);color:var(--gold);border:1px solid rgba(245,158,11,0.35); }
+    .dc-day.absent { background:rgba(239,68,68,0.16);color:var(--red);border:1px solid rgba(239,68,68,0.3); }
+    .dc-day.today { outline:2px solid var(--accent);outline-offset:1px; }
+    .dc-day.sched::after { content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent2); }
+    .cal-legend { display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;font-size:0.68rem;color:var(--text-muted); }
+    .cal-legend span { display:flex;align-items:center;gap:5px; }
+    .cal-legend i { display:inline-block;width:9px;height:9px;border-radius:2px; }
+
+    /* Timeline */
+    .timeline { display:flex;flex-direction:column;gap:7px; }
+    .tl-item { display:flex;gap:11px;align-items:flex-start;padding:9px 12px;background:var(--bg-panel);border-radius:var(--radius-sm);border-left:3px solid var(--border);transition:border-color var(--transition),background var(--transition); }
+    .tl-item:hover { border-left-color:var(--accent);background:var(--border); }
+    .tl-icon { font-size:1rem;flex-shrink:0;margin-top:1px; }
+    .tl-text { font-size:0.83rem;color:var(--text);line-height:1.5; }
+    .tl-date { font-size:0.67rem;color:var(--text-muted);margin-top:2px; }
+
+    /* Points log */
+    .pts-log { display:flex;flex-direction:column;gap:5px; }
+    .pt-row { display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg-panel);border-radius:var(--radius-sm);font-size:0.8rem;transition:background var(--transition); }
+    .pt-row:hover { background:var(--border); }
+    .pt-desc { color:var(--text-sub); }
+    .pt-when { font-size:0.7rem;color:var(--text-muted); }
+    .pt-val { font-weight:700;font-size:0.88rem; }
+    .pt-val.pos{color:var(--green)} .pt-val.neg{color:var(--red)} .pt-val.warn{color:var(--gold)}
+
+    /* Appeal */
+    .appeal-form { display:flex;flex-direction:column;gap:9px; }
+    .appeal-form select,.appeal-form textarea { background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:0.83rem;padding:9px 12px;outline:none;transition:border-color var(--transition); }
+    .appeal-form select:focus,.appeal-form textarea:focus { border-color:var(--accent); }
+    .appeal-form textarea { resize:vertical;min-height:75px; }
+    .appeal-submit { padding:9px 18px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:var(--font-body);font-size:0.85rem;font-weight:700;cursor:pointer;transition:all var(--transition);align-self:flex-end; }
+    .appeal-submit:hover { transform:translateY(-1px);box-shadow:0 4px 14px rgba(59,130,246,0.4); }
+    .appeal-entry { padding:10px 13px;background:var(--bg-panel);border-radius:var(--radius-sm);border-left:3px solid var(--gold);font-size:0.8rem;color:var(--text-sub);margin-bottom:6px; }
+    .appeal-entry .a-status { font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:9px;display:inline-block;margin-top:4px; }
+    .a-status.pending{background:rgba(245,158,11,0.15);color:var(--gold)} .a-status.approved{background:rgba(16,185,129,0.15);color:var(--green)} .a-status.rejected{background:rgba(239,68,68,0.15);color:var(--red)}
+
+    /* Streak badge */
+    .streak-badge { display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.1));border:1px solid rgba(245,158,11,0.3);border-radius:18px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:var(--gold);margin-bottom:12px; }
+    .streak-fire { font-size:1.1rem;animation:fireAnim 1.4s ease-in-out infinite; }
+    @keyframes fireAnim { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
+    /* Empty */
+    .empty-msg { text-align:center;color:var(--text-muted);font-size:0.83rem;padding:20px; }
+
+    /* Nav */
+    .portal-nav { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border); }
+    .nav-brand { display:flex;align-items:center;gap:10px; }
+    .nav-logo { height:34px; }
+    .nav-title { font-family:var(--font-display);font-size:0.95rem;font-weight:700;color:var(--text); }
+    .nav-title span { color:var(--green); }
+    .logout-btn { background:none;border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text-muted);padding:6px 13px;font-family:var(--font-body);font-size:0.78rem;cursor:pointer;transition:all var(--transition); }
+    .logout-btn:hover { color:var(--red);border-color:var(--red); }
+
+    /* ── Leaderboard styles (mirrors leaderboard.html) ── */
+    .lb-hero { text-align:center;padding:32px 20px 20px;position:relative; }
+    .lb-hero-title { font-family:var(--font-display);font-size:clamp(1.4rem,5vw,2.2rem);font-weight:700;background:linear-gradient(135deg,var(--gold),#f97316,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px; }
+    .lb-hero-sub { color:var(--text-muted);font-size:.82rem; }
+    .podium { display:flex;align-items:flex-end;justify-content:center;gap:12px;margin:0 auto 28px;max-width:540px;padding:0 16px; }
+    .podium-place { display:flex;flex-direction:column;align-items:center;flex:1;max-width:160px; }
+    .podium-avatar { width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:8px;border:3px solid transparent;position:relative;color:#fff; }
+    .podium-avatar.rank-1 { background:linear-gradient(135deg,#f59e0b,#f97316);border-color:#f59e0b;box-shadow:0 0 24px rgba(245,158,11,.5);width:80px;height:80px;font-size:1.6rem; }
+    .podium-avatar.rank-2 { background:linear-gradient(135deg,#94a3b8,#64748b);border-color:#94a3b8;box-shadow:0 0 16px rgba(148,163,184,.3); }
+    .podium-avatar.rank-3 { background:linear-gradient(135deg,#cd7c3a,#a05c28);border-color:#cd7c3a;box-shadow:0 0 16px rgba(205,124,58,.3); }
+    .podium-crown { position:absolute;top:-18px;font-size:1.3rem;animation:crownBob 2s ease-in-out infinite; }
+    @keyframes crownBob { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-4px) rotate(5deg)} }
+    .podium-name { font-size:.78rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .podium-pts { font-family:var(--font-display);font-weight:700;color:var(--gold); }
+    .podium-pts.rank-2 { color:#94a3b8; }
+    .podium-pts.rank-3 { color:#cd7c3a; }
+    .podium-block { width:100%;border-radius:var(--radius-sm) var(--radius-sm) 0 0;margin-top:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:rgba(255,255,255,.6); }
+    .podium-block.rank-1 { background:linear-gradient(180deg,rgba(245,158,11,.25),rgba(245,158,11,.1));border:1px solid rgba(245,158,11,.3);height:90px; }
+    .podium-block.rank-2 { background:linear-gradient(180deg,rgba(148,163,184,.15),rgba(148,163,184,.05));border:1px solid rgba(148,163,184,.2);height:65px; }
+    .podium-block.rank-3 { background:linear-gradient(180deg,rgba(205,124,58,.15),rgba(205,124,58,.05));border:1px solid rgba(205,124,58,.2);height:50px; }
+    .lb-filters { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center; }
+    .lb-filters select { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:8px 12px;outline:none; }
+    .lb-count { margin-left:auto;font-size:.75rem;color:var(--text-muted); }
+    .lb-search { flex:1;min-width:160px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:8px 12px;outline:none; }
+    .lb-search:focus { border-color:var(--accent); }
+    .lb-table-wrap { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
+    .lb-table { width:100%;border-collapse:collapse; }
+    .lb-table thead tr { background:var(--bg-panel);border-bottom:1px solid var(--border); }
+    .lb-table th { padding:10px 16px;text-align:left;font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em; }
+    .lb-table td { padding:10px 16px;border-bottom:1px solid rgba(30,41,59,.6);font-size:.84rem; }
+    .lb-table tr:last-child td { border-bottom:none; }
+    .lb-table tr { transition:background var(--transition); }
+    .lb-table tr:hover td { background:rgba(59,130,246,.04); }
+    .lb-rank { font-family:var(--font-display);font-weight:700;font-size:.95rem;min-width:32px;display:inline-block;text-align:center; }
+    .lb-rank.top1 { color:var(--gold); }
+    .lb-rank.top2 { color:#94a3b8; }
+    .lb-rank.top3 { color:#cd7c3a; }
+    .lb-rank.top10 { color:var(--accent2); }
+    .lb-avatar-sm { width:34px;height:34px;border-radius:50%;background:var(--bg-panel);border:1.5px solid var(--border-soft);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.8rem;font-weight:700;color:var(--text-muted);flex-shrink:0; }
+    .lb-name-cell { display:flex;align-items:center;gap:10px; }
+    .lb-name { font-weight:600;color:var(--text); }
+    .lb-sub { font-size:.68rem;color:var(--text-muted);margin-top:1px; }
+    .lb-pts { font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold); }
+    .lb-bar-wrap { display:flex;align-items:center;gap:8px;min-width:100px; }
+    .lb-bar { flex:1;height:6px;background:var(--bg-panel);border-radius:3px;overflow:hidden; }
+    .lb-bar-fill { height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .6s cubic-bezier(.22,1,.36,1); }
+    .lb-pct { font-size:.65rem;color:var(--text-muted);min-width:28px; }
+    .you-badge { background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:var(--accent);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.05em;text-transform:uppercase;margin-left:6px; }
+    .dept-chip { padding:2px 9px;border-radius:10px;font-size:.65rem;font-weight:600;background:rgba(6,182,212,.1);color:var(--accent2);border:1px solid rgba(6,182,212,.2); }
+    .loading-state { text-align:center;padding:48px;color:var(--text-muted);font-size:.9rem; }
+    @keyframes rowIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:none} }
+    @media(max-width:600px){ .lb-table th:nth-child(4),.lb-table td:nth-child(4),.lb-table th:nth-child(6),.lb-table td:nth-child(6){display:none} }
+
+    /* ── Notification opt-in banner ── */
+    .notif-banner { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+      padding:12px 16px;border-radius:var(--radius-sm);font-size:.82rem;font-weight:500; }
+    .notif-granted { background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:var(--green); }
+    .notif-off     { background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);color:var(--text-sub); }
+    .notif-blocked { background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#f87171; }
+    .notif-btn-on  { padding:6px 16px;border:none;border-radius:var(--radius-sm);background:var(--accent);color:#fff;font-family:var(--font-body);font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s; }
+    .notif-btn-on:hover { opacity:.85; }
+    .notif-btn-off { padding:6px 14px;border:1px solid rgba(16,185,129,.3);border-radius:var(--radius-sm);background:none;color:var(--green);font-family:var(--font-body);font-size:.78rem;cursor:pointer;transition:all .2s; }
+
+    /* ── Announcement cards (mirrors announcements.html) ── */
+    .ann-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;position:relative;overflow:hidden;animation:fadeSlideUp .4s cubic-bezier(.22,1,.36,1) both; }
+    .ann-card::before { content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px; }
+    .ann-card.priority-urgent::before { background:var(--red,#ef4444); }
+    .ann-card.priority-high::before   { background:var(--gold,#f59e0b); }
+    .ann-card.priority-normal::before { background:var(--accent,#3b82f6); }
+    .ann-card.priority-info::before   { background:var(--green,#10b981); }
+    .ann-card-header { display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap; }
+    .ann-type-badge { padding:3px 10px;border-radius:12px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em; }
+    .ann-type-badge.urgent { background:rgba(239,68,68,.12);color:var(--red,#ef4444);border:1px solid rgba(239,68,68,.25); }
+    .ann-type-badge.high   { background:rgba(245,158,11,.12);color:var(--gold,#f59e0b);border:1px solid rgba(245,158,11,.25); }
+    .ann-type-badge.normal { background:rgba(59,130,246,.12);color:var(--accent,#3b82f6);border:1px solid rgba(59,130,246,.25); }
+    .ann-type-badge.info   { background:rgba(16,185,129,.12);color:var(--green,#10b981);border:1px solid rgba(16,185,129,.25); }
+    .ann-title { font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px; }
+    .ann-body  { font-size:.85rem;color:var(--text-sub);line-height:1.65;white-space:pre-wrap; }
+    .ann-meta  { display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap; }
+    .ann-author { font-size:.7rem;color:var(--text-muted); }
+    .ann-audience-badge { padding:2px 9px;border-radius:10px;font-size:.62rem;font-weight:600;background:rgba(6,182,212,.08);color:var(--accent2,#06b6d4);border:1px solid rgba(6,182,212,.2); }
+    .ann-date  { font-size:.68rem;color:var(--text-muted);margin-left:auto; }
+    .ann-pin-badge { display:inline-flex;align-items:center;gap:4px;font-size:.66rem;color:var(--gold,#f59e0b);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:2px 7px; }
+  </style>
+</head>
+<body>
+
+<!-- Notification dot -->
+<div class="notif-dot" id="notifDot" style="display:none" onclick="switchTab('upcoming', document.querySelectorAll('.tab-btn')[4])">
+
+<!-- In-app notification bell -->
+<div id="inAppBell" style="position:relative;display:inline-block;margin-left:8px;cursor:pointer" onclick="toggleNotifPanel()">
+  <span style="font-size:1.4rem">🔔</span>
+  <span id="bellBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:.6rem;font-weight:700;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center">0</span>
+</div>
+<div id="notifPanel" style="display:none;position:fixed;top:70px;right:16px;width:320px;max-width:calc(100vw - 32px);background:rgba(11,15,26,.97);backdrop-filter:blur(16px);border:1px solid var(--border-soft);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:2000;max-height:400px;overflow-y:auto">
+  <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:.85rem;font-weight:700;color:var(--text)">🔔 Notifications</span>
+    <button onclick="markAllRead()" style="font-size:.7rem;color:var(--accent);background:none;border:none;cursor:pointer;font-family:var(--font-body)">Mark all read</button>
+  </div>
+  <div id="notifList" style="padding:6px"></div>
+</div>
+  <div class="notif-ring">🔔<span class="notif-count" id="notifCount">0</span></div>
+</div>
+
+<!-- Install banner -->
+<div class="install-banner" id="installBanner" style="display:none">
+  <div class="install-icon">📱</div>
+  <div class="install-text">
+    <div class="install-title">Add to Home Screen</div>
+    <div class="install-sub">Get duty reminders & quick access</div>
+  </div>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-dismiss" onclick="dismissInstall()">×</button>
+</div>
+
+<div class="container">
+  <!-- Nav -->
+  <div class="portal-nav">
+    <div class="nav-brand">
+      <img src="Rahula_College_Crest.png" alt="RC" class="nav-logo">
+      <div class="nav-title">Student <span>Portal</span></div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <!-- Hero -->
+  <div class="portal-hero" id="heroSection">
+    <div class="hero-row">
+      <div class="hero-avatar-wrap">
+        <div class="hero-avatar" id="heroAvatar">?</div>
+        <div class="online-dot"></div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-name" id="heroName">Loading…</div>
+        <div class="hero-nick" id="heroNick"></div>
+        <div class="hero-tags" id="heroTags"></div>
+      </div>
+      <div class="duty-ring-wrap">
+        <div class="duty-ring">
+          <svg width="84" height="84" viewBox="0 0 84 84">
+            <circle class="duty-ring-track" cx="42" cy="42" r="34"/>
+            <circle class="duty-ring-fill" id="dutyRingFill" cx="42" cy="42" r="34"
+              stroke="url(#ringGrad)" stroke-dasharray="213.63" stroke-dashoffset="213.63"/>
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="duty-ring-label" id="dutyRingLabel">—</div>
+        </div>
+        <div style="font-size:0.62rem;color:var(--text-muted);margin-top:3px;text-align:center">Duty %</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-tile"><div class="stat-num" id="stPts" style="color:var(--green)">—</div><div class="stat-lbl">Duty Points</div></div>
+    <div class="stat-tile"><div class="stat-num" id="stStreak" style="color:var(--gold)">—</div><div class="stat-lbl">🔥 Streak</div></div>
+    <div class="stat-tile"><div class="stat-num" id="stPresent" style="color:var(--accent)">—</div><div class="stat-lbl">Days Present</div></div>
+    <div class="stat-tile"><div class="stat-num" id="stAchiev" style="color:var(--accent2)">—</div><div class="stat-lbl">Achievements</div></div>
+  </div>
+
+  <!-- Upcoming countdown -->
+  <div class="countdown-section" id="countdownSection" style="display:none">
+    <div class="cd-title">🔔 Upcoming Duties</div>
+    <div class="cd-items" id="cdItems"></div>
+  </div>
+
+  <!-- Tabs -->
+  <!-- Desktop tab bar (hidden on mobile) -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('profile',this)">👤 Profile</button>
+    <button class="tab-btn" onclick="switchTab('duty',this)">📅 Calendar</button>
+    <button class="tab-btn" onclick="switchTab('history',this)">📋 Activity</button>
+    <button class="tab-btn" onclick="switchTab('points',this)">⚡ Points</button>
+    <button class="tab-btn" onclick="switchTab('upcoming',this)">🔔 Upcoming</button>
+    <button class="tab-btn" onclick="switchTab('appeals',this)">📣 Appeals</button>
+    <button class="tab-btn" onclick="switchTab('notices',this)">📢 Notices</button>
+    <button class="tab-btn" onclick="switchTab('swap',this)">🔄 Swap Duty</button>
+    <button class="tab-btn" onclick="switchTab('peers',this)">👥 Duty Peers</button>
+    <button class="tab-btn" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
+  </div>
+
+  <!-- Mobile hamburger tab menu (shown on mobile) -->
+  <button class="tab-ham-btn" id="tabHamBtn" onclick="toggleTabMenu()">
+    <span class="tab-ham-label"><span id="tabHamIcon">👤</span> <span id="tabHamLabel">Profile</span></span>
+    <svg class="tab-ham-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <div class="tab-dropdown" id="tabDropdown">
+    <button class="tab-dd-item active" onclick="mobileTab('profile','👤','Profile')">👤 Profile</button>
+    <button class="tab-dd-item" onclick="mobileTab('duty','📅','Calendar')">📅 Calendar</button>
+    <button class="tab-dd-item" onclick="mobileTab('history','📋','Activity')">📋 Activity</button>
+    <button class="tab-dd-item" onclick="mobileTab('points','⚡','Points')">⚡ Points</button>
+    <button class="tab-dd-item" onclick="mobileTab('upcoming','🔔','Upcoming')">🔔 Upcoming</button>
+    <button class="tab-dd-item" onclick="mobileTab('appeals','📣','Appeals')">📣 Appeals</button>
+    <button class="tab-dd-item" onclick="mobileTab('notices','📢','Notices')">📢 Notices</button>
+    <button class="tab-dd-item" onclick="mobileTab('swap','🔄','Swap Duty')">🔄 Swap Duty</button>
+    <button class="tab-dd-item" onclick="mobileTab('peers','👥','Duty Peers')">👥 Duty Peers</button>
+    <button class="tab-dd-item" onclick="mobileTab('leaderboard','🏆','Leaderboard')">🏆 Leaderboard</button>
+  </div>
+
+  <!-- Profile -->
+  <div class="tab-panel active" id="tab-profile">
+    <div class="section">
+      <div class="sec-title">Personal Details</div>
+      <div class="pf-grid" id="pfGrid"></div>
+      <div id="notifOptIn" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="tab-panel" id="tab-duty">
+    <div class="section">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">← Prev</button>
+        <div class="cal-month-lbl" id="calLbl"></div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">Next →</button>
+      </div>
+      <div class="duty-cal" id="dutyCal"></div>
+      <div class="cal-legend">
+        <span><i style="background:rgba(16,185,129,0.22);border:1px solid rgba(16,185,129,0.4)"></i>Present</span>
+        <span><i style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.35)"></i>Late</span>
+        <span><i style="background:rgba(239,68,68,0.16);border:1px solid rgba(239,68,68,0.3)"></i>Absent</span>
+        <span><i style="background:var(--bg-panel)"></i>No duty</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity -->
+  <div class="tab-panel" id="tab-history">
+    <div class="section">
+      <div class="sec-title">Activity & Achievements</div>
+      <div id="streakBadge"></div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+
+  <!-- Points -->
+  <div class="tab-panel" id="tab-points">
+    <div class="section">
+      <div class="sec-title">Points History</div>
+      <div class="pts-log" id="ptsLog"></div>
+    </div>
+  </div>
+
+  <!-- Upcoming -->
+  <div class="tab-panel" id="tab-upcoming">
+    <div class="section">
+      <!-- Today's duty peers -->
+      <div id="dutyPeersSection" style="display:none;margin-bottom:18px">
+        <div class="sec-title">👥 On Duty With You Today</div>
+        <div id="dutyPeersList" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px"></div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <div class="sec-title" style="margin-bottom:0">Upcoming Scheduled Duties</div>
+        <button onclick="exportICS()" style="padding:7px 16px;border:1px solid rgba(16,185,129,.3);border-radius:var(--radius-sm);background:rgba(16,185,129,.1);color:var(--green);font-family:var(--font-body);font-size:.78rem;font-weight:700;cursor:pointer;transition:all var(--transition)">📅 Export to Calendar (.ics)</button>
+      </div>
+      <div id="upcomingList"></div>
+    </div>
+  </div>
+
+  <!-- Appeals -->
+  <div class="tab-panel" id="tab-appeals">
+    <div class="section">
+      <div class="sec-title">Submit an Appeal</div>
+      <div class="appeal-form">
+        <select id="appealDate"><option value="">Select duty date in question…</option></select>
+        <textarea id="appealText" placeholder="Explain why this marking was incorrect…"></textarea>
+        <button class="appeal-submit" onclick="submitAppeal()">Submit Appeal</button>
+      </div>
+      <div style="margin-top:18px">
+        <div class="sec-title" style="font-size:0.85rem">Your Appeals</div>
+        <div id="appealList"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Notices Tab -->
+  <div class="tab-panel" id="tab-notices">
+    <div id="spAnnList"><div class="empty-msg" style="padding:40px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">📭</div>Loading notices…
+    </div></div>
+  </div>
+
+  <!-- Swap Duty Tab -->
+  <div class="tab-panel" id="tab-swap">
+    <div class="section">
+      <div class="sec-title">🔄 Request a Duty Swap</div>
+      <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:16px">Enter your friend's Student ID to request swapping one of your duties with theirs. An admin will review and approve the request.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:.72rem;font-weight:600;color:var(--text-sub);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Friend's Student ID</label>
+          <div style="display:flex;gap:8px">
+            <input id="swapFriendId" type="text" placeholder="e.g. RC2024001" style="flex:1;padding:10px 14px;border:1px solid var(--border-soft);border-radius:var(--radius-sm);background:var(--bg-panel);color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor=''" />
+            <button onclick="lookupSwapFriend()" style="padding:10px 16px;border:1px solid var(--accent);border-radius:var(--radius-sm);background:rgba(59,130,246,.1);color:var(--accent);font-family:var(--font-body);font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s">Look Up</button>
+          </div>
+          <div id="swapFriendInfo" style="margin-top:8px"></div>
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:600;color:var(--text-sub);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Your Duty Date to Swap</label>
+          <select id="swapMyDate" style="width:100%;padding:10px 14px;border:1px solid var(--border-soft);border-radius:var(--radius-sm);background:var(--bg-panel);color:var(--text);font-family:var(--font-body);font-size:.85rem;outline:none">
+            <option value="">Select your duty date…</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:600;color:var(--text-sub);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Reason (optional)</label>
+          <textarea id="swapReason" placeholder="Why do you need this swap?" rows="3" style="width:100%;padding:10px 14px;border:1px solid var(--border-soft);border-radius:var(--radius-sm);background:var(--bg-panel);color:var(--text);font-family:var(--font-body);font-size:.85rem;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+        </div>
+        <button onclick="submitStudentSwap()" style="padding:12px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:var(--font-body);font-size:.9rem;font-weight:700;cursor:pointer;transition:all .25s;box-shadow:0 4px 16px rgba(59,130,246,.3)">Submit Swap Request</button>
+        <div id="swapMsg" style="min-height:22px;font-size:.82rem;text-align:center"></div>
+      </div>
+
+      <!-- My swap requests -->
+      <div style="margin-top:24px">
+        <div class="sec-title" style="font-size:.85rem">My Swap Requests</div>
+        <div id="mySwapList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duty Peers Tab -->
+  <div class="tab-panel" id="tab-peers">
+    <div class="section">
+      <div class="sec-title">👥 Students on Duty With You</div>
+      <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:16px">All students scheduled on the same duty days as you.</p>
+      <div id="allPeersList"><div class="empty-msg">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Tab -->
+  <div class="tab-panel" id="tab-leaderboard">
+    <div class="lb-hero">
+      <div class="lb-hero-title">🏆 Points Leaderboard</div>
+      <div class="lb-hero-sub">Rankings by duty performance points across all Media Unit students</div>
+    </div>
+    <div class="podium" id="spPodium"><div style="flex:1;text-align:center;color:var(--text-muted)">Loading…</div></div>
+    <div style="margin-bottom:10px"><span class="lb-count" id="spLbCount" style="font-size:.78rem;color:var(--text-muted)"></span></div>
+    <div class="lb-table-wrap">
+      <div id="spLbLoading" class="loading-state"><div class="spinner-ring" style="margin:0 auto 12px"></div>Loading leaderboard…</div>
+      <table class="lb-table" id="spLbTable" style="display:none">
+        <thead><tr>
+          <th style="width:48px">#</th>
+          <th>Student</th>
+          <th style="width:80px">Grade</th>
+          <th style="width:110px">Department</th>
+          <th style="width:90px">Points</th>
+          <th style="width:160px">Duty %</th>
+        </tr></thead>
+        <tbody id="spLbBody"></tbody>
+      </table>
+      <div class="empty-state" id="spLbEmpty" style="display:none">No students match the filters.</div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot, collection, query, where, getDocs, addDoc, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",authDomain:"rcmu-db.firebaseapp.com",projectId:"rcmu-db",storageBucket:"rcmu-db.firebasestorage.app",messagingSenderId:"1043134894673",appId:"1:1043134894673:web:dbd89dd271749cea6fde70"};
+const app=initializeApp(cfg); const db=getFirestore(app);
+
+let student=null, dutyLogs=[], schedules=[];
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+const today=new Date(); const todayStr=today.toISOString().slice(0,10);
+
+// Auth
+try{
+  const r=sessionStorage.getItem('rcmu_student');
+  if(!r){window.location.href='student-login.html';}
+  else{student=JSON.parse(r);}
+}catch(e){window.location.href='student-login.html';}
+
+window.doLogout=()=>{sessionStorage.removeItem('rcmu_student');window.location.href='student-login.html';};
+window.switchTab=function(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name)?.classList.add('active');
+  if(btn) btn.classList.add('active');
+};
+
+// ── Load ──
+async function init(){
+  // Live student doc
+  onSnapshot(doc(db,'RCMU_DB',student._docId),snap=>{
+    if(!snap.exists()) return;
+    student={_docId:snap.id,...snap.data()};
+    sessionStorage.setItem('rcmu_student',JSON.stringify(student));
+    renderHero(); renderStats(); renderProfile(); renderNotifBanner();
+  });
+  // Duty logs
+  const logsQ=query(collection(db,'RCMU_DutyLogs'),where('studentDocId','==',student._docId));
+  onSnapshot(logsQ,snap=>{
+    dutyLogs=snap.docs.map(d=>({_logId:d.id,...d.data()}));
+    renderStats(); renderCalendar(); renderTimeline(); renderPointsLog(); populateAppealDates();
+  });
+  // Schedules
+  onSnapshot(collection(db,'RCMU_DutySchedules'),snap=>{
+    schedules=snap.docs.map(d=>({_id:d.id,...d.data()}));
+    renderUpcoming(); renderCalendar(); renderCountdown();
+    renderDutyPeers();
+  });
+  // Appeals
+  const appQ=query(collection(db,'RCMU_Appeals'),where('studentDocId','==',student._docId));
+  onSnapshot(appQ,snap=>renderAppeals(snap.docs.map(d=>({_id:d.id,...d.data()}))));
+  // Announcements — real-time listener (no filter needed, renderNotices filters by audience)
+  onSnapshot(collection(db,'RCMU_Announcements'), snap => {
+    const list = snap.docs.map(d=>({_id:d.id,...d.data()}));
+    renderNotices(list);
+    // Show unread count on Notices tab button
+    const unread = list.filter(a=>(!a.audience||a.audience==='all'||a.audience==='students')&&a.createdAt&&(Date.now()-new Date(a.createdAt).getTime())<86400000*3).length;
+    document.querySelectorAll('.tab-btn,.tab-dd-item').forEach(b=>{
+      if(b.textContent.trim().startsWith('📢 Notices')){
+        b.innerHTML = unread>0?`📢 Notices <span style="background:var(--accent);color:#fff;font-size:.6rem;padding:1px 6px;border-radius:10px;margin-left:3px">${unread}</span>`:'📢 Notices';
+      }
+    });
+  });
+  // Swap requests (as requester)
+  const swapQ=query(collection(db,'RCMU_DutySwaps'),where('requesterId','==',student._docId));
+  onSnapshot(swapQ,snap=>renderMySwaps(snap.docs.map(d=>({_id:d.id,...d.data()}))));
+  // In-app notifications
+  const nQ=query(collection(db,'RCMU_Notifications'),where('recipientDocId','==',student._docId));
+  onSnapshot(nQ,snap=>{
+    const notifs=snap.docs.map(d=>({_nid:d.id,...d.data()})).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+    renderNotifPanel(notifs);
+    // Also show browser notification for new unread swap results
+    notifs.filter(n=>!n.read&&n.type?.startsWith('swap_')).forEach(n=>{
+      const key='rcmu_shown_'+n._nid;
+      if(!sessionStorage.getItem(key)){
+        sessionStorage.setItem(key,'1');
+        if(Notification.permission==='granted'){
+          new Notification('RCMU Swap Update',{body:n.message,icon:'/icon-192.png',tag:n._nid});
+        }
+      }
+    });
+  });
+}
+
+// ── HERO ──
+function renderHero(){
+  const s=student;
+  const ini=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const avEl=document.getElementById('heroAvatar');
+  if(s.profileImageUrl){
+    avEl.innerHTML=`<img src="${s.profileImageUrl}" alt="${s.fullname}" onerror="this.parentNode.innerHTML='${ini}'">`;
+  } else { avEl.textContent=ini; }
+  document.getElementById('heroName').textContent=s.fullname||'—';
+  document.getElementById('heroNick').textContent=s.nickname?`"${s.nickname}"`:'';
+  const tags=document.getElementById('heroTags'); tags.innerHTML='';
+  const add=(t,c='')=>{const el=document.createElement('span');el.className='h-tag '+c;el.textContent=t;tags.appendChild(el);};
+  if(s.grade) add('Grade '+s.grade);
+  if(s.studentClass) add('Class '+s.studentClass);
+  if(s.role) add(s.role.split('/')[0].trim(),'gold');
+  if(s.department) add(s.department,'green');
+  if(s.status) add(s.status==='active'?'✓ Active':'⊘ Inactive',s.status==='active'?'green':'red');
+  if(s.experienceLevel) add(s.experienceLevel);
+  // Duty ring
+  const pct=Math.max(0,Math.min(100,Number(s.dutyPercentage)||0));
+  const circ=213.63; const off=circ-(pct/100)*circ;
+  setTimeout(()=>{ document.getElementById('dutyRingFill').style.strokeDashoffset=off; },150);
+  document.getElementById('dutyRingLabel').textContent=pct+'%';
+}
+
+// ── STATS ──
+function renderStats(){
+  const pts=dutyLogs.reduce((a,l)=>a+(l.pointChange||(l.type==='present'?10:l.type==='late'?5:-25)),0);
+  const streak=calcStreak();
+  const presentCount=dutyLogs.filter(l=>l.type==='present'||l.type==='late').length;
+  const achiev=Array.isArray(student.achievements)?student.achievements.length:(student.achievements?1:0);
+  animNum('stPts',pts); animNum('stStreak',streak); animNum('stPresent',presentCount); animNum('stAchiev',achiev);
+}
+function calcStreak(){
+  const dSet=new Set(dutyLogs.filter(l=>l.type==='present'||l.type==='late').map(l=>l.date));
+  let s=0; const d=new Date(today);
+  for(let i=0;i<90;i++){
+    const k=d.toISOString().slice(0,10);
+    if(dSet.has(k)){s++;d.setDate(d.getDate()-1);} else break;
+  }
+  return s;
+}
+function animNum(id,val){
+  const el=document.getElementById(id); if(!el) return;
+  const sign=val<0?-1:1; const abs=Math.abs(val); let cur=0;
+  const step=Math.max(1,Math.ceil(abs/18));
+  const tick=()=>{
+    cur+=step;
+    if(cur>=abs){el.textContent=val;return;}
+    el.textContent=sign*cur;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// ── PROFILE ──
+function renderProfile(){
+  const s=student;
+  const flds=[['Full Name',s.fullname],['Student ID',s.studentId],['Grade',s.grade],['Class',s.studentClass],['Role(s)',s.role],['Department',s.department],['Age Category',s.experienceLevel],['Birthday',s.birthday],['Joined Year',s.joinedYear],['Email',s.email,true],['Phone',s.phone,true],['WhatsApp',s.whatsapp,true],['Address',s.address,true]];
+  document.getElementById('pfGrid').innerHTML=flds.map(([l,v,f])=>`<div class="pf${f?' full':''}"><div class="pf-lbl">${l}</div><div class="pf-val">${v||'—'}</div></div>`).join('');
+}
+
+// ── CALENDAR ──
+window.changeMonth=function(dir){ calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); };
+function renderCalendar(){
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calLbl').textContent=`${months[calMonth]} ${calYear}`;
+  const cal=document.getElementById('dutyCal');
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html=days.map(d=>`<div class="dc-hdr">${d}</div>`).join('');
+  const first=new Date(calYear,calMonth,1).getDay();
+  const dim=new Date(calYear,calMonth+1,0).getDate();
+  const pSet=new Set(dutyLogs.filter(l=>l.type==='present').map(l=>l.date));
+  const lSet=new Set(dutyLogs.filter(l=>l.type==='late').map(l=>l.date));
+  const aSet=new Set(dutyLogs.filter(l=>l.type==='absent').map(l=>l.date));
+  const sSet=new Set();
+  schedules.forEach(s=>{
+    if(!Array.isArray(s.dates)) return;
+    if(!isAssignedToMe(s)) return;
+    s.dates.forEach(d=>sSet.add(d));
+  });
+  for(let i=0;i<first;i++) html+=`<div class="dc-day empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls='dc-day '; let t=ds;
+    if(pSet.has(ds)){cls+='present';t+=' ✓ Present';}
+    else if(lSet.has(ds)){cls+='late';t+=' ⚠ Late';}
+    else if(aSet.has(ds)){cls+='absent';t+=' ✗ Absent';}
+    else if(sSet.has(ds)){cls+='noduty sched';t+=' — Scheduled';}
+    else cls+='noduty';
+    if(ds===todayStr) cls+=' today';
+    html+=`<div class="${cls}" title="${t}">${d}</div>`;
+  }
+  cal.innerHTML=html;
+}
+
+// ── TIMELINE ──
+function renderTimeline(){
+  const streak=calcStreak();
+  const sbEl=document.getElementById('streakBadge');
+  sbEl.innerHTML=streak>0?`<div class="streak-badge"><span class="streak-fire">🔥</span>${streak}-day duty streak!</div>`:'';
+  const items=[];
+  const acts=Array.isArray(student.dutyActivities)?student.dutyActivities:(student.dutyActivities?[{text:student.dutyActivities,createdAt:''}]:[]);
+  const achvs=Array.isArray(student.achievements)?student.achievements:(student.achievements?[{text:student.achievements,createdAt:''}]:[]);
+  acts.forEach(a=>items.push({type:'activity',text:a.text,date:a.createdAt}));
+  achvs.forEach(a=>items.push({type:'achievement',text:a.text,date:a.createdAt}));
+  dutyLogs.filter(l=>l.type==='present'||l.type==='late').forEach(l=>items.push({type:l.type,text:`Duty ${l.type} — ${l.period||'General'}`,date:l.timestamp||l.date}));
+  items.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const tl=document.getElementById('timeline');
+  if(!items.length){tl.innerHTML='<div class="empty-msg">No activity recorded yet.</div>';return;}
+  tl.innerHTML=items.slice(0,30).map(i=>{
+    const icon=i.type==='achievement'?'🏆':i.type==='present'?'✅':i.type==='late'?'⚠️':'📌';
+    const d=i.date?new Date(i.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
+    return `<div class="tl-item"><span class="tl-icon">${icon}</span><div><div class="tl-text">${i.text}</div>${d?`<div class="tl-date">${d}</div>`:''}</div></div>`;
+  }).join('');
+}
+
+// ── POINTS LOG ──
+function renderPointsLog(){
+  const log=document.getElementById('ptsLog');
+  if(!dutyLogs.length){log.innerHTML='<div class="empty-msg">No duty records yet.</div>';return;}
+  const sorted=[...dutyLogs].sort((a,b)=>(b.timestamp||b.date||'').localeCompare(a.timestamp||a.date||''));
+  log.innerHTML=sorted.map(l=>{
+    const pts=l.pointChange||(l.type==='present'?10:l.type==='late'?5:-25);
+    const cls=pts>0?'pos':pts===0?'warn':'neg';
+    const icon=l.type==='present'?'✅':l.type==='late'?'⚠️':'❌';
+    const d=l.timestamp?new Date(l.timestamp).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):l.date||'';
+    return `<div class="pt-row"><div><div class="pt-desc">${icon} ${l.type==='present'?'Marked Present':l.type==='late'?'Marked Late':'Absent'} — ${l.period||'General'}</div><div class="pt-when">${d}</div></div><div class="pt-val ${cls}">${pts>0?'+':''}${pts}</div></div>`;
+  }).join('');
+}
+
+// ── UPCOMING + COUNTDOWN ──
+
+// Robust assignment check — handles:
+//   • assignedStudentIds missing/null     → treat as "all students"
+//   • assignedStudentIds is empty array   → treat as "all students" (admin selected 'all')
+//   • IDs stored as Firestore doc IDs     → compare vs student._docId
+//   • IDs stored as custom studentId      → compare vs student.studentId
+//   • assignType === 'all'                → always include
+function isAssignedToMe(schedule) {
+  // If assignType is explicitly 'all', always include
+  if (schedule.assignType === 'all') return true;
+  const ids = schedule.assignedStudentIds;
+  // Missing, null, or empty array → treat as assigned to everyone
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return true;
+  // Match against both the Firestore doc ID and the human-readable student ID
+  return ids.includes(student._docId) || ids.includes(student.studentId);
+}
+
+function getMyUpcoming(){
+  const upcoming=[];
+  schedules.forEach(s=>{
+    if(!Array.isArray(s.dates)) return;
+    if(!isAssignedToMe(s)) return;
+    s.dates.filter(d=>d>=todayStr).forEach(d=>upcoming.push({date:d,label:s.label||'Duty',period:s.period||'',schedId:s._id||''}));
+  });
+  return upcoming.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function renderUpcoming(){
+  const ul=document.getElementById('upcomingList');
+  const list=getMyUpcoming();
+  if(!list.length){ul.innerHTML='<div class="empty-msg">No upcoming duties scheduled.</div>';return;}
+  ul.innerHTML=list.slice(0,10).map(u=>{
+    const d=new Date(u.date+'T00:00:00');
+    const fmt=d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'});
+    const diff=Math.ceil((d-today)/(1000*60*60*24));
+    const diffTxt=diff===0?'Today':diff===1?'Tomorrow':`In ${diff} days`;
+    const cls=diff<=1?'red':diff<=3?'gold':'accent';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 13px;background:var(--bg-panel);border-radius:var(--radius-sm);margin-bottom:6px;font-size:0.83rem;transition:background var(--transition)" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-panel)'">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--${cls});flex-shrink:0"></span>
+      <span style="color:var(--text-muted);font-size:0.7rem;min-width:90px">${fmt}</span>
+      <span style="flex:1;color:var(--text)">${u.label}${u.period?' — '+u.period:''}</span>
+      <span style="font-size:0.7rem;font-weight:600;color:var(--${cls})">${diffTxt}</span>
+    </div>`;
+  }).join('');
+
+  // Notification count (duties in next 3 days)
+  const soon=list.filter(u=>{ const d=new Date(u.date+'T00:00:00'); return Math.ceil((d-today)/(1000*60*60*24))<=3; });
+  const dotEl=document.getElementById('notifDot');
+  const cntEl=document.getElementById('notifCount');
+  if(soon.length>0){ dotEl.style.display='block'; cntEl.textContent=soon.length; } else { dotEl.style.display='none'; }
+}
+function renderCountdown(){
+  const list=getMyUpcoming().slice(0,3);
+  const sec=document.getElementById('countdownSection');
+  if(!list.length){sec.style.display='none';return;}
+  const soon=list.filter(u=>Math.ceil((new Date(u.date+'T00:00:00')-today)/(1000*60*60*24))<=3);
+  if(!soon.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  document.getElementById('cdItems').innerHTML=soon.map(u=>{
+    const d=new Date(u.date+'T00:00:00');
+    const diff=Math.ceil((d-today)/(1000*60*60*24));
+    const cls=diff===0?'urgent':diff===1?'soon':'upcoming';
+    const diffCls=diff===0?'urgent':diff===1?'soon':'upcoming';
+    const lbl=diff===0?'TODAY':diff===1?'TOMORROW':`${diff} DAYS`;
+    return `<div class="cd-item ${cls}"><div><div class="cd-days ${diffCls}">${diff===0?'🔴':diff===1?'🟡':'🔵'}</div><div class="cd-lbl">${lbl}</div></div><div><div class="cd-name">${u.label}</div><div class="cd-date">${new Date(u.date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long'})} — ${u.period||'General'}</div></div></div>`;
+  }).join('');
+}
+
+// ── ICS CALENDAR EXPORT ───────────────────────────────────────
+window.exportICS = function() {
+  const upcoming = getMyUpcoming();
+  if (!upcoming.length) { showToast('No upcoming duties to export.', 'error'); return; }
+
+  function fmtICSDate(dateStr) {
+    // Format: YYYYMMDD (all-day event)
+    return dateStr.replace(/-/g, '');
+  }
+  function escICS(str) {
+    return (str||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+  }
+
+  const uid_base = `rcmu-${student.studentId||student._docId}`;
+  const prodId = 'RCMU-DutyScheduler';
+  const now = new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+
+  const events = upcoming.map((u, i) => {
+    const dtStart = fmtICSDate(u.date);
+    // All-day events use DTSTART;VALUE=DATE and DTEND = next day
+    const dtEnd = fmtICSDate(
+      new Date(new Date(u.date+'T00:00:00').getTime() + 86400000)
+        .toISOString().slice(0,10)
+    );
+    return [
+      'BEGIN:VEVENT',
+      `UID:${uid_base}-${i}-${u.date}@rcmu`,
+      `DTSTAMP:${now}`,
+      `DTSTART;VALUE=DATE:${dtStart}`,
+      `DTEND;VALUE=DATE:${dtEnd}`,
+      `SUMMARY:📋 ${escICS(u.label)} Duty`,
+      `DESCRIPTION:${escICS(u.period ? u.label+' — '+u.period : u.label)}\\nRahula College Media Unit duty for ${escICS(student.fullname||'')}`,
+      `LOCATION:Rahula College`,
+      `CATEGORIES:RCMU,Duty`,
+      `STATUS:CONFIRMED`,
+      `BEGIN:VALARM`,
+      `TRIGGER:-PT1H`,
+      `ACTION:DISPLAY`,
+      `DESCRIPTION:Reminder: ${escICS(u.label)} duty today`,
+      `END:VALARM`,
+      'END:VEVENT'
+    ].join('\r\n');
+  });
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    `PRODID:-//${prodId}//EN`,
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:RCMU Duties — ${student.fullname||'Student'}`,
+    'X-WR-TIMEZONE:Asia/Colombo',
+    ...events,
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `RCMU_Duties_${student.studentId||'student'}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`📅 Calendar exported — ${upcoming.length} duties`, 'success');
+};
+
+// ── DUTY PEERS (who else is on duty today) ────────────────────
+async function renderDutyPeers() {
+  const section = document.getElementById('dutyPeersSection');
+  const listEl = document.getElementById('dutyPeersList');
+  if (!section || !listEl) return;
+
+  // Find all schedules that include today
+  const todayScheds = schedules.filter(s =>
+    Array.isArray(s.dates) && s.dates.includes(todayStr)
+  );
+  if (!todayScheds.length) { section.style.display = 'none'; return; }
+
+  // Check if student is assigned to any today schedule
+  const myTodayScheds = todayScheds.filter(s => isAssignedToMe(s));
+  if (!myTodayScheds.length) { section.style.display = 'none'; return; }
+
+  // Collect all peer student IDs from those schedules
+  const peerIds = new Set();
+  myTodayScheds.forEach(s => {
+    (s.assignedStudentIds || []).forEach(id => {
+      if (id !== student._docId && id !== student.studentId) peerIds.add(id);
+    });
+  });
+
+  if (!peerIds.size) {
+    listEl.innerHTML = '<div style="font-size:.8rem;color:var(--text-muted)">No other students assigned to your duty today.</div>';
+    section.style.display = 'block';
+    return;
+  }
+
+  // Load peer student records
+  try {
+    const { getDocs, collection: col, query: q, where: wh } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+    const snap = await getDocs(col(db, 'RCMU_DB'));
+    const peers = snap.docs
+      .map(d => ({ _docId: d.id, ...d.data() }))
+      .filter(s => peerIds.has(s._docId) || peerIds.has(s.studentId));
+
+    if (!peers.length) { section.style.display = 'none'; return; }
+
+    listEl.innerHTML = peers.map(p => {
+      const initials = (p.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      return `<div style="display:flex;align-items:center;gap:8px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;min-width:160px">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.78rem;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--text)">${p.fullname||'—'}</div>
+          <div style="font-size:.65rem;color:var(--text-muted)">${p.department||''} · Gr ${p.grade||''}</div>
+        </div>
+      </div>`;
+    }).join('');
+    section.style.display = 'block';
+  } catch(e) { console.warn('Peers load error:', e); }
+}
+
+// ── APPEALS ──
+function populateAppealDates(){
+  const sel=document.getElementById('appealDate'); if(!sel) return;
+  const absent=dutyLogs.filter(l=>l.type==='absent').map(l=>l.date).sort().reverse();
+  sel.innerHTML='<option value="">Select duty date in question…</option>'+absent.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+window.submitAppeal=async function(){
+  const date=document.getElementById('appealDate').value;
+  const text=document.getElementById('appealText').value.trim();
+  if(!date){showToast('⚠️ Select a duty date.','error');return;}
+  if(!text){showToast('⚠️ Describe your appeal.','error');return;}
+  try{
+    await addDoc(collection(db,'RCMU_Appeals'),{studentDocId:student._docId,studentId:student.studentId,studentName:student.fullname,date,reason:text,status:'pending',createdAt:new Date().toISOString()});
+    document.getElementById('appealDate').value=''; document.getElementById('appealText').value='';
+    showToast('✅ Appeal submitted!','success');
+  }catch(e){console.error(e);showToast('❌ Could not submit.','error');}
+};
+function renderAppeals(list){
+  const al=document.getElementById('appealList'); if(!al) return;
+  if(!list.length){al.innerHTML='<div class="empty-msg">No appeals submitted yet.</div>';return;}
+  al.innerHTML=[...list].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(a=>`<div class="appeal-entry"><strong>${a.date}</strong> — ${a.reason}<br><span class="a-status ${a.status}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span>${a.adminNote?`<div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px">Admin: ${a.adminNote}</div>`:''}</div>`).join('');
+}
+
+function showToast(msg,type='success'){
+  const e=document.querySelector('.rcmu-toast'); if(e) e.remove();
+  const t=document.createElement('div'); t.className=`rcmu-toast rcmu-toast-${type}`; t.innerHTML=msg;
+  document.body.appendChild(t); requestAnimationFrame(()=>t.classList.add('rcmu-toast-visible'));
+  setTimeout(()=>{ t.classList.remove('rcmu-toast-visible'); setTimeout(()=>t.remove(),400); },3200);
+}
+
+// ── PWA Install — handled by install-banner-v2 ──
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  // handled by ibInstallBtn
+});
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt(); const r=await deferredPrompt.userChoice;
+  if(r.outcome==='accepted') dismissInstall();
+  deferredPrompt=null;
+});
+window.dismissInstall=function(){
+  document.getElementById('installBanner').classList.remove('show');
+  localStorage.setItem('rcmu_install_dismissed','1');
+};
+if(localStorage.getItem('rcmu_install_dismissed')) document.getElementById('installBanner').style.display='none';
+
+// ── Notification Permission ──
+async function requestNotifPermission(){
+  if(!('Notification' in window)) return;
+  const r = await Notification.requestPermission();
+  renderNotifBanner();
+  if(r==='granted') showToast('🔔 Duty reminders enabled!','success');
+  else showToast('Notifications blocked. Enable in browser settings.','error');
+}
+window.requestNotifPermission = requestNotifPermission;
+
+function renderNotifBanner(){
+  const el = document.getElementById('notifOptIn'); if(!el) return;
+  const perm = ('Notification' in window) ? Notification.permission : 'unsupported';
+  if(perm==='granted'){
+    el.innerHTML=`<div class="notif-banner notif-granted">
+      <span>🔔 Duty reminders are <strong>ON</strong></span>
+      <button onclick="disableNotif()" class="notif-btn-off">Turn Off</button>
+    </div>`;
+  } else if(perm==='denied'){
+    el.innerHTML=`<div class="notif-banner notif-blocked">
+      <span>🔕 Notifications blocked — enable in your browser settings to get duty reminders.</span>
+    </div>`;
+  } else if(perm==='unsupported'){
+    el.innerHTML=`<div class="notif-banner notif-blocked"><span>🔕 Notifications not supported on this browser.</span></div>`;
+  } else {
+    el.innerHTML=`<div class="notif-banner notif-off">
+      <span>🔕 Duty reminders are <strong>OFF</strong></span>
+      <button onclick="requestNotifPermission()" class="notif-btn-on">Enable Reminders</button>
+    </div>`;
+  }
+}
+window.disableNotif = function(){
+  showToast('To fully disable, block notifications in your browser settings.','error');
+};
+
+// ── Service Worker ──
+if ('serviceWorker' in navigator) {
+  // Get base path for GitHub Pages compatibility (e.g. /repo-name/)
+  const swBase = window.location.pathname.replace(/\/[^\/]*$/, '') || '/';
+  navigator.serviceWorker.register(swBase + '/sw.js', { scope: swBase + '/' })
+    .catch(() => {});
+};
+
+
+// ── POPULATE SWAP DUTY DATES ───────────────────────────────
+function populateSwapDates(){
+  const sel=document.getElementById('swapMyDate'); if(!sel) return;
+  const upcoming=getMyUpcoming();
+  sel.innerHTML='<option value="">Select your duty date…</option>'+
+    upcoming.map(u=>`<option value="${u.date}|${u.label}|${u.schedId}">${u.date} — ${u.label} (${u.period||'General'})</option>`).join('');
+}
+
+// ── LOOKUP SWAP FRIEND ─────────────────────────────────────
+let swapFriendDoc = null;
+window.lookupSwapFriend = async function(){
+  const idVal = document.getElementById('swapFriendId').value.trim();
+  const infoEl = document.getElementById('swapFriendInfo');
+  if(!idVal){ infoEl.innerHTML='<span style="color:#fb7185;font-size:.8rem">⚠️ Enter a Student ID</span>'; return; }
+  if(idVal === student.studentId){ infoEl.innerHTML='<span style="color:#fb7185;font-size:.8rem">⚠️ That is your own ID!</span>'; return; }
+  infoEl.innerHTML='<span style="font-size:.8rem;color:var(--text-muted)">Looking up…</span>';
+  try{
+    const snap = await getDocs(query(collection(db,'RCMU_DB'),where('studentId','==',idVal)));
+    if(snap.empty){ infoEl.innerHTML='<span style="color:#fb7185;font-size:.8rem">❌ No student found with that ID</span>'; swapFriendDoc=null; return; }
+    swapFriendDoc = {_docId:snap.docs[0].id,...snap.docs[0].data()};
+    infoEl.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius-sm)">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.82rem;flex-shrink:0">${(swapFriendDoc.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</div>
+      <div><div style="font-size:.85rem;font-weight:700;color:var(--text)">${swapFriendDoc.fullname||'—'}</div><div style="font-size:.7rem;color:var(--text-muted)">${swapFriendDoc.department||''} · Grade ${swapFriendDoc.grade||''}</div></div>
+      <span style="margin-left:auto;font-size:.72rem;padding:3px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)">✓ Found</span>
+    </div>`;
+  }catch(e){ infoEl.innerHTML='<span style="color:#fb7185;font-size:.8rem">❌ Error looking up student</span>'; }
+};
+
+// ── SUBMIT STUDENT SWAP REQUEST ────────────────────────────
+window.submitStudentSwap = async function(){
+  const msgEl = document.getElementById('swapMsg');
+  const dateVal = document.getElementById('swapMyDate').value;
+  const reason = document.getElementById('swapReason').value.trim();
+  if(!swapFriendDoc){ msgEl.innerHTML='<span style="color:#fb7185">⚠️ Look up your friend first</span>'; return; }
+  if(!dateVal){ msgEl.innerHTML='<span style="color:#fb7185">⚠️ Select a duty date</span>'; return; }
+  const [date,label,schedId] = dateVal.split('|');
+  msgEl.innerHTML='<span style="color:var(--text-muted)">Submitting…</span>';
+  try{
+    await addDoc(collection(db,'RCMU_DutySwaps'),{
+      requesterId:student._docId, requesterName:student.fullname||'', requesterGrade:student.grade||'', requesterDept:student.department||'',
+      targetId:swapFriendDoc._docId, targetName:swapFriendDoc.fullname||'', targetGrade:swapFriendDoc.grade||'', targetDept:swapFriendDoc.department||'',
+      dutyDate:date, dutyLabel:label||'Duty', schedId:schedId||'', reason,
+      status:'pending', source:'student', createdAt:new Date().toISOString()
+    });
+    msgEl.innerHTML='<span style="color:var(--green)">✅ Swap request submitted! Awaiting admin approval.</span>';
+    document.getElementById('swapFriendId').value='';
+    document.getElementById('swapFriendInfo').innerHTML='';
+    document.getElementById('swapMyDate').value='';
+    document.getElementById('swapReason').value='';
+    swapFriendDoc=null;
+    setTimeout(()=>{ msgEl.innerHTML=''; },4000);
+  }catch(e){ msgEl.innerHTML='<span style="color:#fb7185">❌ Error submitting request. Try again.</span>'; }
+};
+
+// ── RENDER MY SWAP REQUESTS ────────────────────────────────
+function renderMySwaps(list){
+  const el=document.getElementById('mySwapList'); if(!el) return;
+  if(!list.length){ el.innerHTML='<div class="empty-msg">No swap requests yet.</div>'; return; }
+  const sorted=[...list].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const statusColor={pending:'#f59e0b',approved:'#10b981',rejected:'#ef4444'};
+  el.innerHTML=sorted.map(s=>`
+    <div style="padding:12px 14px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+        <div style="font-size:.82rem;font-weight:700;color:var(--text)">↔ ${s.targetName||'—'}</div>
+        <span style="font-size:.7rem;padding:3px 10px;border-radius:20px;background:${statusColor[s.status]||'#64748b'}18;color:${statusColor[s.status]||'#64748b'};border:1px solid ${statusColor[s.status]||'#64748b'}35;font-weight:700">${(s.status||'pending').toUpperCase()}</span>
+      </div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px">📅 ${s.dutyDate||'—'} — ${s.dutyLabel||''}</div>
+      ${s.reason?`<div style="font-size:.72rem;color:var(--text-muted);margin-top:3px">Reason: ${s.reason}</div>`:''}
+      ${s.adminNote?`<div style="font-size:.72rem;color:var(--accent);margin-top:4px">Admin note: ${s.adminNote}</div>`:''}
+    </div>`).join('');
+}
+
+// ── RENDER ALL DUTY PEERS (all shared duty dates) ──────────
+async function renderAllPeers(){
+  const el=document.getElementById('allPeersList'); if(!el) return;
+  // Find all schedules that have me assigned
+  const myScheds=schedules.filter(s=>Array.isArray(s.dates)&&isAssignedToMe(s));
+  if(!myScheds.length){ el.innerHTML='<div class="empty-msg">No duty schedules found for you.</div>'; return; }
+  // Collect all peer IDs across all my duty dates
+  const peerIds=new Set();
+  myScheds.forEach(s=>(s.assignedStudentIds||[]).forEach(id=>{ if(id!==student._docId&&id!==student.studentId) peerIds.add(id); }));
+  if(!peerIds.size){ el.innerHTML='<div class="empty-msg">No peers found on your duty days.</div>'; return; }
+  try{
+    const snap=await getDocs(collection(db,'RCMU_DB'));
+    const peers=snap.docs.map(d=>({_docId:d.id,...d.data()})).filter(p=>peerIds.has(p._docId)||peerIds.has(p.studentId));
+    if(!peers.length){ el.innerHTML='<div class="empty-msg">No peer records found.</div>'; return; }
+    el.innerHTML=peers.map(p=>{
+      const ini=(p.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      // Shared duty dates
+      const sharedDates=myScheds.filter(s=>(s.assignedStudentIds||[]).includes(p._docId)||(s.assignedStudentIds||[]).includes(p.studentId)).flatMap(s=>s.dates||[]).filter((d,i,a)=>a.indexOf(d)===i).sort().slice(0,3);
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px">
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0">${ini}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.84rem;font-weight:700;color:var(--text)">${p.fullname||'—'}</div>
+          <div style="font-size:.7rem;color:var(--text-muted)">${p.department||''} · Grade ${p.grade||''} · ID: ${p.studentId||'—'}</div>
+          ${sharedDates.length?`<div style="font-size:.68rem;color:var(--accent);margin-top:3px">Shared: ${sharedDates.join(', ')}${sharedDates.length===3?' …':''}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty-msg">Error loading peers.</div>'; console.error(e); }
+}
+
+// ── LEADERBOARD — same design as admin leaderboard.html ──────
+let spLbStudents = [];
+let spLbLoaded = false;
+
+async function loadLeaderboard(){
+  if(spLbLoaded) return;
+  try{
+    const snap = await getDocs(collection(db,'RCMU_DB'));
+    spLbStudents = snap.docs.map(d=>({_docId:d.id,...d.data()})).filter(s=>s.status==='active');
+    spLbLoaded = true;
+    spPopulateGrades();
+    spRenderLeaderboard();
+    document.getElementById('spLbLoading').style.display='none';
+    document.getElementById('spLbTable').style.display='table';
+  }catch(e){ document.getElementById('spLbLoading').innerHTML='<div class="empty-msg">Error loading.</div>'; }
+}
+
+function spPopulateGrades(){
+  const sel=document.getElementById('spLbGrade'); if(!sel||sel.options.length>1) return;
+  const grades=[...new Set(spLbStudents.map(s=>(s.grade||'').toString()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  grades.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent='Grade '+g;sel.appendChild(o);});
+}
+
+function spGetFiltered(){
+  return [...spLbStudents].sort((a,b)=>(Number(b.dutyPoints)||0)-(Number(a.dutyPoints)||0));
+}
+
+function spRenderPodium(top3){
+  const el=document.getElementById('spPodium'); if(!el) return;
+  if(!top3.length){el.innerHTML='';return;}
+  const order=[1,0,2];
+  const rankClass=['rank-1','rank-2','rank-3'];
+  el.innerHTML=order.filter(i=>top3[i]).map(i=>{
+    const s=top3[i]; const rank=i+1;
+    const initials=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    return `<div class="podium-place">
+      <div class="podium-avatar ${rankClass[i]}" style="position:relative">
+        ${rank===1?'<div class="podium-crown">👑</div>':''}${initials}
+      </div>
+      <div class="podium-name" title="${s.fullname||''}">${s.fullname||'—'}</div>
+      <div class="podium-pts ${rankClass[i]}" style="font-size:${rank===1?'1.2rem':'1rem'}">${s.dutyPoints||0} pts</div>
+      <div class="podium-block ${rankClass[i]}">${rank}</div>
+    </div>`;
+  }).join('');
+}
+
+function spRenderLeaderboard(){
+  const list=spGetFiltered();
+  const maxPts=list[0]?Number(list[0].dutyPoints)||1:1;
+  document.getElementById('spLbCount').textContent=list.length+' student'+(list.length!==1?'s':'');
+  spRenderPodium(list.slice(0,3));
+  const tbody=document.getElementById('spLbBody');
+  const empty=document.getElementById('spLbEmpty');
+  if(!list.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  const myDocId=student._docId;
+  tbody.innerHTML=list.map((s,i)=>{
+    const rank=i+1;
+    const rankCls=rank===1?'top1':rank===2?'top2':rank===3?'top3':rank<=10?'top10':'';
+    const pts=Number(s.dutyPoints)||0;
+    const pct=Number(s.dutyPercentage)||0;
+    const barW=maxPts>0?Math.round((pts/maxPts)*100):0;
+    const initials=(s.fullname||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const isMe=s._docId===myDocId;
+    return `<tr style="animation:rowIn .2s ${Math.min(i,.4)*0.04}s both${isMe?';background:rgba(59,130,246,.06)':''}">
+      <td><span class="lb-rank ${rankCls}">${rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank}</span></td>
+      <td>
+        <div class="lb-name-cell">
+          <div class="lb-avatar-sm">${initials}</div>
+          <div>
+            <div class="lb-name">${s.fullname||'—'}${isMe?'<span class="you-badge">You</span>':''}</div>
+            <div class="lb-sub">${s.studentId||'—'} · ${s.role||'—'}</div>
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--text-sub);font-size:.78rem">Grade ${s.grade||'—'}</td>
+      <td><span class="dept-chip">${s.department||'—'}</span></td>
+      <td><span class="lb-pts">${pts}</span></td>
+      <td>
+        <div class="lb-bar-wrap">
+          <div class="lb-bar"><div class="lb-bar-fill" style="width:${pct}%"></div></div>
+          <span class="lb-pct">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+
+
+async function renderLeaderboard(){ await loadLeaderboard(); }
+
+// Call these when tabs are first opened (lazy load)
+const _origSwitchTab = window.switchTab;
+window.switchTab = function(name, btn){
+  _origSwitchTab(name, btn);
+  if(name==='swap') populateSwapDates();
+  if(name==='peers') renderAllPeers();
+  if(name==='leaderboard') loadLeaderboard();
+};
+
+
+// ── Mobile tab dropdown ────────────────────────────────────
+window.toggleTabMenu = function(){
+  const btn = document.getElementById('tabHamBtn');
+  const dd  = document.getElementById('tabDropdown');
+  const open = dd.classList.toggle('open');
+  btn.classList.toggle('open', open);
+};
+
+window.mobileTab = function(name, icon, label){
+  // Update hamburger button label
+  document.getElementById('tabHamIcon').textContent = icon;
+  document.getElementById('tabHamLabel').textContent = label;
+  // Update active state in dropdown
+  document.querySelectorAll('.tab-dd-item').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  // Close dropdown
+  document.getElementById('tabDropdown').classList.remove('open');
+  document.getElementById('tabHamBtn').classList.remove('open');
+  // Switch tab (reuse existing switchTab, pass null for btn since desktop tabs don't need updating)
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name)?.classList.add('active');
+  // Trigger lazy-load for leaderboard/peers/swap
+  if(name === 'swap') populateSwapDates();
+  if(name === 'peers') renderAllPeers();
+  if(name === 'leaderboard') loadLeaderboard();
+};
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  const dd = document.getElementById('tabDropdown');
+  if(!dd?.classList.contains('open')) return;
+  if(!e.target.closest('#tabDropdown') && !e.target.closest('#tabHamBtn')) {
+    dd.classList.remove('open');
+    document.getElementById('tabHamBtn')?.classList.remove('open');
+  }
+});
+
+
+// ── In-app notification panel ──────────────────────────────
+let _notifPanelOpen = false;
+window.toggleNotifPanel = function(){
+  const panel = document.getElementById('notifPanel');
+  _notifPanelOpen = !_notifPanelOpen;
+  panel.style.display = _notifPanelOpen ? 'block' : 'none';
+};
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#inAppBell') && !e.target.closest('#notifPanel')){
+    document.getElementById('notifPanel').style.display='none';
+    _notifPanelOpen=false;
+  }
+});
+
+function renderNotifPanel(notifs){
+  const badge = document.getElementById('bellBadge');
+  const list  = document.getElementById('notifList');
+  const unread = notifs.filter(n=>!n.read).length;
+  if(badge){
+    badge.textContent = unread||'';
+    badge.style.display = unread>0?'flex':'none';
+  }
+  if(!list) return;
+  if(!notifs.length){ list.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:.8rem">No notifications yet.</div>'; return; }
+  list.innerHTML = notifs.map(n=>{
+    const typeColor = n.type==='swap_approved'?'var(--green)':n.type==='swap_rejected'?'#f87171':'var(--accent)';
+    return `<div onclick="markRead('${n._nid}',this)" style="padding:10px 12px;border-radius:var(--radius-sm);margin-bottom:3px;background:${n.read?'none':'rgba(59,130,246,.06)'};border:1px solid ${n.read?'transparent':'rgba(59,130,246,.15)'};cursor:pointer;transition:all .2s">
+      <div style="font-size:.8rem;color:${typeColor};font-weight:${n.read?'500':'700'}">${n.message||'—'}</div>
+      <div style="font-size:.65rem;color:var(--text-muted);margin-top:3px">${n.createdAt?new Date(n.createdAt).toLocaleString():''}</div>
+    </div>`;
+  }).join('');
+}
+
+window.markRead = async function(nid, el){
+  try{
+    await updateDoc(doc(db,'RCMU_Notifications',nid),{read:true});
+    el.style.background='none'; el.style.borderColor='transparent';
+  }catch(e){}
+};
+
+window.markAllRead = async function(){
+  const list=document.querySelectorAll('#notifList [onclick^="markRead"]');
+  // batch mark all
+  const snap=await getDocs(query(collection(db,'RCMU_Notifications'),where('recipientDocId','==',student._docId),where('read','==',false)));
+  await Promise.all(snap.docs.map(d=>updateDoc(d.ref,{read:true})));
+};
+
+
+// ── ANNOUNCEMENTS / NOTICES ────────────────────────────────
+const PRIORITY_ICONS  = {urgent:'🔴',high:'🟡',normal:'🔵',info:'🟢'};
+const PRIORITY_LABELS = {urgent:'Urgent',high:'High Priority',normal:'Normal',info:'Info'};
+
+function renderNotices(list){
+  const el = document.getElementById('spAnnList'); if(!el) return;
+  // filter: show 'all' and 'students' audiences only
+  const filtered = [...list]
+    .filter(a => !a.audience || a.audience === 'all' || a.audience === 'students')
+    .sort((a,b)=>{
+      if(a.pinned && !b.pinned) return -1;
+      if(!a.pinned && b.pinned) return 1;
+      return (b.createdAt||'').localeCompare(a.createdAt||'');
+    });
+  if(!filtered.length){
+    el.innerHTML='<div class="empty-msg" style="padding:40px;text-align:center"><div style="font-size:2rem;margin-bottom:8px">📭</div>No notices yet.</div>';
+    return;
+  }
+  el.innerHTML = filtered.map((a,i) => {
+    const dt = a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="ann-card priority-${a.priority||'normal'}" style="animation-delay:${i*.04}s">
+      <div class="ann-card-header">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="ann-type-badge ${a.priority||'normal'}">${PRIORITY_ICONS[a.priority||'normal']} ${PRIORITY_LABELS[a.priority||'normal']}</span>
+          ${a.pinned?'<span class="ann-pin-badge">📌 Pinned</span>':''}
+        </div>
+      </div>
+      <div class="ann-title">${a.title||'—'}</div>
+      <div class="ann-body">${a.body||''}</div>
+      <div class="ann-meta">
+        <span class="ann-author">by ${a.author||'Admin'}</span>
+        <span class="ann-audience-badge">👥 ${a.audience==='all'?'Everyone':a.audience==='staff'?'Staff Only':'Students'}</span>
+        <span class="ann-date">${dt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+init();
+</script>
+<!-- PWA Install Banner v2 -->
+<div class="install-banner-v2" id="installBannerV2">
+  <div class="ib-icon">📱</div>
+  <div class="ib-text">
+    <div class="ib-title">Install RCMU App</div>
+    <div class="ib-sub">Add to home screen for the best experience</div>
+    <div class="ib-features">
+      <span class="ib-feature">🔔 Duty reminders</span>
+      <span class="ib-feature">⚡ Offline access</span>
+      <span class="ib-feature">🚀 Faster loading</span>
+    </div>
+  </div>
+  <div class="ib-actions">
+    <button class="ib-install" id="ibInstallBtn">Install Now</button>
+    <button class="ib-dismiss" id="ibDismissBtn">Not now</button>
+  </div>
+</div>
+<!-- iOS Safari install tip -->
+<div class="ios-install-tip" id="iosInstallTip">
+  <div class="ios-tip-icon">📲</div>
+  <div class="ios-tip-title">Add RCMU to Your Home Screen</div>
+  <div class="ios-tip-steps">
+    Tap the <span>Share button ⬆</span> in Safari<br>
+    then tap <span>"Add to Home Screen"</span>
+  </div>
+  <button class="ios-tip-close" id="iosTipClose">Got it</button>
+</div>
+
+<script>
+(function(){
+  const DISMISSED_KEY = 'rcmu_install_dismissed_v2';
+  const IOS_KEY       = 'rcmu_ios_tip_dismissed';
+  let deferredPromptV2 = null;
+
+  function isIOS(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  }
+  function isInStandaloneMode(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  }
+  function show(id){ const el=document.getElementById(id); el&&el.classList.add('show'); }
+  function hide(id){ const el=document.getElementById(id); el&&el.classList.remove('show'); }
+
+  // Android / Chrome — beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPromptV2 = e;
+    if(!localStorage.getItem(DISMISSED_KEY) && !isInStandaloneMode()){
+      setTimeout(()=>show('installBannerV2'), 3000);
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Install button
+    const installBtn = document.getElementById('ibInstallBtn');
+    installBtn&&installBtn.addEventListener('click', async()=>{
+      if(!deferredPromptV2) return;
+      hide('installBannerV2');
+      deferredPromptV2.prompt();
+      const r = await deferredPromptV2.userChoice;
+      if(r.outcome === 'accepted') localStorage.setItem(DISMISSED_KEY,'1');
+      deferredPromptV2 = null;
+    });
+
+    // Dismiss button
+    const dismissBtn = document.getElementById('ibDismissBtn');
+    dismissBtn&&dismissBtn.addEventListener('click',()=>{
+      hide('installBannerV2');
+      localStorage.setItem(DISMISSED_KEY,'1');
+    });
+
+    // iOS tip
+    const iosTipClose = document.getElementById('iosTipClose');
+    iosTipClose&&iosTipClose.addEventListener('click',()=>{
+      hide('iosInstallTip');
+      localStorage.setItem(IOS_KEY,'1');
+    });
+
+    // Show iOS tip on iOS Safari (not already installed)
+    if(isIOS() && !isInStandaloneMode() && !localStorage.getItem(IOS_KEY)){
+      setTimeout(()=>show('iosInstallTip'), 4500);
+    }
+  });
+
+  // Already installed
+  window.addEventListener('appinstalled', ()=>{
+    hide('installBannerV2');
+    localStorage.setItem(DISMISSED_KEY,'1');
+    if(typeof showToast === 'function') showToast('✅ App installed successfully!','success');
+  });
+})();
+</script>
+</body>
+</html>

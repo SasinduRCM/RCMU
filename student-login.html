@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Favicon all sizes -->
+  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon"         href="icon-32.png">
+  <!-- Apple / iOS icons -->
+  <link rel="apple-touch-icon"              href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <!-- Windows / PWA tile -->
+  <meta name="msapplication-TileImage"   content="icon-144.png">
+  <meta name="msapplication-TileColor"   content="#0b0f1a">
+  <meta name="msapplication-config"      content="none">
+  <!-- Favicon -->
+  <!-- SEO Meta -->
+  <meta name="description" content="Student login portal for the Rahula College Media Unit.">
+  <meta name="keywords" content="Rahula College, Media Unit, student portal, RCMU">
+  <meta name="author" content="Sasindu Ruwaneka">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Student Portal — Rahula College Media Unit">
+  <meta property="og:description" content="Student login portal for the Rahula College Media Unit.">
+  <meta property="og:image" content="Icon.png">
+  <meta property="og:site_name" content="Rahula College Media Unit">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Student Portal — Rahula College Media Unit">
+  <meta name="twitter:description" content="Student login portal for the Rahula College Media Unit.">
+  <meta name="twitter:image" content="Icon.png">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RCMU">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="RCMU">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body.login-page {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100dvh; padding: 20px; overflow: hidden;
+    }
+    .bg-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: orbFloat 8s ease-in-out infinite; }
+    .bg-orb-1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(16,185,129,0.13) 0%, transparent 70%); top: -120px; left: -120px; }
+    .bg-orb-2 { width: 340px; height: 340px; background: radial-gradient(circle, rgba(59,130,246,0.10) 0%, transparent 70%); bottom: -80px; right: -80px; animation-delay: -3s; }
+    .bg-orb-3 { width: 200px; height: 200px; background: radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%); top: 40%; left: 60%; animation-delay: -5s; animation-duration: 11s; }
+    @keyframes orbFloat { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(18px,-22px) scale(1.04)} 66%{transform:translate(-14px,14px) scale(0.97)} }
+    body.login-page::before { content:''; position:fixed; inset:0; background-image:radial-gradient(circle,rgba(16,185,129,0.07) 1px,transparent 1px); background-size:36px 36px; pointer-events:none; z-index:0; animation:gridPulse 6s ease-in-out infinite; }
+    @keyframes gridPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+    .login-card { position:relative; z-index:1; width:100%; max-width:460px; background:var(--bg-card); border:1px solid var(--border-soft); border-radius:20px; padding:44px 36px 38px; box-shadow:0 8px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(16,185,129,0.06); animation:cardEntrance 0.7s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes cardEntrance { from{opacity:0;transform:translateY(32px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+    .login-card::before { content:''; position:absolute; top:0; left:20%; right:20%; height:2px; background:linear-gradient(90deg,transparent,var(--green),var(--accent2),transparent); border-radius:2px; animation:borderGlow 3s ease-in-out infinite; }
+    @keyframes borderGlow { 0%,100%{opacity:0.6;left:20%;right:20%} 50%{opacity:1;left:10%;right:10%} }
+    .login-logos { display:flex; justify-content:center; align-items:center; gap:20px; margin-bottom:24px; animation:fadeSlideUp 0.6s 0.15s cubic-bezier(.22,1,.36,1) both; }
+    .login-logo-img { height:68px; width:68px; object-fit:contain; border-radius:50%; border:2px solid var(--border-soft); background:var(--bg-panel); padding:6px; box-shadow:0 0 20px rgba(16,185,129,0.15); transition:box-shadow 0.3s,transform 0.3s; }
+    .login-logo-img:hover { box-shadow:0 0 30px rgba(16,185,129,0.30); transform:scale(1.05); }
+    .login-logo-divider { width:1px; height:48px; background:linear-gradient(to bottom,transparent,var(--border-soft),transparent); }
+    .login-title { text-align:center; margin-bottom:8px; animation:fadeSlideUp 0.6s 0.22s cubic-bezier(.22,1,.36,1) both; }
+    .login-title h1 { font-family:var(--font-display); font-size:clamp(1.1rem,4vw,1.45rem); font-weight:700; color:var(--text); letter-spacing:-0.01em; line-height:1.3; }
+    .login-title p { font-size:0.8rem; color:var(--text-muted); margin-top:5px; }
+    .login-badge { display:flex; align-items:center; justify-content:center; gap:8px; margin:18px 0 26px; animation:fadeSlideUp 0.6s 0.28s cubic-bezier(.22,1,.36,1) both; }
+    .badge-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border-radius:20px; background:rgba(16,185,129,0.10); border:1px solid rgba(16,185,129,0.20); font-size:0.72rem; font-weight:600; color:var(--green); letter-spacing:0.08em; text-transform:uppercase; }
+    .badge-chip::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulseDot 2s ease-in-out infinite; }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+    .login-field { margin-bottom:16px; animation:fadeSlideUp 0.6s cubic-bezier(.22,1,.36,1) both; }
+    .login-field:nth-child(1){animation-delay:0.32s} .login-field:nth-child(2){animation-delay:0.38s}
+    .login-field label { display:block; font-size:0.75rem; font-weight:600; color:var(--text-sub); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:7px; }
+    .login-field .input-wrap { position:relative; }
+    .login-field .input-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:1rem; pointer-events:none; transition:color var(--transition); }
+    .login-field input { width:100%; padding:12px 14px 12px 38px; border-radius:var(--radius-sm); border:1px solid var(--border-soft); background:var(--bg-panel); color:var(--text); font-family:var(--font-body); font-size:0.9rem; outline:none; transition:border-color var(--transition),box-shadow var(--transition); }
+    .login-field input::placeholder { color:var(--text-muted); }
+    .login-field input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(16,185,129,0.15); }
+    .login-btn { width:100%; padding:13px; border-radius:var(--radius-sm); border:none; background:linear-gradient(135deg,var(--green),var(--accent2)); color:#fff; font-family:var(--font-body); font-size:0.95rem; font-weight:700; cursor:pointer; letter-spacing:0.05em; transition:all 0.25s cubic-bezier(.4,0,.2,1); box-shadow:0 4px 20px rgba(16,185,129,0.35); position:relative; overflow:hidden; margin-top:8px; animation:fadeSlideUp 0.6s 0.44s cubic-bezier(.22,1,.36,1) both; }
+    .login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(16,185,129,0.45); }
+    .login-btn:active { transform:translateY(0); }
+    .login-btn.loading { pointer-events:none; opacity:0.75; }
+    .btn-spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.35); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:8px; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .login-msg { min-height:38px; margin-top:14px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.83rem; font-weight:500; border-radius:var(--radius-sm); padding:0 12px; transition:all 0.3s; animation:fadeSlideUp 0.6s 0.48s cubic-bezier(.22,1,.36,1) both; }
+    .login-msg.error { background:rgba(239,68,68,0.10); border:1px solid rgba(239,68,68,0.20); color:#f87171; padding:10px 12px; }
+    .login-msg.success { background:rgba(16,185,129,0.10); border:1px solid rgba(16,185,129,0.20); color:#34d399; padding:10px 12px; }
+    .login-divider { display:flex; align-items:center; gap:12px; margin:22px 0 18px; animation:fadeSlideUp 0.6s 0.50s cubic-bezier(.22,1,.36,1) both; }
+    .login-divider::before,.login-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+    .login-divider span { font-size:0.72rem; color:var(--text-muted); letter-spacing:0.06em; text-transform:uppercase; white-space:nowrap; }
+    .login-footer { margin-top:24px; text-align:center; font-size:0.72rem; color:var(--text-muted); animation:fadeSlideUp 0.6s 0.54s cubic-bezier(.22,1,.36,1) both; }
+    .admin-link { display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-muted); text-decoration:none; border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 16px; transition:all var(--transition); margin-top:12px; }
+    .admin-link:hover { color:var(--accent); border-color:var(--accent); background:var(--accent-glow); }
+    @media (max-width:480px) { .login-card{padding:32px 22px 28px;border-radius:16px} .login-logo-img{height:54px;width:54px} }
+  </style>
+</head>
+<body class="login-page">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
+  <div class="login-card">
+    <div class="login-logos">
+      <img src="Rahula_College_Crest.png" alt="Rahula College" class="login-logo-img">
+      <div class="login-logo-divider"></div>
+      <img src="Media Unit Original logo.png" alt="Media Unit" class="login-logo-img">
+    </div>
+    <div class="login-title">
+      <h1>Student Portal</h1>
+      <p>Rahula College Media Unit</p>
+    </div>
+    <div class="login-badge">
+      <span class="badge-chip">Student Access</span>
+    </div>
+
+    <div class="login-field">
+      <label for="studentIdInput">Student ID</label>
+      <div class="input-wrap">
+        <input type="text" id="studentIdInput" placeholder="Enter your Student ID" autocomplete="off">
+        <span class="input-icon">🎓</span>
+      </div>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doStudentLogin()">View My Profile</button>
+    <div class="login-msg" id="loginMsg"></div>
+
+    <div class="login-divider"><span>Staff Access</span></div>
+    <div style="text-align:center">
+      <a href="login.html" class="admin-link">⚡ Admin / Staff Login</a>
+    </div>
+    <div class="login-footer">Students may only view their own profile data.</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",
+      authDomain: "rcmu-db.firebaseapp.com",
+      projectId: "rcmu-db",
+      storageBucket: "rcmu-db.firebasestorage.app",
+      messagingSenderId: "1043134894673",
+      appId: "1:1043134894673:web:dbd89dd271749cea6fde70"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // If already logged in as student, redirect
+    try {
+      const s = sessionStorage.getItem('rcmu_student');
+      if (s) { const st = JSON.parse(s); if (st._docId) window.location.href = 'student-portal.html'; }
+    } catch(e) {}
+
+    function setMsg(text, type='') {
+      const el = document.getElementById('loginMsg');
+      el.className = 'login-msg' + (type ? ' ' + type : '');
+      el.innerHTML = text;
+    }
+
+    window.doStudentLogin = async function() {
+      const idVal = document.getElementById('studentIdInput').value.trim();
+      if (!idVal) { setMsg('⚠️ Please enter your Student ID.', 'error'); return; }
+
+      const btn = document.getElementById('loginBtn');
+      btn.classList.add('loading');
+      btn.innerHTML = '<span class="btn-spinner"></span> Looking up…';
+      setMsg('');
+
+      try {
+        const q = query(collection(db, 'RCMU_DB'), where('studentId', '==', idVal));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          setMsg('❌ No student found with that ID. Contact your administrator.', 'error');
+          return;
+        }
+        const docSnap = snap.docs[0];
+        const student = { _docId: docSnap.id, ...docSnap.data() };
+        sessionStorage.setItem('rcmu_student', JSON.stringify(student));
+        setMsg('<span>✅</span> Found! Redirecting to your profile…', 'success');
+        setTimeout(() => window.location.href = 'student-portal.html', 900);
+      } catch(err) {
+        console.error(err);
+        setMsg('❌ Error connecting. Please try again.', 'error');
+      } finally {
+        btn.classList.remove('loading');
+        btn.innerHTML = 'View My Profile';
+      }
+    };
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') window.doStudentLogin(); });
+  </script>
+</body>
+</html>

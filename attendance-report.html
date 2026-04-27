@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Report — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Favicon all sizes -->
+  <link rel="icon" type="image/png" sizes="16x16"   href="icon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32"   href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48"   href="icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96"   href="icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon"         href="icon-32.png">
+  <!-- Apple / iOS icons -->
+  <link rel="apple-touch-icon"              href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <!-- Windows / PWA tile -->
+  <meta name="msapplication-TileImage"   content="icon-144.png">
+  <meta name="msapplication-TileColor"   content="#0b0f1a">
+  <meta name="msapplication-config"      content="none">
+  <!-- Favicon -->
+  <!-- SEO Meta -->
+  <meta name="description" content="View attendance and duty performance reports for all Media Unit students.">
+  <meta name="keywords" content="Rahula College, Media Unit, attendance, report, duty, RCMU">
+  <meta name="author" content="Sasindu Ruwaneka">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0f1a">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Attendance Report — Rahula College Media Unit">
+  <meta property="og:description" content="View attendance and duty performance reports for all Media Unit students.">
+  <meta property="og:image" content="Icon.png">
+  <meta property="og:site_name" content="Rahula College Media Unit">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Attendance Report — Rahula College Media Unit">
+  <meta name="twitter:description" content="View attendance and duty performance reports for all Media Unit students.">
+  <meta name="twitter:image" content="Icon.png">
+  <!-- PWA / Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RCMU">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="RCMU">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+  <header class="page-header">
+    <div class="header-logos-row">
+      <div class="header-logo logo-left">
+        <img src="Rahula_College_Crest.png" alt="Rahula College logo">
+      </div>
+      <div class="header-logo logo-right">
+        <img src="Media Unit Original logo.png" alt="Media Unit logo">
+      </div>
+    </div>
+    <div class="header-title">
+      <h1>Rahula College Media Unit</h1>
+      <p class="subtitle">Attendance &amp; duty performance report across all students.</p>
+    </div>
+  </header>
+
+  <div class="header-actions">
+    <span id="currentUser" class="user-badge"></span>
+    <a class="secondary-link" href="index.html">🗄️ DataBase</a>
+    <a class="secondary-link" href="admin.html" id="adminLink" style="display:none">⚙️ Admin</a>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="report-stats">
+    <div class="rpt-stat">
+      <div class="rpt-stat-val" id="rptStatStudents" style="color:var(--accent)">—</div>
+      <div class="rpt-stat-lbl">Students</div>
+    </div>
+    <div class="rpt-stat">
+      <div class="rpt-stat-val" id="rptStatAvgPct" style="color:var(--green)">—</div>
+      <div class="rpt-stat-lbl">Avg Attendance</div>
+    </div>
+    <div class="rpt-stat">
+      <div class="rpt-stat-val" id="rptStatTopDept" style="color:var(--accent2);font-size:1.2rem;padding-top:4px">—</div>
+      <div class="rpt-stat-lbl">Top Department</div>
+    </div>
+    <div class="rpt-stat">
+      <div class="rpt-stat-val" id="rptStatPerfect" style="color:var(--gold)">—</div>
+      <div class="rpt-stat-lbl">100% Attendance</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="report-filters">
+    <select id="rptDept">
+      <option value="all">All Departments</option>
+      <option value="Photography">Photography</option>
+      <option value="Web">Web</option>
+      <option value="Media">Media</option>
+    </select>
+    <select id="rptGrade">
+      <option value="all">All Grades</option>
+    </select>
+    <select id="rptMonth">
+      <option value="all">All Time</option>
+      <option value="2025-01">Jan 2025</option>
+      <option value="2025-02">Feb 2025</option>
+      <option value="2025-03">Mar 2025</option>
+      <option value="2025-04">Apr 2025</option>
+      <option value="2025-05">May 2025</option>
+      <option value="2025-06">Jun 2025</option>
+      <option value="2025-07">Jul 2025</option>
+      <option value="2025-08">Aug 2025</option>
+      <option value="2025-09">Sep 2025</option>
+      <option value="2025-10">Oct 2025</option>
+      <option value="2025-11">Nov 2025</option>
+      <option value="2025-12">Dec 2025</option>
+      <option value="2026-01">Jan 2026</option>
+      <option value="2026-02">Feb 2026</option>
+      <option value="2026-03">Mar 2026</option>
+      <option value="2026-04">Apr 2026</option>
+    </select>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" id="reportLoading">
+    <div class="spinner-ring"></div>
+    Loading attendance data…
+  </div>
+
+  <!-- Table -->
+  <div id="reportContent" style="display:none">
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Grade</th>
+            <th>Dept</th>
+            <th>Status</th>
+            <th style="color:var(--green)">✓ Present</th>
+            <th style="color:var(--gold)">⚠ Late</th>
+            <th style="color:var(--red)">✗ Absent</th>
+            <th style="color:var(--accent2)">Total</th>
+            <th>Attendance</th>
+            <th style="color:var(--accent)">Points</th>
+          </tr>
+        </thead>
+        <tbody id="rptTableBody"></tbody>
+      </table>
+      <div class="empty-state" id="rptEmpty" style="display:none">No student data matches the selected filters.</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button onclick="exportAttExcel()" style="padding:9px 18px;border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.1);color:var(--green);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.82rem;font-weight:700;cursor:pointer">📥 Export Excel</button>
+      <button onclick="window.print()" style="padding:9px 18px;border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.1);color:var(--accent);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.82rem;font-weight:700;cursor:pointer">🖨️ Print / PDF</button>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">Official database system for the Rahula College Media Unit.</p>
+        <div class="footer-tech-badges">
+          <span class="tech-badge">Firebase</span>
+          <span class="tech-badge">Firestore</span>
+          <span class="tech-badge">Vanilla JS</span>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a>
+          <a href="attendance-report.html">Attendance Report</a>
+          <a href="activity-log.html">Audit Log</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="duty-schedule.html">Duty Schedule</a>
+          <a href="duty-mark.html">Mark Duty</a>
+          <a href="#" onclick="doLogout();return false">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span id="footerYear"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div>
+          <span class="dev-name">Sasindu Ruwaneka</span>
+          <span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="admin-data.js"></script>
+<script type="module" src="app.js"></script>
+<script>
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const u = JSON.parse(sessionStorage.getItem('rcmu_admin') || '{}');
+      if (u.ADM_role === 'admin') {
+        document.getElementById('adminLink').style.display = 'inline-flex';
+      }
+    } catch(e) {}
+  });
+
+window.exportAttExcel = function(){
+  const rows=[];
+  document.querySelectorAll('#rptTableBody tr').forEach(tr=>{
+    const cells=[...tr.querySelectorAll('td')].map(td=>td.textContent.trim());
+    if(cells.length) rows.push({
+      Name:cells[0]||'', Grade:cells[1]||'', Department:cells[2]||'',
+      Status:cells[3]||'', Present:cells[4]||'', Late:cells[5]||'',
+      Absent:cells[6]||'', Total:cells[7]||'', Attendance:cells[8]||'', Points:cells[9]||''
+    });
+  });
+  if(!rows.length){alert('No data to export.');return;}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb,'Attendance',ws);
+  XLSX.writeFile(wb,'RCMU_Attendance_'+new Date().toISOString().slice(0,10)+'.xlsx');
+};
+</script>
+</body>
+</html>

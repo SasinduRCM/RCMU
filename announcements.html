@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Announcements — Rahula College Media Unit</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="shortcut icon" href="icon-32.png">
+  <meta name="description" content="Announcements and broadcasts for the Rahula College Media Unit.">
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .ann-hero { background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:24px;margin-bottom:22px;position:relative;overflow:hidden;animation:fadeSlideUp .5s cubic-bezier(.22,1,.36,1) both; }
+    .ann-hero::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--accent),var(--green)); }
+
+    /* Compose box */
+    .compose-box { background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:22px;margin-bottom:22px;animation:fadeSlideUp .4s .05s cubic-bezier(.22,1,.36,1) both; }
+    .compose-title { font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px; }
+    .compose-row { display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px; }
+    @media(max-width:640px){ .compose-row{grid-template-columns:1fr} }
+    .cfield { display:flex;flex-direction:column;gap:5px; }
+    .cfield label { font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em; }
+    .cfield input,.cfield select,.cfield textarea { background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.85rem;padding:9px 12px;outline:none;transition:border-color var(--transition); }
+    .cfield input:focus,.cfield select:focus,.cfield textarea:focus { border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow); }
+    .send-btn { padding:10px 22px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:var(--font-body);font-size:.88rem;font-weight:700;cursor:pointer;transition:all var(--transition);margin-top:6px; }
+    .send-btn:hover { transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,130,246,.4); }
+
+    /* Filter row */
+    .ann-filters { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center; }
+    .ann-filters select,.ann-filters input { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.82rem;padding:8px 12px;outline:none; }
+    .ann-filters input:focus { border-color:var(--accent); }
+    .ann-count { margin-left:auto;font-size:.75rem;color:var(--text-muted); }
+
+    /* Announcement cards */
+    .ann-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;position:relative;overflow:hidden;animation:fadeSlideUp .4s cubic-bezier(.22,1,.36,1) both; }
+    .ann-card::before { content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px; }
+    .ann-card.priority-urgent::before { background:var(--red); }
+    .ann-card.priority-high::before { background:var(--gold); }
+    .ann-card.priority-normal::before { background:var(--accent); }
+    .ann-card.priority-info::before { background:var(--green); }
+    .ann-card-header { display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap; }
+    .ann-type-badge { padding:3px 10px;border-radius:12px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em; }
+    .ann-type-badge.urgent { background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25); }
+    .ann-type-badge.high { background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25); }
+    .ann-type-badge.normal { background:rgba(59,130,246,.12);color:var(--accent);border:1px solid rgba(59,130,246,.25); }
+    .ann-type-badge.info { background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25); }
+    .ann-title { font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px; }
+    .ann-body { font-size:.85rem;color:var(--text-sub);line-height:1.65;white-space:pre-wrap; }
+    .ann-meta { display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap; }
+    .ann-author { font-size:.7rem;color:var(--text-muted); }
+    .ann-audience-badge { padding:2px 9px;border-radius:10px;font-size:.62rem;font-weight:600;background:rgba(6,182,212,.08);color:var(--accent2);border:1px solid rgba(6,182,212,.2); }
+    .ann-date { font-size:.68rem;color:var(--text-muted);margin-left:auto; }
+    .ann-delete-btn { padding:4px 10px;border:1px solid rgba(239,68,68,.25);border-radius:var(--radius-sm);background:rgba(239,68,68,.07);color:var(--red);font-family:var(--font-body);font-size:.7rem;font-weight:600;cursor:pointer;transition:all var(--transition); }
+    .ann-delete-btn:hover { background:rgba(239,68,68,.15); }
+    .ann-pin-badge { display:inline-flex;align-items:center;gap:4px;font-size:.66rem;color:var(--gold);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:2px 7px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="ann-hero">
+    <div class="page-hero-title">📢 Announcements</div>
+    <div class="page-hero-sub">Admin broadcasts and notices for all Media Unit members. Pinned announcements appear at the top.</div>
+  </div>
+
+  <!-- Compose (admin/editor only) -->
+  <div class="compose-box" id="composeBox" style="display:none">
+    <div class="compose-title">📝 Post New Announcement</div>
+    <div class="cfield" style="margin-bottom:10px">
+      <label>Title</label>
+      <input type="text" id="annTitle" placeholder="Announcement title…" maxlength="120">
+    </div>
+    <div class="cfield" style="margin-bottom:10px">
+      <label>Message</label>
+      <textarea id="annBody" rows="4" placeholder="Write your announcement…"></textarea>
+    </div>
+    <div class="compose-row">
+      <div class="cfield">
+        <label>Priority</label>
+        <select id="annPriority">
+          <option value="normal">🔵 Normal</option>
+          <option value="high">🟡 High</option>
+          <option value="urgent">🔴 Urgent</option>
+          <option value="info">🟢 Info</option>
+        </select>
+      </div>
+      <div class="cfield">
+        <label>Audience</label>
+        <select id="annAudience">
+          <option value="all">Everyone</option>
+          <option value="staff">Staff Only</option>
+          <option value="students">Students Only</option>
+        </select>
+      </div>
+      <div class="cfield">
+        <label>Pin to Top?</label>
+        <select id="annPin">
+          <option value="false">No</option>
+          <option value="true">📌 Yes — Pin</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="send-btn" onclick="postAnnouncement(false)">📢 Post</button>
+      <button class="send-btn" onclick="postAnnouncement(true)" style="background:linear-gradient(135deg,var(--accent2),var(--green))">📢 Post + 🔔 Push to All Students</button>
+    </div>
+    <p id="annMsg" style="font-size:.8rem;margin-top:8px;min-height:16px"></p>
+  </div>
+
+  <!-- Filters -->
+  <div class="ann-filters">
+    <input type="search" id="annSearch" placeholder="🔎 Search announcements…" style="flex:1;min-width:160px">
+    <select id="annPriorityFilter">
+      <option value="all">All Priorities</option>
+      <option value="urgent">🔴 Urgent</option>
+      <option value="high">🟡 High</option>
+      <option value="normal">🔵 Normal</option>
+      <option value="info">🟢 Info</option>
+    </select>
+    <span class="ann-count" id="annCount">— posts</span>
+  </div>
+
+  <div id="annList"><div class="loading-spinner"><div class="spinner-ring"></div>Loading announcements…</div></div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="Rahula_College_Crest.png" alt="Rahula College" class="footer-logo-img">
+          <img src="Media Unit Original logo.png" alt="Media Unit" class="footer-logo-img">
+          <div><div class="footer-brand-name">Rahula College<br>Media Unit</div></div>
+        </div>
+        <p class="footer-brand-desc">The official database system for the Rahula College Media Unit.</p>
+        <div class="footer-tech-badges">
+          <span class="tech-badge">Firebase</span><span class="tech-badge">Firestore</span><span class="tech-badge">Vanilla JS</span>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html">Student Roster</a><a href="duty-schedule.html">Duty Schedule</a>
+          <a href="duty-mark.html">Mark Duty</a><a href="attendance-report.html">Attendance Report</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">System</div>
+        <div class="footer-links">
+          <a href="leaderboard.html">🏆 Leaderboard</a>
+          <a href="announcements.html">📢 Announcements</a>
+          <a href="student-login.html">Student Portal</a>
+          <a href="login.html">Staff Sign In</a>
+          <a href="#" onclick="doLogout&&doLogout();return false;">Sign Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; <span class="footer-year"></span> Rahula College Media Unit.<br><span>All rights reserved.</span></div>
+      <div class="footer-dev">
+        <span class="footer-dev-label">Designed &amp; Developed by</span>
+        <a href="https://sasindu.rcm.github.io/Sasindu/" class="footer-dev-link">
+          <div class="dev-avatar">SR</div><span class="dev-name">Sasindu Ruwaneka</span><span class="dev-badge">Dev</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="admin-data.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyAWnUyookTnBefjgoOZu6Lk3Fd-Fo_sZbo",authDomain:"rcmu-db.firebaseapp.com",projectId:"rcmu-db",storageBucket:"rcmu-db.firebasestorage.app",messagingSenderId:"1043134894673",appId:"1:1043134894673:web:dbd89dd271749cea6fde70"};
+const app=initializeApp(cfg); const db=getFirestore(app);
+
+let currentUser=null, isStaff=false;
+try{
+  const r=sessionStorage.getItem('rcmu_admin');
+  if(r){currentUser=JSON.parse(r);isStaff=true;}
+}catch(e){}
+const canPost=currentUser?.ADM_role==='admin'||currentUser?.ADM_role==='editor';
+if(canPost) document.getElementById('composeBox').style.display='block';
+
+window.doLogout=()=>{sessionStorage.removeItem('rcmu_admin');sessionStorage.removeItem('rcmu_student');window.location.href='student-login.html';};
+
+let allAnn=[];
+
+onSnapshot(collection(db,'RCMU_Announcements'),snap=>{
+  allAnn=snap.docs.map(d=>({_id:d.id,...d.data()}));
+  renderAnn();
+});
+
+function showMsg(t,c){const e=document.getElementById('annMsg');e.textContent=t;e.style.color=c==='green'?'var(--green)':'var(--red)';}
+
+window.postAnnouncement=async function(withPush=false){
+  const title=document.getElementById('annTitle').value.trim();
+  const body=document.getElementById('annBody').value.trim();
+  const priority=document.getElementById('annPriority').value;
+  const audience=document.getElementById('annAudience').value;
+  const pinned=document.getElementById('annPin').value==='true';
+  if(!title||!body){showMsg('⚠️ Title and message are required.','red');return;}
+  try{
+    await addDoc(collection(db,'RCMU_Announcements'),{
+      title,body,priority,audience,pinned,
+      author:currentUser.ADM_name||currentUser.ADM_Uname,
+      authorRole:currentUser.ADM_role,
+      pushSent:withPush,
+      createdAt:new Date().toISOString()
+    });
+    if(withPush){
+      // Write a notification for every active student
+      const studSnap=await getDocs(collection(db,'RCMU_DB'));
+      const activeStudents=studSnap.docs.filter(d=>d.data().status==='active');
+      const batch=activeStudents.map(d=>addDoc(collection(db,'RCMU_Notifications'),{
+        recipientDocId:d.id,
+        type:'announcement',
+        message:'📢 '+title+': '+body.slice(0,120)+(body.length>120?'…':''),
+        read:false,
+        createdAt:new Date().toISOString()
+      }));
+      await Promise.all(batch);
+      showMsg('✅ Posted + notification sent to '+activeStudents.length+' students!','green');
+    } else {
+      showMsg('✅ Announcement posted!','green');
+    }
+    document.getElementById('annTitle').value='';
+    document.getElementById('annBody').value='';
+  }catch(e){showMsg('❌ Error posting.','red');console.error(e);}
+};
+
+window.deleteAnn=async function(id){
+  if(!confirm('Delete this announcement?')) return;
+  try{await deleteDoc(doc(db,'RCMU_Announcements',id));}catch(e){console.error(e);}
+};
+
+window.togglePin=async function(id,current){
+  try{await updateDoc(doc(db,'RCMU_Announcements',id),{pinned:!current});}catch(e){}
+};
+
+const PRIORITY_ICONS={urgent:'🔴',high:'🟡',normal:'🔵',info:'🟢'};
+const PRIORITY_LABELS={urgent:'Urgent',high:'High Priority',normal:'Normal',info:'Info'};
+
+function renderAnn(){
+  const search=(document.getElementById('annSearch')?.value||'').toLowerCase().trim();
+  const pFilter=document.getElementById('annPriorityFilter')?.value||'all';
+  let list=[...allAnn];
+  if(pFilter!=='all') list=list.filter(a=>a.priority===pFilter);
+  if(search) list=list.filter(a=>(a.title||'').toLowerCase().includes(search)||(a.body||'').toLowerCase().includes(search));
+  // pinned first, then newest
+  list.sort((a,b)=>{
+    if(a.pinned&&!b.pinned) return -1;
+    if(!a.pinned&&b.pinned) return 1;
+    return (b.createdAt||'').localeCompare(a.createdAt||'');
+  });
+  document.getElementById('annCount').textContent=list.length+' post'+(list.length!==1?'s':'');
+  const el=document.getElementById('annList');
+  if(!list.length){el.innerHTML='<div class="empty-state"><div style="font-size:2rem;margin-bottom:10px">📭</div>No announcements yet.</div>';return;}
+  el.innerHTML=list.map((a,i)=>{
+    const dt=a.createdAt?new Date(a.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    const adminBtns=canPost?`
+      <button class="ann-delete-btn" onclick="deleteAnn('${a._id}')">🗑 Delete</button>
+      <button class="ann-delete-btn" style="color:var(--gold);border-color:rgba(245,158,11,.3)" onclick="togglePin('${a._id}',${!!a.pinned})">${a.pinned?'📌 Unpin':'📌 Pin'}</button>
+    `:'';
+    return `<div class="ann-card priority-${a.priority||'normal'}" style="animation-delay:${i*.04}s">
+      <div class="ann-card-header">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="ann-type-badge ${a.priority||'normal'}">${PRIORITY_ICONS[a.priority||'normal']} ${PRIORITY_LABELS[a.priority||'normal']}</span>
+          ${a.pinned?'<span class="ann-pin-badge">📌 Pinned</span>':''}
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">${adminBtns}</div>
+      </div>
+      <div class="ann-title">${a.title||'—'}</div>
+      <div class="ann-body">${a.body||''}</div>
+      <div class="ann-meta">
+        <span class="ann-author">by ${a.author||'Admin'} · <span style="text-transform:capitalize">${a.authorRole||''}</span></span>
+        <span class="ann-audience-badge">👥 ${a.audience==='all'?'Everyone':a.audience==='staff'?'Staff Only':'Students Only'}</span>
+        <span class="ann-date">${dt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+['annSearch','annPriorityFilter'].forEach(id=>{
+  const el=document.getElementById(id);
+  el?.addEventListener(id==='annSearch'?'input':'change',renderAnn);
+});
+
+document.querySelectorAll('.footer-year').forEach(el=>el.textContent=new Date().getFullYear());
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting… — RCMU</title>
+  <script>
+    // GitHub Pages 404 → PWA redirect trick
+    // Encodes the current path into sessionStorage then redirects to index
+    // index.html reads it back and restores the route
+    var path = window.location.pathname;
+    var search = window.location.search;
+    var hash = window.location.hash;
+
+    // Find base (everything up to and including the repo folder)
+    // e.g. /rcmu-db/ on GitHub Pages, or / on custom domain
+    var segments = path.split('/');
+    // The base is origin + /reponame/ (first non-empty segment)
+    var base = window.location.origin;
+    if (segments.length > 1 && segments[1]) {
+      // Check if this looks like a repo subdirectory (not a file)
+      var firstSeg = segments[1];
+      if (!firstSeg.includes('.')) {
+        base = base + '/' + firstSeg;
+      }
+    }
+
+    // Store intended URL so index.html can redirect
+    sessionStorage.setItem('rcmu_redirect', path + search + hash);
+
+    // Redirect to base index
+    window.location.replace(base + '/');
+  </script>
+</head>
+<body>
+  <style>
+    body { margin:0; background:#0b0f1a; display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:system-ui,sans-serif; color:#94a3b8; }
+    p { font-size:0.9rem; }
+  </style>
+  <p>Redirecting…</p>
+</body>
+</html>
